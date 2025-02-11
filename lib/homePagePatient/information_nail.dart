@@ -12,15 +12,24 @@ class InformationNail extends StatefulWidget {
 
 class _InformationNailState extends State<InformationNail> {
   final List<String> diseases = [
-    'Onycholysis',
-    'Nail Psoriasis',
-    'Brittle Splitting Nails',
+    ' ALM',
+    'Blue Finger',
+    'Beaus Line',
+    'Clubbing',
+    'Koilonychia',
+    ' Muehrckes Lines',
+    ' Pitting',
+    'Terrys Nail'
   ];
-
   final List<String> diseaseImages = [
-    'assets/onycholysis.jpg',
-    'assets/nail_psoriasis.jpg',
-    'assets/brittle_splitting_nails.jpg',
+    'assets/img_1.png',
+    'assets/img_2.png',
+    'assets/img_3.png',
+    'assets/img_4.png',
+    'assets/img_5.png',
+    'assets/img_6.png',
+    'assets/img_7.png',
+    'assets/img_8.png',
   ];
 
   int currentDiseaseIndex = 0;
@@ -60,7 +69,7 @@ class _InformationNailState extends State<InformationNail> {
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 100),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -85,7 +94,7 @@ class _InformationNailState extends State<InformationNail> {
                   child: Text(
                     diseases[currentDiseaseIndex],
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.blueAccent,
                     ),
@@ -120,7 +129,7 @@ class _InformationNailState extends State<InformationNail> {
                     Text(
                       "Explore ${diseases[currentDiseaseIndex]}",
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 22,
                         color: Colors.white,
                       ),
                     ),
@@ -159,6 +168,7 @@ final ButtonStyle buttonPrimary = ElevatedButton.styleFrom(
     borderRadius: BorderRadius.all(Radius.circular(26)),
   ),
 );
+
 void main() {
   runApp(const MyApp());
 }
