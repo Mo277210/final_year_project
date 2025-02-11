@@ -19,15 +19,6 @@ class _FilterPageState extends State<FilterPage> {
     "Availability"
   ];
 
-  final List<Widget> filterPages = [
-    FilterOptions(title: "Distance"),
-    FilterOptions(title: "Gender"),
-    FilterOptions(title: "Patient Stories"),
-    FilterOptions(title: "Experience"),
-    FilterOptions(title: "Consultation Fee"),
-    FilterOptions(title: "Availability"),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +36,7 @@ class _FilterPageState extends State<FilterPage> {
       ),
       body: Row(
         children: [
+          // Sidebar with filter options
           Container(
             color: Colors.grey[100],
             width: 140,
@@ -58,12 +50,15 @@ class _FilterPageState extends State<FilterPage> {
                     });
                   },
                   child: Container(
-                    color: selectedIndex == index ? Colors.blue[100] : Colors.transparent,
+                    color: selectedIndex == index
+                        ? Colors.blue[100]
+                        : Colors.transparent,
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       filterCategories[index],
                       style: TextStyle(
-                        color: selectedIndex == index ? Colors.blue : Colors.black,
+                        color:
+                        selectedIndex == index ? Colors.blue : Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -73,12 +68,9 @@ class _FilterPageState extends State<FilterPage> {
             ),
           ),
 
-          // Filter Options
+          // Filter Options Panel
           Expanded(
-            child: IndexedStack(
-              index: selectedIndex,
-              children: filterPages,
-            ),
+            child: FilterOptions(title: filterCategories[selectedIndex]),
           ),
         ],
       ),
@@ -97,72 +89,113 @@ class FilterOptions extends StatefulWidget {
 
 class _FilterOptionsState extends State<FilterOptions> {
   String? selectedValue;
+  List<String> selectedCheckboxValues = [];
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> options = getFilterOptions(widget.title);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.title,
+            "Select ${widget.title}",
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          ListTile(
-            title: const Text('5+ Years'),
-            trailing: Radio<String>(
-              value: '5+ Years',
-              groupValue: selectedValue,
-              activeColor: Colors.blue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value;
-                });
-              },
-            ),
-          ),
-          ListTile(
-            title: const Text('10+ Years'),
-            trailing: Radio<String>(
-              value: '10+ Years',
-              groupValue: selectedValue,
-              activeColor: Colors.blue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value;
-                });
-              },
-            ),
-          ),
-          ListTile(
-            title: const Text('20+ Years'),
-            trailing: Radio<String>(
-              value: '20+ Years',
-              groupValue: selectedValue,
-              activeColor: Colors.blue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value;
-                });
-              },
-            ),
-          ),
-          ListTile(
-            title: const Text('30+ Years'),
-            trailing: Radio<String>(
-              value: '30+ Years',
-              groupValue: selectedValue,
-              activeColor: Colors.blue,
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value;
-                });
-              },
-            ),
-          ),
+          ...options,
         ],
+      ),
+    );
+  }
+
+  List<Widget> getFilterOptions(String category) {
+    switch (category) {
+      case "Distance":
+        return [
+          radioTile("Within 1 km"),
+          radioTile("Within 5 km"),
+          radioTile("Within 10 km"),
+          radioTile("Beyond 10 km"),
+        ];
+
+      case "Gender":
+        return [
+          radioTile("Male Doctors"),
+          radioTile("Female Doctors"),
+          radioTile("Any Gender"),
+        ];
+
+      case "Patient Stories":
+        return [
+          radioTile("Highly Recommended"),
+          radioTile("Good Experience"),
+          radioTile("Neutral"),
+          radioTile("Needs Improvement"),
+        ];
+
+      case "Experience":
+        return [
+          radioTile("5+ Years"),
+          radioTile("10+ Years"),
+          radioTile("20+ Years"),
+          radioTile("30+ Years"),
+        ];
+
+      case "Consultation Fee":
+        return [
+          radioTile("Free Consultation"),
+          radioTile("₹100 - ₹500"),
+          radioTile("₹500 - ₹1000"),
+          radioTile("₹1000+"),
+        ];
+
+      case "Availability":
+        return [
+          checkboxTile("Today"),
+          checkboxTile("Tomorrow"),
+          checkboxTile("Weekend"),
+          checkboxTile("Evening Slots"),
+        ];
+
+      default:
+        return [const Text("No options available")];
+    }
+  }
+
+  Widget radioTile(String text) {
+    return ListTile(
+      title: Text(text),
+      trailing: Radio<String>(
+        value: text,
+        groupValue: selectedValue,
+        activeColor: Colors.blue,
+        onChanged: (value) {
+          setState(() {
+            selectedValue = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget checkboxTile(String text) {
+    return ListTile(
+      title: Text(text),
+      trailing: Checkbox(
+        value: selectedCheckboxValues.contains(text),
+        activeColor: Colors.blue,
+        onChanged: (bool? value) {
+          setState(() {
+            if (value == true) {
+              selectedCheckboxValues.add(text);
+            } else {
+              selectedCheckboxValues.remove(text);
+            }
+          });
+        },
       ),
     );
   }
