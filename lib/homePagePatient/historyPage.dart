@@ -9,9 +9,9 @@ class Historypage extends StatelessWidget {
   final List<String> Brittle_Splitting_Nails = ["0.4", "0.4", "0.3"];
 
   final List<String> diseases = [
-    'Onycholysis',
-    'Nail Psoriasis',
-    'Brittle Splitting Nails',
+    'Clubbing',
+    'Beaus Line',
+    'Blue Finger',
   ];
 
   final List<String> diseaseImages = [
@@ -74,17 +74,17 @@ class Historypage extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Onycholysis: \n ${Onycholysis[index]}',
+                    'Clubbing: \n ${Onycholysis[index]}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'Nail Psoriasis: \n ${Nail_Psoriasis[index]}',
+                    'Beaus Line: \n ${Nail_Psoriasis[index]}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    'Brittle Splitting Nails: \n ${Brittle_Splitting_Nails[index]}',
+                    'Blue Finger: \n ${Brittle_Splitting_Nails[index]}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
