@@ -11,12 +11,14 @@ class _FilterPageState extends State<FilterPage> {
   int selectedIndex = 0;
 
   final List<String> filterCategories = [
-    "Distance",
-    "Gender",
-    "Patient Stories",
-    "Experience",
-    "Consultation Fee",
-    "Availability"
+    'ALM',
+    'Blue Finger',
+    'Beau\'s Line',
+    'Clubbing',
+    'Koilonychia',
+    'Muehrcke\'s Lines',
+    'Pitting',
+    'Terry\'s Nail'
   ];
 
   @override
@@ -34,43 +36,81 @@ class _FilterPageState extends State<FilterPage> {
         ),
         elevation: 0,
       ),
-      body: Row(
+      body: Column(
         children: [
-          // Sidebar with filter options
-          Container(
-            color: Colors.grey[100],
-            width: 140,
-            child: ListView.builder(
-              itemCount: filterCategories.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  child: Container(
-                    color: selectedIndex == index
-                        ? Colors.blue[100]
-                        : Colors.transparent,
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      filterCategories[index],
-                      style: TextStyle(
-                        color:
-                        selectedIndex == index ? Colors.blue : Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+          Expanded(
+            child: Row(
+              children: [
+                // Sidebar with filter options
+                Container(
+                  color: Colors.grey[100],
+                  width: 140,
+                  child: ListView.builder(
+                    itemCount: filterCategories.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedIndex = index;
+                          });
+                        },
+                        child: Container(
+                          color: selectedIndex == index
+                              ? Colors.blue[100]
+                              : Colors.transparent,
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            filterCategories[index],
+                            style: TextStyle(
+                              color: selectedIndex == index
+                                  ? Colors.blue
+                                  : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+
+                // Filter Options Panel
+                Expanded(
+                  child: FilterOptions(title: filterCategories[selectedIndex]),
+                ),
+              ],
             ),
           ),
 
-          // Filter Options Panel
-          Expanded(
-            child: FilterOptions(title: filterCategories[selectedIndex]),
+          // Save Button
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  String specialty = getDoctorSpecialty(filterCategories[selectedIndex]);
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Doctor Selected"),
+                      content: Text("Suggested Specialty: $specialty"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text("Save & Select Doctor", style: TextStyle(fontSize: 18, color: Colors.white)),
+              ),
+            ),
           ),
         ],
       ),
@@ -113,72 +153,57 @@ class _FilterOptionsState extends State<FilterOptions> {
 
   List<Widget> getFilterOptions(String category) {
     switch (category) {
-      case "Distance":
+      case "ALM":
         return [
-          radioTile("Within 1 km"),
-          radioTile("Within 5 km"),
-          radioTile("Within 10 km"),
-          radioTile("Beyond 10 km"),
+          checkboxTile("Do you have dark spots under your nails?"),
+          checkboxTile("Have you noticed any color changes in your nails?"),
+          checkboxTile("Is there a family history of melanoma?"),
         ];
-
-      case "Gender":
+      case "Blue Finger":
         return [
-          radioTile("Male Doctors"),
-          radioTile("Female Doctors"),
-          radioTile("Any Gender"),
+          checkboxTile("Do your fingers often feel cold?"),
+          checkboxTile("Do your nails turn blue when exposed to cold?"),
+          checkboxTile("Do you have circulation problems?"),
         ];
-
-      case "Patient Stories":
+      case "Beau's Line":
         return [
-          radioTile("Highly Recommended"),
-          radioTile("Good Experience"),
-          radioTile("Neutral"),
-          radioTile("Needs Improvement"),
+          checkboxTile("Have you noticed horizontal grooves on your nails?"),
+          checkboxTile("Have you experienced severe malnutrition recently?"),
+          checkboxTile("Do you have any chronic illnesses like diabetes?"),
         ];
-
-      case "Experience":
+      case "Clubbing":
         return [
-          radioTile("5+ Years"),
-          radioTile("10+ Years"),
-          radioTile("20+ Years"),
-          radioTile("30+ Years"),
+          checkboxTile("Do your nails appear more curved than usual?"),
+          checkboxTile("Do you have breathing or heart problems?"),
+          checkboxTile("Have you been diagnosed with any chronic lung disease?"),
         ];
-
-      case "Consultation Fee":
+      case "Koilonychia":
         return [
-          radioTile("Free Consultation"),
-          radioTile("₹100 - ₹500"),
-          radioTile("₹500 - ₹1000"),
-          radioTile("₹1000+"),
+          checkboxTile("Are your nails thin and spoon-shaped?"),
+          checkboxTile("Do you have iron deficiency or anemia?"),
+          checkboxTile("Have you noticed any discoloration in your nails?"),
         ];
-
-      case "Availability":
+      case "Muehrcke's Lines":
         return [
-          checkboxTile("Today"),
-          checkboxTile("Tomorrow"),
-          checkboxTile("Weekend"),
-          checkboxTile("Evening Slots"),
+          checkboxTile("Do you have white horizontal lines on your nails?"),
+          checkboxTile("Do you have kidney or liver disease?"),
+          checkboxTile("Do you have low albumin levels in your blood?"),
         ];
-
+      case "Pitting":
+        return [
+          checkboxTile("Do your nails have small pits or dents?"),
+          checkboxTile("Do you have psoriasis or alopecia?"),
+          checkboxTile("Are there any other changes in your skin or scalp?"),
+        ];
+      case "Terry's Nail":
+        return [
+          checkboxTile("Are your nails half white and half brown?"),
+          checkboxTile("Do you have liver disease?"),
+          checkboxTile("Do you have any other health issues like diabetes or kidney failure?"),
+        ];
       default:
         return [const Text("No options available")];
     }
-  }
-
-  Widget radioTile(String text) {
-    return ListTile(
-      title: Text(text),
-      trailing: Radio<String>(
-        value: text,
-        groupValue: selectedValue,
-        activeColor: Colors.blue,
-        onChanged: (value) {
-          setState(() {
-            selectedValue = value;
-          });
-        },
-      ),
-    );
   }
 
   Widget checkboxTile(String text) {
@@ -198,6 +223,30 @@ class _FilterOptionsState extends State<FilterOptions> {
         },
       ),
     );
+  }
+}
+
+// Function to map conditions to doctor specialties
+String getDoctorSpecialty(String condition) {
+  switch (condition) {
+    case "ALM":
+      return "Dermatologist or Oncologist";
+    case "Blue Finger":
+      return "Cardiologist or Vascular Specialist";
+    case "Beau's Line":
+      return "General Physician or Endocrinologist";
+    case "Clubbing":
+      return "Pulmonologist or Cardiologist";
+    case "Koilonychia":
+      return "Hematologist or Nutritionist";
+    case "Muehrcke's Lines":
+      return "Nephrologist or Hepatologist";
+    case "Pitting":
+      return "Dermatologist (Psoriasis/Alopecia Specialist)";
+    case "Terry's Nail":
+      return "Hepatologist or Endocrinologist";
+    default:
+      return "General Physician";
   }
 }
 
