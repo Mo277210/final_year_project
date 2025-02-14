@@ -81,37 +81,6 @@ class _FilterPageState extends State<FilterPage> {
               ],
             ),
           ),
-
-          // Save Button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  String specialty = getDoctorSpecialty(filterCategories[selectedIndex]);
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text("Doctor Selected"),
-                      content: Text("Suggested Specialty: $specialty"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("OK"),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text("Save & Select Doctor", style: TextStyle(fontSize: 18, color: Colors.white)),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -128,26 +97,78 @@ class FilterOptions extends StatefulWidget {
 }
 
 class _FilterOptionsState extends State<FilterOptions> {
-  String? selectedValue;
   List<String> selectedCheckboxValues = [];
 
   @override
   Widget build(BuildContext context) {
     List<Widget> options = getFilterOptions(widget.title);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Select ${widget.title}",
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Select ${widget.title}",
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+                ...options,
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
-          ...options,
-        ],
-      ),
+        ),
+
+        // Save Button with Validation
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                if (selectedCheckboxValues.isEmpty) {
+                  // Show error if nothing is selected
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text("Please select at least one option before saving."),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                } else {
+                  // Proceed with selecting a doctor
+                  String specialty = getDoctorSpecialty(widget.title);
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Doctor Selected"),
+                      content: Text("Suggested Specialty: $specialty"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              selectedCheckboxValues.clear(); // Clear selections
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: const Text("OK"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text("Save & Select Doctor", style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
