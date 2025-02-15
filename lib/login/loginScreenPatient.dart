@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import '../api/SourceResponseDm.dart';
 import '../homePagePatient/homePagePatient.dart';
+import '../model/login_patient_model.dart';
 import '../signup/chipRow.dart';
 import '../signup/customButton.dart';
 import '../signup/nagelupbar.dart';
 import '../signup/signUpScreenPatient.dart';
 import 'loginScreenDoctor.dart';
+
 
 class LoginScreenPatient extends StatefulWidget {
   const LoginScreenPatient({super.key});
@@ -16,9 +19,50 @@ class LoginScreenPatient extends StatefulWidget {
 class _LoginScreenPatientState extends State<LoginScreenPatient> {
   List<bool> isSelected = [true, false];
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  String _errorMessage = '';
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    LoginRequestModel requestModel = LoginRequestModel(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      APIService apiService = APIService();
+      var response = await apiService.login(requestModel);
+
+      if (response.token.isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Homepagepatient()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An error occurred. Please check your connection.";
+      });
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,22 +92,17 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                           children: [
                             const Text(
                               'Welcome back',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                             ),
                             const SizedBox(height: 20),
                             ChipRow(
                               chipNames: const ['Patient', 'Doctor'],
                               onChipTap: [
-                                    () {
-                                },
+                                    () {},
                                     () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) =>LoginScreenDoctor()),
+                                    MaterialPageRoute(builder: (context) => LoginScreenDoctor()),
                                   );
                                 },
                               ],
@@ -122,20 +161,24 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                         return 'Please enter a password';
                                       } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
                                         return 'Password should contain special characters';
-                                      }},
+                                      }
+                                      return null;
+                                    },
                                   ),
                                   const SizedBox(height: 20),
-                                  CustomButton(
-                                    buttonText: 'Log In',
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>  const Homepagepatient()));
 
-                                      }
-                                    },
+                                  // Error Message Display
+                                  if (_errorMessage.isNotEmpty)
+                                    Text(
+                                      _errorMessage,
+                                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                                    ),
+                                  const SizedBox(height: 10),
+
+                                  // Login Button
+                                  CustomButton(
+                                    buttonText: _isLoading ? 'Logging in...' : 'Log In',
+                                    onPressed: _isLoading ? () {} : _login,
                                   ),
                                 ],
                               ),
@@ -145,33 +188,33 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Don\'t have an account? ',
-                      style: TextStyle(
-                        color: Color(0xFF5A5C60),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignUpScreenPatient()),
-                        );
-                      },
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          color: Color(0xFF105DFB),
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Don\'t have an account? ',
+                          style: TextStyle(
+                            color: Color(0xFF5A5C60),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SignUpScreenPatient()),
+                            );
+                          },
+                          child: const Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              color: Color(0xFF105DFB),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                  ),
                   ],
                 ),
               ),

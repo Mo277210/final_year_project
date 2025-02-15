@@ -113,7 +113,8 @@ class _FilterOptionsState extends State<FilterOptions> {
               children: [
                 Text(
                   "Select ${widget.title}",
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
                 ...options,
@@ -133,7 +134,8 @@ class _FilterOptionsState extends State<FilterOptions> {
                   // Show error if nothing is selected
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text("Please select at least one option before saving."),
+                      content: const Text(
+                          "Please select at least one option before saving."),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -149,7 +151,8 @@ class _FilterOptionsState extends State<FilterOptions> {
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              selectedCheckboxValues.clear(); // Clear selections
+                              selectedCheckboxValues
+                                  .clear(); // Clear selections
                             });
                             Navigator.pop(context);
                           },
@@ -164,7 +167,8 @@ class _FilterOptionsState extends State<FilterOptions> {
                 backgroundColor: Colors.blue,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text("Save & Select Doctor", style: TextStyle(fontSize: 18, color: Colors.white)),
+              child: const Text("Save & Select Doctor",
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
           ),
         ),
@@ -196,7 +200,8 @@ class _FilterOptionsState extends State<FilterOptions> {
         return [
           checkboxTile("Do your nails appear more curved than usual?"),
           checkboxTile("Do you have breathing or heart problems?"),
-          checkboxTile("Have you been diagnosed with any chronic lung disease?"),
+          checkboxTile(
+              "Have you been diagnosed with any chronic lung disease?"),
         ];
       case "Koilonychia":
         return [
