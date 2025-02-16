@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:collogefinalpoject/homePageDoctor/homePageDoctor.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
-import 'package:flutter/material.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
+import '../api/SourceResponseDm.dart';
+import '../model/login_patient_model.dart';
 import '../signup/chipRow.dart';
 import '../signup/customButton.dart';
 import '../signup/nagelupbar.dart';
@@ -11,15 +13,57 @@ class LoginScreenDoctor extends StatefulWidget {
   const LoginScreenDoctor({super.key});
 
   @override
-  _LoginScreenDoctor createState() => _LoginScreenDoctor();
+  _LoginScreenDoctorState createState() => _LoginScreenDoctorState();
 }
 
-class _LoginScreenDoctor extends State<LoginScreenDoctor> {
+class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
   List<bool> isSelected = [false, true];
   bool _isPasswordVisible = false;
+  bool _isLoading = false; // Prevent multiple taps
+  String _errorMessage = '';
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate() || _isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    LoginRequestModel requestModel = LoginRequestModel(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      APIService apiService = APIService();
+      var response = await apiService.login( requestModel); // Use "doctor"
+
+      print("Token Response: ${response.token}");
+
+      if (response.token.isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomepageDoctor()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An error occurred. Please check your connection.";
+      });
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +106,10 @@ class _LoginScreenDoctor extends State<LoginScreenDoctor> {
                                     () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) =>const LoginScreenPatient()),
+                                    MaterialPageRoute(builder: (context) => const LoginScreenPatient()),
                                   );
                                 },
-                                    () {
-
-                                },
+                                    () {},
                               ],
                               isSelected: isSelected,
                             ),
@@ -124,20 +166,23 @@ class _LoginScreenDoctor extends State<LoginScreenDoctor> {
                                         return 'Please enter a password';
                                       } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
                                         return 'Password should contain special characters';
-                                      }},
+                                      }
+                                      return null;
+                                    },
                                   ),
                                   const SizedBox(height: 20),
-                                  CustomButton(
-                                    buttonText: 'Log In',
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>  const HomepageDoctor()));
+                                  // Error Message Display
+                                  if (_errorMessage.isNotEmpty)
+                                    Text(
+                                      _errorMessage,
+                                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                                    ),
+                                  const SizedBox(height: 10),
 
-                                      }
-                                    },
+                                  // Login Button
+                                  CustomButton(
+                                    buttonText: _isLoading ? 'Logging in...' : 'Log In',
+                                    onPressed: _isLoading ? () {} : _login,
                                   ),
                                 ],
                               ),
