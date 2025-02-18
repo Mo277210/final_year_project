@@ -9,7 +9,6 @@ import 'chipRow.dart';
 import 'customButton.dart';
 import 'nagelupbar.dart';
 
-
 class SignUpScreenPatient extends StatefulWidget {
   const SignUpScreenPatient({super.key});
 
@@ -30,6 +29,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
   final _phoneController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   String? _calculatedAge;
+  String? _selectedGender;
 
   final APIService _apiService = APIService();
 
@@ -43,7 +43,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
             const SizedBox(height: 50),
             const Nagelupbar(),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: Column(
@@ -71,11 +72,13 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                             ChipRow(
                               chipNames: const ['Patient', 'Doctor'],
                               onChipTap: [
-                                    () {},
-                                    () {
+                                () {},
+                                () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const SignUpScreenDoctor()),
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SignUpScreenDoctor()),
                                   );
                                 },
                               ],
@@ -95,7 +98,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -103,6 +107,33 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       }
                                       return null;
                                     },
+                                  ),
+                                  const SizedBox(height: 10),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedGender,
+                                    decoration: InputDecoration(
+                                      labelText: 'Gender',
+                                      filled: true,
+                                      fillColor: Colors.grey[300],
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    items:
+                                        ['Male', 'Female'].map((String gender) {
+                                      return DropdownMenuItem<String>(
+                                        value: gender,
+                                        child: Text(gender),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        _selectedGender = newValue;
+                                      });
+                                    },
+                                    validator: (value) => value == null
+                                        ? 'Please select a gender'
+                                        : null,
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
@@ -114,7 +145,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -135,11 +167,13 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                       suffixIcon: IconButton(
                                         icon: const Icon(Icons.calendar_today),
                                         onPressed: () async {
-                                          DateTime? selectedDate = await showDatePicker(
+                                          DateTime? selectedDate =
+                                              await showDatePicker(
                                             context: context,
                                             initialDate: DateTime.now(),
                                             firstDate: DateTime(1900),
@@ -147,7 +181,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                           );
                                           if (selectedDate != null) {
                                             _dobController.text =
-                                                DateFormat('yyyy-MM-dd').format(selectedDate);
+                                                DateFormat('yyyy-MM-dd')
+                                                    .format(selectedDate);
                                             _calculateAge(selectedDate);
                                           }
                                         },
@@ -182,12 +217,14 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter an email';
-                                      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
+                                      } else if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
                                           .hasMatch(value)) {
                                         return 'Enter a valid email';
                                       }
@@ -205,12 +242,14 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your phone number';
-                                      } else if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)) {
+                                      } else if (!RegExp(r'^\+?[0-9]{7,15}$')
+                                          .hasMatch(value)) {
                                         return 'Enter a valid phone number';
                                       }
                                       return null;
@@ -230,7 +269,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _isPasswordVisible = !_isPasswordVisible;
+                                            _isPasswordVisible =
+                                                !_isPasswordVisible;
                                           });
                                         },
                                       ),
@@ -239,12 +279,15 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter a password';
-                                      } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                                      } else if (!RegExp(
+                                              r'[!@#$%^&*(),.?":{}|<>]')
+                                          .hasMatch(value)) {
                                         return 'Password should contain special characters';
                                       }
                                       return null;
@@ -264,7 +307,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                            _isConfirmPasswordVisible =
+                                                !_isConfirmPasswordVisible;
                                           });
                                         },
                                       ),
@@ -273,12 +317,14 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle: const TextStyle(color: Colors.black),
+                                      labelStyle:
+                                          const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please confirm your password';
-                                      } else if (value != _passwordController.text) {
+                                      } else if (value !=
+                                          _passwordController.text) {
                                         return 'Passwords do not match';
                                       }
                                       return null;
@@ -291,29 +337,37 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       if (_formKey.currentState!.validate()) {
                                         // Create a LoginRequestModel
                                         final requestModel = LoginRequestModel(
-                                          email:  "eve.holt@reqres.in",
+                                          email: "eve.holt@reqres.in",
                                           password: _passwordController.text,
                                         );
 
                                         // Call the login/signup API
                                         try {
-                                          final response = await _apiService.login(requestModel);
+                                          final response = await _apiService
+                                              .login(requestModel);
                                           if (response.token.isNotEmpty) {
                                             // Navigate to home page after successful sign-up
                                             Navigator.pushReplacement(
                                               context,
-                                              MaterialPageRoute(builder: (context) => const Homepagepatient()),
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const Homepagepatient()),
                                             );
                                           } else {
                                             // Show error if login fails
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text(response.error)),
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content:
+                                                      Text(response.error)),
                                             );
                                           }
                                         } catch (e) {
                                           // Handle API call error
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text("Error: $e")),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text("Error: $e")),
                                           );
                                         }
                                       }
@@ -341,7 +395,9 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const LoginScreenPatient()),
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const LoginScreenPatient()),
                             );
                           },
                           child: const Text(
@@ -368,7 +424,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
     final currentDate = DateTime.now();
     int age = currentDate.year - birthDate.year;
     if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+        (currentDate.month == birthDate.month &&
+            currentDate.day < birthDate.day)) {
       age--;
     }
     setState(() {

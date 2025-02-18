@@ -200,8 +200,7 @@ class _FilterOptionsState extends State<FilterOptions> {
         return [
           checkboxTile("Do your nails appear more curved than usual?"),
           checkboxTile("Do you have breathing or heart problems?"),
-          checkboxTile(
-              "Have you been diagnosed with any chronic lung disease?"),
+          checkboxTile("Have you been diagnosed with any chronic lung disease?"),
         ];
       case "Koilonychia":
         return [
@@ -226,6 +225,7 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Are your nails half white and half brown?"),
           checkboxTile("Do you have liver disease?"),
           checkboxTile("Do you have any other health issues like diabetes or kidney failure?"),
+
         ];
       default:
         return [const Text("No options available")];
