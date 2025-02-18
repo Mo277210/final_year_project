@@ -17,6 +17,7 @@ class HomepageDoctor extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(135.0),
           child: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colors.white,
             elevation: 0,
             title: const Row(

@@ -28,6 +28,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
   final _phoneController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   String? _calculatedAge;
+  String? _selectedGender;
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +119,33 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       }
                                       return null;
                                     },
+                                  ),
+                                  const SizedBox(height: 10),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedGender,
+                                    decoration: InputDecoration(
+                                      labelText: 'Gender',
+                                      filled: true,
+                                      fillColor: Colors.grey[300],
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    items:
+                                    ['Male', 'Female'].map((String gender) {
+                                      return DropdownMenuItem<String>(
+                                        value: gender,
+                                        child: Text(gender),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        _selectedGender = newValue;
+                                      });
+                                    },
+                                    validator: (value) => value == null
+                                        ? 'Please select a gender'
+                                        : null,
                                   ),
                                   const SizedBox(height: 10),
                                   TextFormField(
