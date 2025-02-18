@@ -1,12 +1,14 @@
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import '../api/SourceResponseDm.dart';
 import '../homePagePatient/homePagePatient.dart';
 import '../login/loginScreenPatient.dart';
+import '../model/login_patient_model.dart';
 import 'chipRow.dart';
 import 'customButton.dart';
 import 'nagelupbar.dart';
+
 
 class SignUpScreenPatient extends StatefulWidget {
   const SignUpScreenPatient({super.key});
@@ -28,6 +30,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
   final _phoneController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   String? _calculatedAge;
+
+  final APIService _apiService = APIService();
 
   @override
   Widget build(BuildContext context) {
@@ -283,12 +287,35 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                   const SizedBox(height: 20),
                                   CustomButton(
                                     buttonText: 'Sign Up',
-                                    onPressed: () {
+                                    onPressed: () async {
                                       if (_formKey.currentState!.validate()) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                            builder: (context) =>  const Homepagepatient()));
+                                        // Create a LoginRequestModel
+                                        final requestModel = LoginRequestModel(
+                                          email:  "eve.holt@reqres.in",
+                                          password: _passwordController.text,
+                                        );
+
+                                        // Call the login/signup API
+                                        try {
+                                          final response = await _apiService.login(requestModel);
+                                          if (response.token.isNotEmpty) {
+                                            // Navigate to home page after successful sign-up
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => const Homepagepatient()),
+                                            );
+                                          } else {
+                                            // Show error if login fails
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text(response.error)),
+                                            );
+                                          }
+                                        } catch (e) {
+                                          // Handle API call error
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text("Error: $e")),
+                                          );
+                                        }
                                       }
                                     },
                                   ),

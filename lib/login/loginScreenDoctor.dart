@@ -34,7 +34,7 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
     });
 
     LoginRequestModel requestModel = LoginRequestModel(
-      email: _emailController.text,
+      email:  "eve.holt@reqres.in",
       password: _passwordController.text,
     );
 
