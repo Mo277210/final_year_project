@@ -179,48 +179,65 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you have dark spots under your nails?"),
           checkboxTile("Have you noticed any color changes in your nails?"),
           checkboxTile("Is there a family history of melanoma?"),
+          checkboxTile("Have you experienced any nail pain or tenderness?"),
+          checkboxTile("Has the discoloration spread over time?"),
         ];
       case "Blue Finger":
         return [
           checkboxTile("Do your fingers often feel cold?"),
           checkboxTile("Do your nails turn blue when exposed to cold?"),
           checkboxTile("Do you have circulation problems?"),
+          checkboxTile("Do your fingers return to normal color after warming up?"),
+          checkboxTile("Have you been diagnosed with Raynaud's disease?"),
+
         ];
       case "Beau's Line":
         return [
           checkboxTile("Have you noticed horizontal grooves on your nails?"),
           checkboxTile("Have you experienced severe malnutrition recently?"),
           checkboxTile("Do you have any chronic illnesses like diabetes?"),
+          checkboxTile("Have you recently recovered from a severe illness?"),
+          checkboxTile("Have you been exposed to chemotherapy or toxic substances?"),
         ];
       case "Clubbing":
         return [
           checkboxTile("Do your nails appear more curved than usual?"),
           checkboxTile("Do you have breathing or heart problems?"),
           checkboxTile("Have you been diagnosed with any chronic lung disease?"),
+          checkboxTile("Do your fingertips appear swollen?"),
+          checkboxTile("Has your nail curvature increased over time?"),
         ];
       case "Koilonychia":
         return [
           checkboxTile("Are your nails thin and spoon-shaped?"),
           checkboxTile("Do you have iron deficiency or anemia?"),
           checkboxTile("Have you noticed any discoloration in your nails?"),
+          checkboxTile("Do your nails break easily?"),
+          checkboxTile("Have you had frequent exposure to chemicals or detergents?"),
         ];
       case "Muehrcke's Lines":
         return [
           checkboxTile("Do you have white horizontal lines on your nails?"),
           checkboxTile("Do you have kidney or liver disease?"),
           checkboxTile("Do you have low albumin levels in your blood?"),
+          checkboxTile("Have you experienced chronic malnutrition?"),
+          checkboxTile("Do the lines disappear when you press on the nail?"),
         ];
       case "Pitting":
         return [
           checkboxTile("Do your nails have small pits or dents?"),
           checkboxTile("Do you have psoriasis or alopecia?"),
           checkboxTile("Are there any other changes in your skin or scalp?"),
+          checkboxTile("Have you noticed any changes in nail thickness?"),
+          checkboxTile("Are your nails brittle or splitting?"),
         ];
       case "Terry's Nail":
         return [
           checkboxTile("Are your nails half white and half brown?"),
           checkboxTile("Do you have liver disease?"),
           checkboxTile("Do you have any other health issues like diabetes or kidney failure?"),
+          checkboxTile("Have you noticed any changes in nail texture?"),
+          checkboxTile("Do you have a history of heart failure or malnutrition?"),
         ];
       default:
         return [const Text("No options available")];
