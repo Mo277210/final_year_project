@@ -10,8 +10,8 @@ class LoginResponseModel {
   // Factory constructor to create an instance from JSON
   factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
     return LoginResponseModel(
-      token: json["token"] ?? "", // Default empty string if null
-      error: json["error"] ?? "", // Default empty string if null
+      token: json["token"] ?? "",
+      error: json["error"] ?? "",
     );
   }
 
@@ -23,8 +23,6 @@ class LoginResponseModel {
     };
   }
 }
-
-
 class LoginRequestModel {
   final String email;
   final String password;
@@ -34,10 +32,9 @@ class LoginRequestModel {
     required this.password,
   });
 
-  // Convert the object to a JSON format
   Map<String, dynamic> toJson() {
     return {
-      'email': email.trim(), // Trim to remove unnecessary spaces
+      'email': email.trim(),
       'password': password.trim(),
     };
   }

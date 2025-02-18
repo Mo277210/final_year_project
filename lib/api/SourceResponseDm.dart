@@ -2,31 +2,24 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../model/login_patient_model.dart';
 
+
 class APIService {
-  Future<LoginResponseModel> login(LoginRequestModel requestModel) async {
-    String url = "https://reqres.in/api/login";
+  Future<LoginResponseModel> login(String userType, LoginRequestModel requestModel) async {
+    String baseUrl = "http://127.0.0.1:8000/api";
+    String url = "$baseUrl/$userType/login"; // Dynamically select patient or doctor
 
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode(requestModel.toJson()),
-      );
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode(requestModel.toJson()),
+    );
 
-      final responseBody = json.decode(response.body);
-
-      if (response.statusCode == 200) {
-        return LoginResponseModel.fromJson(responseBody);
-      } else {
-        return LoginResponseModel.fromJson({
-          "token": "",
-          "error": responseBody["error"] ?? "Invalid credentials or server error",
-        });
-      }
-    } catch (e) {
-      throw Exception("Network error: $e");
+    if (response.statusCode == 200 || response.statusCode == 400) {
+      return LoginResponseModel.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load data!');
     }
   }
 }

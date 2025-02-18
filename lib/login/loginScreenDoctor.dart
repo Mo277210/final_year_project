@@ -40,7 +40,7 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
 
     try {
       APIService apiService = APIService();
-      var response = await apiService.login( requestModel); // Use "doctor"
+      var response = await apiService.login("patient", requestModel); // Use "doctor"
 
       print("Token Response: ${response.token}");
 
