@@ -16,155 +16,157 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 
     return Scaffold(
       backgroundColor: Color(0xFFF1F4F8),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Find Your Doctor',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff105dfb),
-                      fontSize: 32,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Color(0xFF105DFB),
-                        width: 1.5,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Find Your Doctor',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff105dfb),
+                        fontSize: 32,
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search, color: Colors.grey),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            cursorColor: Color(0xFF105DFB),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Search for doctors...',
-                            ),
-                          ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Color(0xFF105DFB),
+                          width: 1.5,
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Medical Specialties',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: specialties.map((specialty) {
-                        final isSelected = selectedChip == specialty;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: ChoiceChip(
-                            label: Text(specialty),
-                            selected: isSelected,
-                            selectedColor: Color(0xff105dfb),
-                            backgroundColor: Colors.grey[300],
-                            labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, color: Colors.grey),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: TextField(
+                              cursorColor: Color(0xFF105DFB),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: 'Search for doctors...',
+                              ),
                             ),
-                            onSelected: (bool selected) {
-                              setState(() {
-                                selectedChip = specialty;
-                              });
-                            },
                           ),
-                        );
-                      }).toList(),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView(
-                  children: [
-                    DoctorCard(
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Branch:Thu": "9:00-17:00"},
-                        {"Branch:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                    const SizedBox(height: 16),
+                    Text(
+                      'Medical Specialties',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    DoctorCard(
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Main:Thu": "9:00-17:00"},
-                        {"Main:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
-                    DoctorCard(
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Main:Thu": "9:00-17:00"},
-                        {"Branch:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
-                    DoctorCard(
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Main:Tue": "9:00-17:00"},
-                        {"Branch:Thu": "9:00-17:00"},
-                        {"Main:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                    const SizedBox(height: 10),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: specialties.map((specialty) {
+                          final isSelected = selectedChip == specialty;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: ChoiceChip(
+                              label: Text(specialty),
+                              selected: isSelected,
+                              selectedColor: Color(0xff105dfb),
+                              backgroundColor: Colors.grey[300],
+                              labelStyle: TextStyle(
+                                color: isSelected ? Colors.white : Colors.black,
+                              ),
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  selectedChip = specialty;
+                                });
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView(
+                    children: [
+                      DoctorCard(
+                        name: "Dr. Mohamed Monaser",
+                        specialty: "Dermatologist",
+                        starRating: 4.5,
+                        email: "dr.Monaser@clinic.com",
+                        phone: "+2010909900",
+                        availableHours: [
+                          {"Main:Mon": "9:00-17:00"},
+                          {"Branch:Tue": "9:00-17:00"},
+                          {"Branch:Thu": "9:00-17:00"},
+                          {"Branch:Fri": "9:00-15:00"},
+                        ],
+                        mainClinic: "6 Tahrir Street, directly above ",
+                        branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                      ),
+                      DoctorCard(
+                        name: "Dr. Mohamed Monaser",
+                        specialty: "Dermatologist",
+                        starRating: 4.5,
+                        email: "dr.Monaser@clinic.com",
+                        phone: "+2010909900",
+                        availableHours: [
+                          {"Main:Mon": "9:00-17:00"},
+                          {"Branch:Tue": "9:00-17:00"},
+                          {"Main:Thu": "9:00-17:00"},
+                          {"Main:Fri": "9:00-15:00"},
+                        ],
+                        mainClinic: "6 Tahrir Street, directly above ",
+                        branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                      ),
+                      DoctorCard(
+                        name: "Dr. Mohamed Monaser",
+                        specialty: "Dermatologist",
+                        starRating: 4.5,
+                        email: "dr.Monaser@clinic.com",
+                        phone: "+2010909900",
+                        availableHours: [
+                          {"Main:Mon": "9:00-17:00"},
+                          {"Branch:Tue": "9:00-17:00"},
+                          {"Main:Thu": "9:00-17:00"},
+                          {"Branch:Fri": "9:00-15:00"},
+                        ],
+                        mainClinic: "6 Tahrir Street, directly above ",
+                        branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                      ),
+                      DoctorCard(
+                        name: "Dr. Mohamed Monaser",
+                        specialty: "Dermatologist",
+                        starRating: 4.5,
+                        email: "dr.Monaser@clinic.com",
+                        phone: "+2010909900",
+                        availableHours: [
+                          {"Main:Mon": "9:00-17:00"},
+                          {"Main:Tue": "9:00-17:00"},
+                          {"Branch:Thu": "9:00-17:00"},
+                          {"Main:Fri": "9:00-15:00"},
+                        ],
+                        mainClinic: "6 Tahrir Street, directly above ",
+                        branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
