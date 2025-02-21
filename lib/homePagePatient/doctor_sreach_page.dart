@@ -101,36 +101,23 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                 child: ListView(
                   children: [
                     DoctorCard(
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Branch:Thu": "9:00-17:00"},
-                        {"Branch:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
+                    image:  'assets/img_12.png',
+                    name: "Dr. Mohamed Monaser",
+                    specialty: "Dermatologist",
+                    starRating: 4.5,
+                    email: "dr.Monaser@clinic.com",
+                    phone: "+2010909900",
+                    availableHours: [
+                      {"Main:Mon": "9:00-17:00"},
+                      {"Main:Tue": "9:00-17:00"},
+                      {"Branch:Thu": "9:00-17:00"},
+                      {"Main:Fri": "9:00-15:00"},
+                    ],
+                    mainClinic: "6 Tahrir Street, directly above ",
+                    branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                  ),
                     DoctorCard(
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Main:Thu": "9:00-17:00"},
-                        {"Main:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
-                    DoctorCard(
+                      image:  'assets/Doctorimage.jpg',
                       name: "Dr. Mohamed Monaser",
                       specialty: "Dermatologist",
                       starRating: 4.5,
@@ -146,6 +133,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                       branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
                     ),
                     DoctorCard(
+                      image: 'assets/img_10.png',
                       name: "Dr. Mohamed Monaser",
                       specialty: "Dermatologist",
                       starRating: 4.5,
@@ -153,13 +141,30 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                       phone: "+2010909900",
                       availableHours: [
                         {"Main:Mon": "9:00-17:00"},
-                        {"Main:Tue": "9:00-17:00"},
+                        {"Branch:Tue": "9:00-17:00"},
                         {"Branch:Thu": "9:00-17:00"},
+                        {"Branch:Fri": "9:00-15:00"},
+                      ],
+                      mainClinic: "6 Tahrir Street, directly above ",
+                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+                    ),
+                    DoctorCard(
+                     image:  'assets/img_11.png',
+                      name: "Dr. Mohamed Monaser",
+                      specialty: "Dermatologist",
+                      starRating: 4.5,
+                      email: "dr.Monaser@clinic.com",
+                      phone: "+2010909900",
+                      availableHours: [
+                        {"Main:Mon": "9:00-17:00"},
+                        {"Branch:Tue": "9:00-17:00"},
+                        {"Main:Thu": "9:00-17:00"},
                         {"Main:Fri": "9:00-15:00"},
                       ],
                       mainClinic: "6 Tahrir Street, directly above ",
                       branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
                     ),
+
                   ],
                 ),
               ),
@@ -172,6 +177,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 }
 
 class DoctorCard extends StatelessWidget {
+  final String image;
   final String name;
   final String specialty;
   final double starRating;
@@ -182,6 +188,7 @@ class DoctorCard extends StatelessWidget {
   final String branchClinic;
 
   const DoctorCard({
+    required this.image,
     required this.name,
     required this.specialty,
     required this.starRating,
@@ -221,7 +228,7 @@ class DoctorCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage('assets/Doctorimage.jpg'),
+                  backgroundImage: AssetImage(image),
                 ),
                 const SizedBox(width: 16),
                 Column(

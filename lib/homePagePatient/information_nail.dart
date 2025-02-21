@@ -55,105 +55,107 @@ class _InformationNailState extends State<InformationNail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Colors.white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 20.0),
-              child: Image.asset(
-                diseaseImages[currentDiseaseIndex],
-                height: 350,
-                width: 350,
-                fit: BoxFit.cover,
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Image.asset(
+                  diseaseImages[currentDiseaseIndex],
+                  height: 350,
+                  width: 350,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(height: 100),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () => navigateDisease(-1),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF105DFB),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    diseases[currentDiseaseIndex],
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
+              const SizedBox(height: 100),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => navigateDisease(-1),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF105DFB),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                   ),
-                ),
-                GestureDetector(
-                  onTap: () => navigateDisease(1),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF105DFB),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              child: ElevatedButton(
-                style: buttonPrimary,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Explore ${diseases[currentDiseaseIndex]}",
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      diseases[currentDiseaseIndex],
                       style: const TextStyle(
-                        fontSize: 22,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => navigateDisease(1),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF105DFB),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                child: ElevatedButton(
+                  style: buttonPrimary,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Explore ${diseases[currentDiseaseIndex]}",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward,
                         color: Colors.white,
                       ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ExploreDisease(
-                        currentDiseaseIndex: currentDiseaseIndex,
-                        diseases: diseases,
-                        diseaseImages: diseaseImages,
+                    ],
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ExploreDisease(
+                          currentDiseaseIndex: currentDiseaseIndex,
+                          diseases: diseases,
+                          diseaseImages: diseaseImages,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
