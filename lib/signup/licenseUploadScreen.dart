@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import '../api/sinupResonseDM.dart';
+import '../api/sinupResonsedoctorDM.dart';
 import '../model/sinup_doctor.dart';
 import 'nagelupbar.dart';
 
@@ -81,11 +81,17 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
                   'We have received your details. You will be contacted via email once your registration is approved.'),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignUpScreenDoctor()),
+                    );
+                  },
                   child: Text('OK'),
                 ),
               ],
             );
+
           },
         );
       } else {

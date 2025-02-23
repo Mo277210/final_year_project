@@ -1,13 +1,13 @@
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../api/SourceResponseDm.dart';
+import '../api/sinuppatienResonseDm.dart';
 import '../homePagePatient/homePagePatient.dart';
 import '../login/loginScreenPatient.dart';
-import '../model/login_patient_model.dart';
 import 'chipRow.dart';
 import 'customButton.dart';
 import 'nagelupbar.dart';
+import '../model/sinup_patient.dart';
 
 class SignUpScreenPatient extends StatefulWidget {
   const SignUpScreenPatient({super.key});
@@ -20,6 +20,8 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
   List<bool> isSelected = [true, false];
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false; // Track loading state
+  String _errorMessage = ''; // Track error messages
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _emailController = TextEditingController();
@@ -31,7 +33,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
   String? _calculatedAge;
   String? _selectedGender;
 
-  final APIService _apiService = APIService();
+  final APIPatientServiceDm _apiService = APIPatientServiceDm();
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +46,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
             const Nagelupbar(),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
+              const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: Column(
@@ -72,13 +74,13 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                             ChipRow(
                               chipNames: const ['Patient', 'Doctor'],
                               onChipTap: [
-                                () {},
-                                () {
+                                    () {},
+                                    () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const SignUpScreenDoctor()),
+                                        const SignUpScreenDoctor()),
                                   );
                                 },
                               ],
@@ -89,6 +91,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                               key: _formKey,
                               child: Column(
                                 children: [
+                                  // Form fields (unchanged)
                                   TextFormField(
                                     controller: _fullNameController,
                                     decoration: InputDecoration(
@@ -99,7 +102,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -120,7 +123,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                       ),
                                     ),
                                     items:
-                                        ['Male', 'Female'].map((String gender) {
+                                    ['Male', 'Female'].map((String gender) {
                                       return DropdownMenuItem<String>(
                                         value: gender,
                                         child: Text(gender),
@@ -146,7 +149,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -168,12 +171,12 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                       suffixIcon: IconButton(
                                         icon: const Icon(Icons.calendar_today),
                                         onPressed: () async {
                                           DateTime? selectedDate =
-                                              await showDatePicker(
+                                          await showDatePicker(
                                             context: context,
                                             initialDate: DateTime.now(),
                                             firstDate: DateTime(1900),
@@ -218,13 +221,13 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter an email';
                                       } else if (!RegExp(
-                                              r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
                                           .hasMatch(value)) {
                                         return 'Enter a valid email';
                                       }
@@ -243,7 +246,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -270,7 +273,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         onPressed: () {
                                           setState(() {
                                             _isPasswordVisible =
-                                                !_isPasswordVisible;
+                                            !_isPasswordVisible;
                                           });
                                         },
                                       ),
@@ -280,13 +283,13 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter a password';
                                       } else if (!RegExp(
-                                              r'[!@#$%^&*(),.?":{}|<>]')
+                                          r'[!@#$%^&*(),.?":{}|<>]')
                                           .hasMatch(value)) {
                                         return 'Password should contain special characters';
                                       }
@@ -308,7 +311,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         onPressed: () {
                                           setState(() {
                                             _isConfirmPasswordVisible =
-                                                !_isConfirmPasswordVisible;
+                                            !_isConfirmPasswordVisible;
                                           });
                                         },
                                       ),
@@ -318,7 +321,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -331,47 +334,20 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                     },
                                   ),
                                   const SizedBox(height: 20),
+                                  if (_errorMessage.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 10),
+                                      child: Text(
+                                        _errorMessage,
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
                                   CustomButton(
-                                    buttonText: 'Sign Up',
-                                    onPressed: () async {
-                                      if (_formKey.currentState!.validate()) {
-                                        // Create a LoginRequestModel
-                                        final requestModel = LoginRequestModel(
-                                          email: "eve.holt@reqres.in",
-                                          password: _passwordController.text,
-                                        );
-
-                                        // Call the login/signup API
-                                        try {
-                                          final response = await _apiService
-                                              .login("patient",requestModel);
-                                          if (response.token.isNotEmpty) {
-                                            // Navigate to home page after successful sign-up
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const Homepagepatient()),
-                                            );
-                                          } else {
-                                            // Show error if login fails
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                  content:
-                                                      Text(response.error)),
-                                            );
-                                          }
-                                        } catch (e) {
-                                          // Handle API call error
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text("Error: $e")),
-                                          );
-                                        }
-                                      }
-                                    },
+                                    buttonText: _isLoading ? 'Signing up...' : 'Sign Up', // Dynamic button text
+                                    onPressed: _isLoading ? () {} : _signup, // Use an empty function when loading
                                   ),
                                 ],
                               ),
@@ -397,7 +373,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const LoginScreenPatient()),
+                                  const LoginScreenPatient()),
                             );
                           },
                           child: const Text(
@@ -418,6 +394,53 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
         ),
       ),
     );
+  }
+
+  Future<void> _signup() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true; // Start loading
+      _errorMessage = ''; // Clear any previous error message
+    });
+
+    try {
+      final response = await _apiService.registerPatient(
+        name: _fullNameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        passwordConfirmation: _confirmPasswordController.text,
+        phone: _phoneController.text,
+        DOB: _dobController.text,
+        gender: _selectedGender ?? '',
+        address: _addressController.text,
+      );
+
+      // Print the response for debugging
+      print("Signup Response: ${response.toJson()}");
+
+      if (response.success) {
+        // Navigate to home page after successful sign-up
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Homepagepatient()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = response.message.isNotEmpty
+              ? response.message
+              : "Signup failed. Please try again.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An error occurred. Please check your connection.";
+      });
+    }
+
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
   }
 
   void _calculateAge(DateTime birthDate) {
