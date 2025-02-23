@@ -344,7 +344,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         // Call the login/signup API
                                         try {
                                           final response = await _apiService
-                                              .login(requestModel);
+                                              .login("patient",requestModel);
                                           if (response.token.isNotEmpty) {
                                             // Navigate to home page after successful sign-up
                                             Navigator.pushReplacement(

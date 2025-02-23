@@ -3,8 +3,14 @@ import 'dart:convert';
 import '../model/login_patient_model.dart';
 
 class APIService {
-  Future<LoginResponseModel> login(LoginRequestModel requestModel) async {
-    String url = "https://reqres.in/api/login";
+  Future<LoginResponseModel> login(
+      String userType, LoginRequestModel requestModel) async {
+    String url = "";
+    if (userType == "patient") {
+      url = "https://nagel-production.up.railway.app/api/patient/login";
+    } else if (userType == "doctor") {
+      url = "https://nagel-production.up.railway.app/api/doctor/login";
+    }
 
     try {
       final response = await http.post(
@@ -22,7 +28,8 @@ class APIService {
       } else {
         return LoginResponseModel.fromJson({
           "token": "",
-          "error": responseBody["error"] ?? "Invalid credentials or server error",
+          "error":
+              responseBody["error"] ?? "Invalid credentials or server error",
         });
       }
     } catch (e) {

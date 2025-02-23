@@ -25,6 +25,9 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
 
+  // 🔹 Variable to store the selected specialization
+  String? _selectedSpecialization;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,7 +177,9 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       );
                                     }).toList(),
                                     onChanged: (value) {
-                                      setState(() {});
+                                      setState(() {
+                                        _selectedSpecialization = value;
+                                      });
                                     },
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -263,12 +268,22 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                     buttonText: 'Sign Up',
                                     onPressed: () {
                                       if (_formKey.currentState!.validate()) {
-                                        // Navigate to License Upload Screen
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  LicenseUploadScreen()),
+                                            builder: (context) =>
+                                                LicenseUploadScreen(
+                                              fullName:
+                                                  _fullNameController.text,
+                                              email: _emailController.text,
+                                              phone: _phoneController.text,
+                                              password:
+                                                  _passwordController.text,
+                                              specialization:
+                                                  _selectedSpecialization ??
+                                                      "", // ✅ Pass specialization
+                                            ),
+                                          ),
                                         );
                                       }
                                     },

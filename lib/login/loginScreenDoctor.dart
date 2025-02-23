@@ -34,13 +34,13 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
     });
 
     LoginRequestModel requestModel = LoginRequestModel(
-      email:  "eve.holt@reqres.in",
+      email:  _emailController.text,
       password: _passwordController.text,
     );
 
     try {
       APIService apiService = APIService();
-      var response = await apiService.login( requestModel); // Use "doctor"
+      var response = await apiService.login( "doctor",requestModel); // Use "doctor"
 
       print("Token Response: ${response.token}");
 
