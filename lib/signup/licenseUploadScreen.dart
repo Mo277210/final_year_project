@@ -125,10 +125,8 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => SignUpScreenDoctor()),
-            );
+            Navigator.pop(
+              context);
           },
         ),
       ),
