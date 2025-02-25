@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import '../signup/nagelupbar.dart';
+import '../api/predictionAPIService.dart';
+import '../model/predictionResponseModel.dart';
+import '../signup/nagelupbar.dart'; // Ensure this import is correct
+
 
 class Nagelimage extends StatefulWidget {
   @override
@@ -10,6 +13,8 @@ class Nagelimage extends StatefulWidget {
 
 class _Nagelimage extends State<Nagelimage> {
   String? _selectedFile;
+  PredictionResponseModel? _predictionResult;
+  bool _isLoading = false;
 
   void _pickImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -21,6 +26,81 @@ class _Nagelimage extends State<Nagelimage> {
         _selectedFile = result.files.single.path;
       });
     }
+  }
+
+  void _sendImage() async {
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select an image before sending.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      File imageFile = File(_selectedFile!);
+      PredictionAPIService apiService = PredictionAPIService();
+
+      // Assuming your API accepts a file upload
+      PredictionResponseModel response = await apiService.predictImage(imageFile);
+
+      setState(() {
+        _predictionResult = response;
+        _isLoading = false;
+      });
+
+      // Show the prediction result in a dialog or another widget
+      _showPredictionResult(response);
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showPredictionResult(PredictionResponseModel result) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Prediction Result'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Predicted Class: ${result.predictedClass}'),
+              Text('Confidence: ${result.confidence.toStringAsFixed(2)}%'),
+              const SizedBox(height: 10),
+              const Text('Probabilities:'),
+              ...result.probabilities.entries.map((entry) {
+                return Text('${entry.key}: ${entry.value.toStringAsFixed(2)}%');
+              }).toList(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -110,19 +190,7 @@ class _Nagelimage extends State<Nagelimage> {
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () {
-                        if (_selectedFile == null) {
-                          // Show error message if no image is selected
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Please select an image before sending.'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        } else {
-
-                        }
-                      },
+                      onPressed: _isLoading ? null : _sendImage,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         shape: RoundedRectangleBorder(
@@ -130,7 +198,9 @@ class _Nagelimage extends State<Nagelimage> {
                         ),
                         minimumSize: const Size(double.infinity, 50),
                       ),
-                      child: const Text(
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
                         'Send Image',
                         style: TextStyle(color: Colors.white),
                       ),

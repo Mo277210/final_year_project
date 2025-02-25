@@ -102,7 +102,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                   children: [
                     DoctorCard(
                     image:  'assets/img_12.png',
-                    name: "Dr. Mohamed Monaser",
+                    name: "Dr. Mohamed Hisham",
                     specialty: "Dermatologist",
                     starRating: 4.5,
                     email: "dr.Monaser@clinic.com",
@@ -118,7 +118,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                   ),
                     DoctorCard(
                       image:  'assets/Doctorimage.jpg',
-                      name: "Dr. Mohamed Monaser",
+                      name: "Dr. Mohamed ahmed",
                       specialty: "Dermatologist",
                       starRating: 4.5,
                       email: "dr.Monaser@clinic.com",
@@ -150,7 +150,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                     ),
                     DoctorCard(
                      image:  'assets/img_11.png',
-                      name: "Dr. Mohamed Monaser",
+                      name: "Dr. Mona ahmed",
                       specialty: "Dermatologist",
                       starRating: 4.5,
                       email: "dr.Monaser@clinic.com",
