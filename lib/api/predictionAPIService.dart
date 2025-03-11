@@ -6,7 +6,7 @@ import '../model/predictionResponseModel.dart';
 
 class PredictionAPIService {
   Future<PredictionResponseModel> predictImage(File imageFile) async {
-    String url = "https://0deb-196-157-42-116.ngrok-free.app/predict/";
+    String url = "https://41d7-196-153-115-245.ngrok-free.app/predict/";
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));

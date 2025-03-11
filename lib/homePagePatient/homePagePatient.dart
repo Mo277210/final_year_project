@@ -26,7 +26,7 @@ class _HomepagepatientState extends State<Homepagepatient> {
      SettingPatientPage(),
   ];
 
-  final List<int> _loadingTimes = [3, 5, 7, 4, 6];
+  final List<int> _loadingTimes = [3, 0, 0, 4, 0];
 
   @override
   void initState() {

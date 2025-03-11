@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'homePagePatient.dart';
+
 class FilterPage extends StatefulWidget {
   const FilterPage({Key? key}) : super(key: key);
 
@@ -113,8 +115,7 @@ class _FilterOptionsState extends State<FilterOptions> {
               children: [
                 Text(
                   "Select ${widget.title}",
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
                 ...options,
@@ -134,8 +135,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                   // Show error if nothing is selected
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text(
-                          "Please select at least one option before saving."),
+                      content: const Text("Please select at least one option before saving."),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -151,10 +151,12 @@ class _FilterOptionsState extends State<FilterOptions> {
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              selectedCheckboxValues
-                                  .clear(); // Clear selections
+                              selectedCheckboxValues.clear(); // Clear selections
                             });
-                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Homepagepatient()),
+                            );
                           },
                           child: const Text("OK"),
                         ),
@@ -167,8 +169,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 backgroundColor: Colors.blue,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text("Save & Select Doctor",
-                  style: TextStyle(fontSize: 18, color: Colors.white)),
+              child: const Text("Save & Select Doctor", style: TextStyle(fontSize: 18, color: Colors.white)),
             ),
           ),
         ),
@@ -183,48 +184,63 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you have dark spots under your nails?"),
           checkboxTile("Have you noticed any color changes in your nails?"),
           checkboxTile("Is there a family history of melanoma?"),
+          checkboxTile("Have you experienced any nail pain or tenderness?"),
+
         ];
       case "Blue Finger":
         return [
           checkboxTile("Do your fingers often feel cold?"),
           checkboxTile("Do your nails turn blue when exposed to cold?"),
           checkboxTile("Do you have circulation problems?"),
+          checkboxTile("Do your fingers return to normal color after warming up?"),
+
+
         ];
       case "Beau's Line":
         return [
           checkboxTile("Have you noticed horizontal grooves on your nails?"),
           checkboxTile("Have you experienced severe malnutrition recently?"),
           checkboxTile("Do you have any chronic illnesses like diabetes?"),
+          checkboxTile("Have you recently recovered from a severe illness?"),
+
         ];
       case "Clubbing":
         return [
           checkboxTile("Do your nails appear more curved than usual?"),
           checkboxTile("Do you have breathing or heart problems?"),
           checkboxTile("Have you been diagnosed with any chronic lung disease?"),
+          checkboxTile("Do your fingertips appear swollen?"),
+
         ];
       case "Koilonychia":
         return [
           checkboxTile("Are your nails thin and spoon-shaped?"),
           checkboxTile("Do you have iron deficiency or anemia?"),
           checkboxTile("Have you noticed any discoloration in your nails?"),
+          checkboxTile("Do your nails break easily?"),
+
         ];
       case "Muehrcke's Lines":
         return [
           checkboxTile("Do you have white horizontal lines on your nails?"),
           checkboxTile("Do you have kidney or liver disease?"),
           checkboxTile("Do you have low albumin levels in your blood?"),
+          checkboxTile("Have you experienced chronic malnutrition?"),
+
         ];
       case "Pitting":
         return [
           checkboxTile("Do your nails have small pits or dents?"),
           checkboxTile("Do you have psoriasis or alopecia?"),
           checkboxTile("Are there any other changes in your skin or scalp?"),
+          checkboxTile("Have you noticed any changes in nail thickness?"),
         ];
       case "Terry's Nail":
         return [
           checkboxTile("Are your nails half white and half brown?"),
           checkboxTile("Do you have liver disease?"),
           checkboxTile("Do you have any other health issues like diabetes or kidney failure?"),
+          checkboxTile("Have you noticed any changes in nail texture?"),
 
         ];
       default:
@@ -282,6 +298,3 @@ void main() {
     home: FilterPage(),
   ));
 }
-
-
-

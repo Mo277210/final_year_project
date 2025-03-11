@@ -7,6 +7,7 @@ import '../model/login_patient_model.dart';
 import '../signup/chipRow.dart';
 import '../signup/customButton.dart';
 import '../signup/nagelupbar.dart';
+import 'loginScreenAdmin.dart';
 
 
 class LoginScreenDoctor extends StatefulWidget {
@@ -19,7 +20,7 @@ class LoginScreenDoctor extends StatefulWidget {
 class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
   List<bool> isSelected = [false, true];
   bool _isPasswordVisible = false;
-  bool _isLoading = false; // Prevent multiple taps
+  bool _isLoading = false;
   String _errorMessage = '';
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -113,6 +114,21 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
                               ],
                               isSelected: isSelected,
                             ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              child: Icon(
+                                Icons.medical_services,
+                                color: Color(0xFF105DFB),
+                                size: 40,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
                             const SizedBox(height: 20),
                             Form(
                               key: _formKey,
@@ -219,12 +235,56 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
+                    InkWell(onTap: (){ Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              LoginScreenAdmin()),
+                    );},
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(8, 12, 8, 12),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFF105DFB),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.admin_panel_settings,
+                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    size: 24,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    'Admin',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                      fontFamily: 'Inter',
+                                      fontSize: 16,
+                                      letterSpacing: 0.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ],
         ),
+
       ),
     );
   }

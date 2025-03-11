@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:collogefinalpoject/homePagePatient/questionsdiseasesScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../api/predictionAPIService.dart';
@@ -93,7 +94,13 @@ class _Nagelimage extends State<Nagelimage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                // Close the dialog
+                Navigator.pop(context);
+                // Navigate to FilterPage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const FilterPage()),
+                );
               },
               child: const Text('OK'),
             ),
