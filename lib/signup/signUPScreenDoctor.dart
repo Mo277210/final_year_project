@@ -79,6 +79,20 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                               ],
                               isSelected: isSelected,
                             ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              child: Icon(
+                                Icons.medical_services,
+                                color: Color(0xFF105DFB),
+                                size: 40,
+                              ),
+                            ),
                             const SizedBox(height: 20),
                             Form(
                               key: _formKey,
