@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../homePageAdmin/adminhomepage.dart';
 import '../signup/nagelupbar.dart';
 import 'loginScreenPatient.dart';
 
@@ -34,11 +35,17 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
     await Future.delayed(const Duration(seconds: 2));
 
     // Check login credentials (dummy logic)
-    if (_emailController.text == "admin@example.com" &&
+    if (_emailController.text == "admin@gmail.com" &&
         _passwordController.text == "Admin@123") {
       // Successful login
       print("Login successful");
-      // Navigate to the next screen or perform other actions
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                AdminHomePage ()),
+      );
+
     } else {
       setState(() {
         _errorMessage = "Invalid email or password";
