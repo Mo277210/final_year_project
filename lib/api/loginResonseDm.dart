@@ -10,6 +10,8 @@ class APIService {
       url = "https://nagel-production.up.railway.app/api/patient/login";
     } else if (userType == "doctor") {
       url = "https://nagel-production.up.railway.app/api/patient/login";
+    }else if (userType == "admin") {
+      url = "https://nagel-production.up.railway.app/api/patient/login";
     }
 
     try {

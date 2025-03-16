@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../api/loginResonseDm.dart';
 import '../homePageAdmin/adminhomepage.dart';
+import '../model/login_patient_model.dart';
 import '../signup/nagelupbar.dart';
 import 'loginScreenPatient.dart';
 
@@ -22,33 +24,37 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
   String _errorMessage = '';
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate() || _isLoading) return;
 
     setState(() {
       _isLoading = true;
       _errorMessage = '';
     });
 
-    // Simulate a login API call
-    await Future.delayed(const Duration(seconds: 2));
+    LoginRequestModel requestModel = LoginRequestModel(
+      email:  _emailController.text,
+      password: _passwordController.text,
+    );
 
-    // Check login credentials (dummy logic)
-    if (_emailController.text == "admin@gmail.com" &&
-        _passwordController.text == "Admin@123") {
-      // Successful login
-      print("Login successful");
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                AdminHomePage ()),
-      );
+    try {
+      APIService apiService = APIService();
+      var response = await apiService.login( "admin",requestModel); // Use "doctor"
 
-    } else {
+      print("Token Response: ${response.token}");
+
+      if (response.token.isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>  AdminHomePage()),
+        );
+      } else {
+        setState(() {
+          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
+        });
+      }
+    } catch (e) {
       setState(() {
-        _errorMessage = "Invalid email or password";
+        _errorMessage = "An error occurred. Please check your connection.";
       });
     }
 
@@ -56,7 +62,6 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
       _isLoading = false;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
