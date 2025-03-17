@@ -1,10 +1,13 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../api/loginResonseDm.dart'; // Ensure this import is correct
 import '../homePagePatient/homePagePatient.dart';
 import '../model/login_patient_model.dart'; // Ensure this import is correct
-import '../signup/chipRow.dart';
-import '../signup/customButton.dart';
-import '../signup/nagelupbar.dart';
+import '../shared_ui/chipRow.dart';
+
+import '../shared_ui/nagelupbar.dart';
 import '../signup/signUpScreenPatient.dart';
 import 'loginScreenAdmin.dart';
 import 'loginScreenDoctor.dart';
@@ -27,7 +30,7 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
   final _passwordController = TextEditingController();
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate() || _isLoading) return;
 
     setState(() {
       _isLoading = true;
@@ -42,19 +45,20 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
     try {
       APIService apiService = APIService();
       var response = await apiService.login("patient", requestModel);
-      // Print the token response for debugging
+
       print("Token Response: ${response.token}");
 
       if (response.token.isNotEmpty) {
+        // Set the token in the TokenProvider
+        Provider.of<TokenProvider>(context, listen: false).setToken(response.token);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Homepagepatient()),
         );
       } else {
         setState(() {
-          _errorMessage = response.error.isNotEmpty
-              ? response.error
-              : "Login failed. Please try again.";
+          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
         });
       }
     } catch (e) {

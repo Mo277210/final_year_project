@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../model/predictionResponseModel.dart';
+import '../model/patient_home_image_sender_Model.dart';
 
 class PredictionAPIService {
   final String token; // Add token for Bearer authentication

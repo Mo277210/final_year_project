@@ -1,12 +1,15 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/shared_ui/customButton.dart';
+import 'package:collogefinalpoject/shared_ui/nagelupbar.dart';
 import 'package:flutter/material.dart';
 import 'package:collogefinalpoject/homePageDoctor/homePageDoctor.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
+import 'package:provider/provider.dart';
 import '../api/loginResonseDm.dart';
 import '../model/login_patient_model.dart';
-import '../signup/chipRow.dart';
-import '../signup/customButton.dart';
-import '../signup/nagelupbar.dart';
+import '../shared_ui/chipRow.dart';
+
 import 'loginScreenAdmin.dart';
 
 
@@ -35,17 +38,20 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
     });
 
     LoginRequestModel requestModel = LoginRequestModel(
-      email:  _emailController.text,
+      email: _emailController.text,
       password: _passwordController.text,
     );
 
     try {
       APIService apiService = APIService();
-      var response = await apiService.login( "doctor",requestModel); // Use "doctor"
+      var response = await apiService.login("doctor", requestModel);
 
       print("Token Response: ${response.token}");
 
       if (response.token.isNotEmpty) {
+        // Set the token in the TokenProvider
+        Provider.of<TokenProvider>(context, listen: false).setToken(response.token);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomepageDoctor()),

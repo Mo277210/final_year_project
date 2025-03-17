@@ -1,9 +1,10 @@
 import 'package:collogefinalpoject/login/loginScreenDoctor.dart';
+import 'package:collogefinalpoject/shared_ui/licenseUploadScreen.dart';
 import 'package:flutter/material.dart';
-import 'chipRow.dart';
-import 'customButton.dart';
-import 'licenseUploadScreen.dart';
-import 'nagelupbar.dart';
+import '../shared_ui/chipRow.dart';
+
+import '../shared_ui/customButton.dart';
+import '../shared_ui/nagelupbar.dart';
 import 'signUpScreenPatient.dart';
 
 class SignUpScreenDoctor extends StatefulWidget {

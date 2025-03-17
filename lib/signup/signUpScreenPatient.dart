@@ -1,13 +1,13 @@
+import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../api/sinuppatienResonseDm.dart';
 import '../homePagePatient/homePagePatient.dart';
 import '../login/loginScreenPatient.dart';
-import 'chipRow.dart';
-import 'customButton.dart';
-import 'nagelupbar.dart';
-import '../model/sinup_patient.dart';
+import '../shared_ui/chipRow.dart';
+import '../shared_ui/nagelupbar.dart';
+
 
 class SignUpScreenPatient extends StatefulWidget {
   const SignUpScreenPatient({super.key});

@@ -1,11 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../  provider/provider.dart';
 import '../api/loginResonseDm.dart';
 import '../homePageAdmin/adminhomepage.dart';
 import '../model/login_patient_model.dart';
-import '../signup/nagelupbar.dart';
+
+import '../shared_ui/nagelupbar.dart';
 import 'loginScreenPatient.dart';
+
+
+
+//todo: add provider
 
 class LoginScreenAdmin extends StatefulWidget {
   const LoginScreenAdmin({super.key});
@@ -44,6 +51,7 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
 
       if (response.token.isNotEmpty) {
         // Pass the token to AdminHomePage
+        Provider.of<TokenProvider>(context, listen: false).setToken(response.token);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-
+import '../api/doctor_home_api.dart';
+import '../model/doctor_home_model.dart';
 
 
 class DoctorProfilePage extends StatefulWidget {
@@ -22,6 +23,34 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
 
   String _mainClinic = "6 October";
   String _branchClinic = "Barse";
+
+  DoctorInfoModel? _doctorInfo;
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDoctorInfo();
+  }
+
+  Future<void> _fetchDoctorInfo() async {
+    final token = "37|AHVKsLAyL2JBslNylEucdyzZZ5d3AZs2kAIaTtoF2d956429";
+    final apiService = DoctorAPIService();
+
+    try {
+      final doctorInfo = await apiService.getDoctorInfo(token);
+      setState(() {
+        _doctorInfo = doctorInfo;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Failed to fetch doctor info: $e";
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _chooseImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -153,7 +182,11 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: SingleChildScrollView(
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _errorMessage.isNotEmpty
+            ? Center(child: Text(_errorMessage))
+            : SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
@@ -179,26 +212,29 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         radius: 40,
                         backgroundImage: _image != null
                             ? FileImage(_image!)
-                            : const AssetImage('assets/doctor.png') as ImageProvider,
+                            : const AssetImage('assets/doctor.png')
+                        as ImageProvider,
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Dr.Mohamed Monsar',
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                            'Dr. ${_doctorInfo?.name ?? 'Unknown'}',
+                            style: const TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Dermatologist',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            _doctorInfo?.specialization ?? 'Specialization',
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.grey),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
-                            '⭐ 4.9 (127 reviews)',
-                            style: TextStyle(fontSize: 14, color: Colors.orange),
+                            '⭐ ${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
+                            style: const TextStyle(fontSize: 14, color: Colors.orange),
                           ),
                         ],
                       ),
@@ -212,40 +248,42 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Center(
+                      const Center(
                         child: Text(
                           'Contact Info',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.email, color: Colors.blueAccent),
-                          SizedBox(width: 8),
+                          const Icon(Icons.email, color: Colors.blueAccent),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'dr.monsar@nagelclinic.de',
-                              style: TextStyle(fontSize: 16),
+                              _doctorInfo?.email ?? 'No email provided',
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.phone, color: Colors.blueAccent),
-                          SizedBox(width: 8),
+                          const Icon(Icons.phone, color: Colors.blueAccent),
+                          const SizedBox(width: 8),
                           Text(
-                            '+201098786666',
-                            style: TextStyle(fontSize: 16),
+                            _doctorInfo?.phone ?? 'No phone provided',
+                            style: const TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
-
                     ],
                   ),
                 ),
@@ -253,7 +291,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                 const Center(
                   child: Text(
                     'Available Hours',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent),
                   ),
                 ),
                 const SizedBox(height: 15),
@@ -265,7 +306,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       .entries
                       .map(
                         (entry) => Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
                       decoration: BoxDecoration(
                         color: Colors.lightBlue[100],
                         borderRadius: BorderRadius.circular(6),
@@ -310,14 +352,18 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       const Center(
                         child: Text(
                           'Clinic Locations',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent),
                         ),
                       ),
                       const SizedBox(height: 8),
                       GestureDetector(
                         onTap: () => _editClinicBottomSheet('Main Clinic'),
                         child: ListTile(
-                          title: const Text('Main Clinic',style: TextStyle(fontWeight: FontWeight.bold),),
+                          title: const Text('Main Clinic',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(_mainClinic),
                           trailing: const Icon(Icons.edit),
                         ),
@@ -325,7 +371,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       GestureDetector(
                         onTap: () => _editClinicBottomSheet('Branch Clinic'),
                         child: ListTile(
-                          title: const Text('Branch Clinic',style: TextStyle(fontWeight: FontWeight.bold)),
+                          title: const Text('Branch Clinic',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text(_branchClinic),
                           trailing: const Icon(Icons.edit),
                         ),
@@ -346,6 +393,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     );
   }
 }
+
 void main() {
   runApp(const MyApp());
 }
