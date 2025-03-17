@@ -1,5 +1,8 @@
-import 'package:collogefinalpoject/login/loginScreenDoctor.dart';
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_name.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../login/loginScreenDoctor.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -28,6 +31,37 @@ class _SettingsPageState extends State<SettingsPage> {
   final Color blueColor = Color(0xFF105DFB);
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  Future<void> _updateName(String newName) async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token;
+
+    if (newName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a name.")),
+      );
+      return;
+    }
+
+    try {
+      final apiService = DoctorAPIService_edit_name();
+      final response = await apiService.editName(token, newName);
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update name: $e")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +108,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ElevatedButton(
                 onPressed: () {
                   String newName = nameController.text;
-                  if (newName.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Name updated to: $newName")),
-                    );
-                  }
+                  _updateName(newName);
                 },
                 child: const Text('Save Name'),
                 style: ElevatedButton.styleFrom(
@@ -378,8 +408,15 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: SettingsPage(),
-  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TokenProvider()), // Provide TokenProvider
+      ],
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SettingsPage(),
+      ),
+    ),
+  );
 }

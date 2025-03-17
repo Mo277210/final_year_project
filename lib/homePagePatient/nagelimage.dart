@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/homePagePatient/questionsdiseasesScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
 import '../api/patient_home_image_sender_APIService.dart';
 import '../model/patient_home_image_sender_Model.dart';
 
@@ -45,8 +47,10 @@ class _Nagelimage extends State<Nagelimage> {
 
     try {
       File imageFile = File(_selectedFile!);
-      // Replace with your actual token
-      String token = "1|DqaEPnmXVcNqdUvkCL4d84feTJNH8GLMtyJNpkO00642d05d";
+      // Retrieve the token from TokenProvider
+      final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+      String token = tokenProvider.token;
+
       PredictionAPIService apiService = PredictionAPIService(token: token);
 
       // Call the API to predict the image
@@ -226,22 +230,6 @@ class _Nagelimage extends State<Nagelimage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Nagelimage(),
     );
   }
 }

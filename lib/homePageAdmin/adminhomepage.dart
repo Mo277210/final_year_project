@@ -35,7 +35,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           automaticallyImplyLeading: false,
           title: Center(
             child: Text(
-              'Nägel',
+              '     Nägel',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontFamily: 'Inter Tight',
                 color: Color(0xFF105DFB),

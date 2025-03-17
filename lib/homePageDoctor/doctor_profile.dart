@@ -1,5 +1,7 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import '../api/doctor_home_api.dart';
 import '../model/doctor_home_model.dart';
@@ -35,7 +37,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   }
 
   Future<void> _fetchDoctorInfo() async {
-    final token = "37|AHVKsLAyL2JBslNylEucdyzZZ5d3AZs2kAIaTtoF2d956429";
+    // Retrieve the token from TokenProvider
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token;
+
     final apiService = DoctorAPIService();
 
     try {
@@ -390,22 +395,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
           backgroundColor: Colors.blueAccent,
         ),
       ),
-    );
-  }
-}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: DoctorProfilePage(),
     );
   }
 }
