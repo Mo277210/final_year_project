@@ -1,7 +1,9 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_setting_api/edit_name.dart';
 import 'package:collogefinalpoject/api/doctor_setting_api/edit_pasword.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_phone.dart';
 import 'package:collogefinalpoject/api/doctor_setting_api/logout.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_email.dart'; // Import the new email API
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../login/loginScreenDoctor.dart';
@@ -65,6 +67,46 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _updateEmail(String newEmail) async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token;
+    if (newEmail.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter an email.")),
+      );
+      return;
+    }
+    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(newEmail)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a valid email address.")),
+      );
+      return;
+    }
+    try {
+      final apiService = DoctorAPIService_edit_email();
+      final response = await apiService.editEmail(
+        token: token,
+        newEmail: newEmail,
+        doctorId: 3, // Replace with the actual doctor ID
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update email: $e")),
+      );
+    }
+  }
+
   Future<void> _updatePassword() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
@@ -108,6 +150,41 @@ class _SettingsPageState extends State<SettingsPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update password: $e")),
+      );
+    }
+  }
+
+  Future<void> _updatePhone(String newPhone) async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token;
+
+    if (newPhone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a phone number.")),
+      );
+      return;
+    }
+
+    try {
+      final apiService = DoctorAPIService_edit_phone();
+      final response = await apiService.editPhone(
+        token: token,
+        newPhone: newPhone,
+         // Replace with the actual doctor ID
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update phone number: $e")),
       );
     }
   }
@@ -234,11 +311,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ElevatedButton(
                 onPressed: () {
                   String newEmail = emailController.text;
-                  if (newEmail.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Email updated to: $newEmail")),
-                    );
-                  }
+                  _updateEmail(newEmail);
                 },
                 child: const Text('Save Email'),
                 style: ElevatedButton.styleFrom(
@@ -450,11 +523,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ElevatedButton(
                 onPressed: () {
                   String newPhone = phoneController.text;
-                  if (newPhone.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Phone number updated")),
-                    );
-                  }
+                  _updatePhone(newPhone); // Call the updated method
                 },
                 child: const Text('Save Phone Number'),
                 style: ElevatedButton.styleFrom(
@@ -480,7 +549,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => TokenProvider()), // Provide TokenProvider
+        ChangeNotifierProvider(create: (_) => TokenProvider()),
       ],
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -489,8 +558,3 @@ void main() {
     ),
   );
 }
-
-
-
-
-
