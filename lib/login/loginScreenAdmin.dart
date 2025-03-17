@@ -55,7 +55,7 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminHomePage(token: response.token),
+            builder: (context) => AdminHomePage(),
           ),
         );
       } else {

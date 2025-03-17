@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Import Provider
+import '../  provider/provider.dart';
 import '../api/admin_home_api.dart'; // Import the APIService
 import '../login/loginScreenAdmin.dart';
 import '../model/admin_home.dart'; // Import the PendedDoctorModel
 
 
-
-
-//todo: add provider
-
-
 class AdminHomePage extends StatefulWidget {
-  final String token; // Add token parameter
-
-  const AdminHomePage({super.key, required this.token}); // Update constructor
+  const AdminHomePage({super.key});
 
   @override
   _AdminHomePageState createState() => _AdminHomePageState();
@@ -25,8 +20,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
   @override
   void initState() {
     super.initState();
-    // Use the token passed from LoginScreenAdmin
-    _pendedDoctorsFuture = _apiService.showPendedDoctors(widget.token);
+    // Access the token from TokenProvider
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    _pendedDoctorsFuture = _apiService.showPendedDoctors(tokenProvider.token);
   }
 
   @override
@@ -37,20 +33,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
         child: AppBar(
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
-          title: Text(
-            'Nägel',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontFamily: 'Inter Tight',
-              color: Color(0xFF105DFB),
-              fontWeight: FontWeight.bold,
-              fontSize: 35,
+          title: Center(
+            child: Text(
+              'Nägel',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontFamily: 'Inter Tight',
+                color: Color(0xFF105DFB),
+                fontWeight: FontWeight.bold,
+                fontSize: 35,
+              ),
             ),
           ),
           actions: [
             IconButton(
               icon: Icon(Icons.exit_to_app, color: Color(0xFF105DFB)), // Exit icon
               onPressed: () {
-                // Navigate to LoginScreenAdmin
+                // Clear the token when logging out
+                Provider.of<TokenProvider>(context, listen: false).setToken('');
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginScreenAdmin()),
@@ -97,7 +96,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               ),
                             ),
                           ),
-
                           ListView.builder(
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
@@ -132,6 +130,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
       ),
     );
   }
+
   Widget _buildDoctorCard(
       BuildContext context, {
         required String name,
@@ -140,7 +139,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
         required String email,
         required String proof,
       }) {
-    // Construct the full URL for the proof image
     String proofUrl = "https://nagel-production.up.railway.app$proof";
 
     return Container(
@@ -194,7 +192,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(Icons.phone, size: 20, color: Color(0xFF105DFB)), // Phone icon
+                      Icon(Icons.phone, size: 20, color: Color(0xFF105DFB)),
                       SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -204,7 +202,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               'Phone Number',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).hintColor,
-                                fontWeight:  FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             SizedBox(height: 4),
@@ -218,11 +216,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     ],
                   ),
                 ),
-                SizedBox(width: 16), // Reduced spacing
+                SizedBox(width: 16),
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(Icons.email, size: 20, color:Color(0xFF105DFB)), // Email icon
+                      Icon(Icons.email, size: 20, color: Color(0xFF105DFB)),
                       SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -232,7 +230,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               'Email',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).hintColor,
-                                fontWeight:  FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             SizedBox(height: 4),
@@ -259,7 +257,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: proof.startsWith('/tmp/') // Check if proof is a local path
+              child: proof.startsWith('/tmp/')
                   ? Center(
                 child: Text(
                   'Proof image not available',
@@ -267,9 +265,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 ),
               )
                   : Image.network(
-                proofUrl, // Use the constructed URL
+                proofUrl,
                 width: double.infinity,
-                height: 250, // Increase image height
+                height: 250,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Center(
