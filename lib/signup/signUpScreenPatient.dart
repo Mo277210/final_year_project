@@ -437,7 +437,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
         // Navigate to home page after successful sign-up
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Homepagepatient()),
+          MaterialPageRoute(builder: (context) => const LoginScreenPatient()),
         );
       } else {
         setState(() {
