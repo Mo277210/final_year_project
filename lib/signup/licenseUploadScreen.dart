@@ -57,13 +57,14 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
     });
 
     try {
+      // Use APIServiceDm to register the doctor
       SinupResponseModelDM response = await APIServiceDm().registerDoctor(
         name: widget.fullName,
         email: widget.email,
         password: widget.password,
         passwordConfirmation: widget.password,
         phone: widget.phone,
-        speciality: widget.specialization,
+        specialization: widget.specialization,
         proof: _selectedFile!,
       );
 
@@ -91,7 +92,6 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
                 ),
               ],
             );
-
           },
         );
       } else {
@@ -125,8 +125,7 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(
-              context);
+            Navigator.pop(context);
           },
         ),
       ),

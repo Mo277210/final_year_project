@@ -1,6 +1,28 @@
 import 'package:flutter/material.dart';
+import '../api/admin_home_api.dart'; // Import the APIService
+import '../login/loginScreenAdmin.dart';
+import '../model/admin_home.dart'; // Import the PendedDoctorModel
 
-class AdminHomePage extends StatelessWidget {
+class AdminHomePage extends StatefulWidget {
+  final String token; // Add token parameter
+
+  const AdminHomePage({super.key, required this.token}); // Update constructor
+
+  @override
+  _AdminHomePageState createState() => _AdminHomePageState();
+}
+
+class _AdminHomePageState extends State<AdminHomePage> {
+  late Future<List<PendedDoctorModel>> _pendedDoctorsFuture;
+  final APIService _apiService = APIService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Use the token passed from LoginScreenAdmin
+    _pendedDoctorsFuture = _apiService.showPendedDoctors(widget.token);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,13 +40,24 @@ class AdminHomePage extends StatelessWidget {
               fontSize: 35,
             ),
           ),
-          actions: [],
+          actions: [
+            IconButton(
+              icon: Icon(Icons.exit_to_app, color: Color(0xFF105DFB)), // Exit icon
+              onPressed: () {
+                // Navigate to LoginScreenAdmin
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreenAdmin()),
+                );
+              },
+            ),
+          ],
           centerTitle: true,
           elevation: 0,
         ),
       ),
       body: Container(
-        color: Colors.grey[50], // Set background color for the entire page
+        color: Colors.grey[50],
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -34,55 +67,58 @@ class AdminHomePage extends StatelessWidget {
               color: Theme.of(context).dividerColor,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                      child: Text(
-                        'Doctor Requests',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontFamily: 'Inter Tight',
-                          fontWeight: FontWeight.w600,
-                        ),
+              child: FutureBuilder<List<PendedDoctorModel>>(
+                future: _pendedDoctorsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Error: ${snapshot.error}"));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text("No pended doctors found."));
+                  } else {
+                    return SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                            child: Text(
+                              'Doctor Requests',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontFamily: 'Inter Tight',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (context, index) {
+                              final doctor = snapshot.data![index];
+                              return Column(
+                                children: [
+                                  _buildDoctorCard(
+                                    context,
+                                    name: doctor.name,
+                                    specialization: doctor.specialization,
+                                    phone: doctor.phone,
+                                    email: doctor.email,
+                                    proof: doctor.proof,
+                                  ),
+                                  SizedBox(height: 16), // Add space between cards
+                                ],
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ),
-                    ListView(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      children: [
-                        _buildDoctorCard(
-                          context,
-                          name: 'Dr. Sarah Johnson',
-                          specialty: 'Dermatologist',
-                          phone: '+1 (555) 123-4567',
-                          email: 'dr.sarah@example.com',
-                          image: 'assets/google-school-of-medicine.jpg',
-                        ),
-                        SizedBox(height: 16),
-                        _buildDoctorCard(
-                          context,
-                          name: 'Dr. Michael Chen',
-                          specialty: 'Cardiologist',
-                          phone: '+1 (555) 987-6543',
-                          email: 'dr.chen@example.com',
-                          image: 'assets/Dr-Ordog-California-Medical-License-first-in-1980-finished-2018.png',
-                        ),
-                        SizedBox(height: 16),
-                        _buildDoctorCard(
-                          context,
-                          name: 'Dr. Emily Rodriguez',
-                          specialty: 'Neurologist',
-                          phone: '+1 (555) 456-7890',
-                          email: 'dr.rodriguez@example.com',
-                          image: 'assets/google-school-of-medicine.jpg',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                    );
+                  }
+                },
               ),
             ),
           ],
@@ -90,15 +126,17 @@ class AdminHomePage extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildDoctorCard(
       BuildContext context, {
         required String name,
-        required String specialty,
+        required String specialization,
         required String phone,
         required String email,
-        required String image,
+        required String proof,
       }) {
+    // Construct the full URL for the proof image
+    String proofUrl = "https://nagel-production.up.railway.app$proof";
+
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 16),
@@ -126,7 +164,7 @@ class AdminHomePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        "Dr.$name",
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontFamily: 'Inter Tight',
                           fontWeight: FontWeight.w600,
@@ -134,7 +172,7 @@ class AdminHomePage extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        specialty,
+                        specialization,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).hintColor,
                         ),
@@ -161,7 +199,6 @@ class AdminHomePage extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).hintColor,
                                 fontWeight:  FontWeight.bold,
-
                               ),
                             ),
                             SizedBox(height: 4),
@@ -190,7 +227,6 @@ class AdminHomePage extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).hintColor,
                                 fontWeight:  FontWeight.bold,
-
                               ),
                             ),
                             SizedBox(height: 4),
@@ -208,7 +244,7 @@ class AdminHomePage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             Text(
-              'Medical License',
+              'Medical License Proof',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).hintColor,
                 fontWeight: FontWeight.w500,
@@ -217,11 +253,26 @@ class AdminHomePage extends StatelessWidget {
             SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                image, // Use the asset image
+              child: proof.startsWith('/tmp/') // Check if proof is a local path
+                  ? Center(
+                child: Text(
+                  'Proof image not available',
+                  style: TextStyle(color: Colors.red),
+                ),
+              )
+                  : Image.network(
+                proofUrl, // Use the constructed URL
                 width: double.infinity,
                 height: 250, // Increase image height
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                    child: Text(
+                      'Unable to load image',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(height: 16),
@@ -268,11 +319,4 @@ class AdminHomePage extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: AdminHomePage(),
-  ));
 }

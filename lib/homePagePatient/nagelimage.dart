@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../api/predictionAPIService.dart';
 import '../model/predictionResponseModel.dart';
-import '../signup/nagelupbar.dart'; // Ensure this import is correct
 
 
 class Nagelimage extends StatefulWidget {
@@ -46,9 +45,11 @@ class _Nagelimage extends State<Nagelimage> {
 
     try {
       File imageFile = File(_selectedFile!);
-      PredictionAPIService apiService = PredictionAPIService();
+      // Replace with your actual token
+      String token = "1|DqaEPnmXVcNqdUvkCL4d84feTJNH8GLMtyJNpkO00642d05d";
+      PredictionAPIService apiService = PredictionAPIService(token: token);
 
-      // Assuming your API accepts a file upload
+      // Call the API to predict the image
       PredictionResponseModel response = await apiService.predictImage(imageFile);
 
       setState(() {
@@ -56,7 +57,7 @@ class _Nagelimage extends State<Nagelimage> {
         _isLoading = false;
       });
 
-      // Show the prediction result in a dialog or another widget
+      // Show the prediction result in a dialog
       _showPredictionResult(response);
     } catch (e) {
       setState(() {

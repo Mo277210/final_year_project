@@ -5,7 +5,7 @@ class SinupResponseModelDM {
   final String message;
   final DoctorModel? doctor;
 
- SinupResponseModelDM({
+  SinupResponseModelDM({
     required this.success,
     required this.token,
     required this.error,
@@ -38,7 +38,7 @@ class DoctorModel {
   final String name;
   final String email;
   final String phone;
-  final String speciality;
+  final String specialization; // Changed from speciality to specialization
   final Map<String, dynamic> proof;
   final String updatedAt;
   final String createdAt;
@@ -48,7 +48,7 @@ class DoctorModel {
     required this.name,
     required this.email,
     required this.phone,
-    required this.speciality,
+    required this.specialization, // Changed from speciality to specialization
     required this.proof,
     required this.updatedAt,
     required this.createdAt,
@@ -60,7 +60,7 @@ class DoctorModel {
       name: json["name"] ?? "",
       email: json["email"] ?? "",
       phone: json["phone"] ?? "",
-      speciality: json["speciality"] ?? "",
+      specialization: json["specialization"] ?? "", // Changed from speciality to specialization
       proof: json["proof"] ?? {},
       updatedAt: json["updated_at"] ?? "",
       createdAt: json["created_at"] ?? "",
@@ -73,7 +73,7 @@ class DoctorModel {
       "name": name,
       "email": email,
       "phone": phone,
-      "speciality": speciality,
+      "specialization": specialization, // Changed from speciality to specialization
       "proof": proof,
       "updated_at": updatedAt,
       "created_at": createdAt,

@@ -5,7 +5,6 @@ import 'package:http_parser/http_parser.dart';
 
 import '../model/sinup_doctor.dart';
 
-
 class APIServiceDm {
   Future<SinupResponseModelDM> registerDoctor({
     required String name,
@@ -13,7 +12,7 @@ class APIServiceDm {
     required String password,
     required String passwordConfirmation,
     required String phone,
-    required String speciality,
+    required String specialization, // Changed from speciality to specialization
     required File proof,
   }) async {
     String url = "https://nagel-production.up.railway.app/api/doctor/register";
@@ -27,13 +26,14 @@ class APIServiceDm {
       request.fields['password'] = password;
       request.fields['password_confirmation'] = passwordConfirmation;
       request.fields['phone'] = phone;
-      request.fields['speciality'] = speciality;
+      request.fields['specialization'] = specialization; // Changed from speciality to specialization
 
       // Attaching the proof file
+      var fileExtension = proof.path.split('.').last;
       request.files.add(await http.MultipartFile.fromPath(
         'proof',
         proof.path,
-        contentType: MediaType('image', 'jpeg'), // Adjust if needed
+        contentType: MediaType('image', fileExtension), // Adjust dynamically
       ));
 
       // Sending the request
@@ -53,6 +53,7 @@ class APIServiceDm {
         });
       }
     } catch (e) {
+      print("Network error: $e"); // Log the error for debugging
       throw Exception("Network error: $e");
     }
   }

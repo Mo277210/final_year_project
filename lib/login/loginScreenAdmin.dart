@@ -32,20 +32,23 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
     });
 
     LoginRequestModel requestModel = LoginRequestModel(
-      email:  _emailController.text,
+      email: _emailController.text,
       password: _passwordController.text,
     );
 
     try {
       APIService apiService = APIService();
-      var response = await apiService.login( "admin",requestModel); // Use "doctor"
+      var response = await apiService.login("admin", requestModel);
 
       print("Token Response: ${response.token}");
 
       if (response.token.isNotEmpty) {
+        // Pass the token to AdminHomePage
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) =>  AdminHomePage()),
+          MaterialPageRoute(
+            builder: (context) => AdminHomePage(token: response.token),
+          ),
         );
       } else {
         setState(() {
@@ -62,6 +65,7 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
       _isLoading = false;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -246,14 +250,17 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                InkWell(onTap: (){ Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          LoginScreenPatient ()),
-                );},
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreenPatient(),
+                      ),
+                    );
+                  },
                   child: Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(17, 14,17, 14),
+                    padding: EdgeInsetsDirectional.fromSTEB(17, 14, 17, 14),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Container(
@@ -303,4 +310,3 @@ void main() {
     home: LoginScreenAdmin(),
   ));
 }
-
