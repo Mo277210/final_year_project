@@ -1,5 +1,7 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_setting_api/edit_name.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_pasword.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/logout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../login/loginScreenDoctor.dart';
@@ -59,6 +61,80 @@ class _SettingsPageState extends State<SettingsPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update name: $e")),
+      );
+    }
+  }
+
+  Future<void> _updatePassword() async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token;
+
+    final currentPassword = oldPasswordController.text.trim();
+    final newPassword = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    if (currentPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill in all fields.")),
+      );
+      return;
+    }
+
+    if (newPassword != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Passwords do not match.")),
+      );
+      return;
+    }
+
+    try {
+      final apiService = DoctorAPIService_edit_password();
+      final response = await apiService.editPassword(
+        token: token,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+        newPasswordConfirmation: confirmPassword,
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update password: $e")),
+      );
+    }
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token;
+
+    try {
+      final apiService = DoctorAPIService_logout();
+      final response = await apiService.logout(token);
+
+      if (response.success) {
+        // Clear the token when logging out
+        tokenProvider.setToken('');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreenDoctor()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to logout: $e")),
       );
     }
   }
@@ -319,9 +395,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState?.validate() ?? false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Password updated")),
-                            );
+                            _updatePassword();
                           }
                         },
                         child: const Text('Save Password'),
@@ -394,12 +468,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             leading: Icon(Icons.exit_to_app, color: blueColor),
             title: const Text('Log Out'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreenDoctor()),
-              );
-            },
+            onTap: () => _logout(context),
           ),
         ],
       ),
