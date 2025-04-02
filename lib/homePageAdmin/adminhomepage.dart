@@ -1,10 +1,9 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Import Provider
-import '../  provider/provider.dart';
-import '../api/admin_home_api.dart'; // Import the APIService
+import 'package:provider/provider.dart';
+import '../api/admin_home_api.dart';
 import '../login/loginScreenAdmin.dart';
-import '../model/admin_home.dart'; // Import the PendedDoctorModel
-
+import '../model/admin_home.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -20,16 +19,46 @@ class _AdminHomePageState extends State<AdminHomePage> {
   @override
   void initState() {
     super.initState();
-    // Access the token from TokenProvider
+    _refreshDoctorsList();
+  }
+
+  void _refreshDoctorsList() {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    _pendedDoctorsFuture = _apiService.showPendedDoctors(tokenProvider.token);
+    setState(() {
+      _pendedDoctorsFuture = _apiService.showPendedDoctors(tokenProvider.token);
+    });
+  }
+
+  Future<void> _rejectDoctor(int doctorId) async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    try {
+      final response = await _apiService.rejectDoctor(
+        token: tokenProvider.token,
+        doctorId: doctorId,
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+        _refreshDoctorsList();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to reject doctor: ${response.message}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error rejecting doctor: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80), // Increase AppBar height
+        preferredSize: Size.fromHeight(80),
         child: AppBar(
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
@@ -46,9 +75,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.exit_to_app, color: Color(0xFF105DFB)), // Exit icon
+              icon: Icon(Icons.exit_to_app, color: Color(0xFF105DFB)),
               onPressed: () {
-                // Clear the token when logging out
                 Provider.of<TokenProvider>(context, listen: false).setToken('');
                 Navigator.pushReplacement(
                   context,
@@ -107,13 +135,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                 children: [
                                   _buildDoctorCard(
                                     context,
-                                    name: doctor.name,
-                                    specialization: doctor.specialization,
-                                    phone: doctor.phone,
-                                    email: doctor.email,
-                                    proof: doctor.proof,
+                                    doctor: doctor,
+                                    onReject: () => _rejectDoctor(doctor.id),
                                   ),
-                                  SizedBox(height: 16), // Add space between cards
+                                  SizedBox(height: 16),
                                 ],
                               );
                             },
@@ -133,19 +158,16 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   Widget _buildDoctorCard(
       BuildContext context, {
-        required String name,
-        required String specialization,
-        required String phone,
-        required String email,
-        required String proof,
+        required PendedDoctorModel doctor,
+        required VoidCallback onReject,
       }) {
-    String proofUrl = "https://nagel-production.up.railway.app$proof";
+    String proofUrl = "https://nagel-production.up.railway.app${doctor.proof}";
 
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white, // White background for the card
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -168,7 +190,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Dr.$name",
+                        "Dr.${doctor.name}",
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontFamily: 'Inter Tight',
                           fontWeight: FontWeight.w600,
@@ -176,7 +198,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        specialization,
+                        doctor.specialization,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).hintColor,
                         ),
@@ -207,7 +229,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             ),
                             SizedBox(height: 4),
                             Text(
-                              phone,
+                              doctor.phone,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -235,7 +257,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             ),
                             SizedBox(height: 4),
                             Text(
-                              email,
+                              doctor.email,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -257,7 +279,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: proof.startsWith('/tmp/')
+              child: doctor.proof.startsWith('/tmp/')
                   ? Center(
                 child: Text(
                   'Proof image not available',
@@ -284,9 +306,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    print('Reject pressed');
-                  },
+                  onPressed: onReject,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFF5F5F5),
                     foregroundColor: Theme.of(context).colorScheme.error,

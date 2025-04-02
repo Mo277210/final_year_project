@@ -5,11 +5,12 @@ class PendedDoctorModel {
   final String phone;
   final String specialization;
   final String proof;
+  final String? photo; // Added photo field
   final double rating;
   final int totalRatings;
   final String status;
-  final String createdAt;
-  final String updatedAt;
+  final DateTime createdAt; // Changed to DateTime
+  final DateTime updatedAt; // Changed to DateTime
 
   PendedDoctorModel({
     required this.id,
@@ -18,6 +19,7 @@ class PendedDoctorModel {
     required this.phone,
     required this.specialization,
     required this.proof,
+    this.photo,
     required this.rating,
     required this.totalRatings,
     required this.status,
@@ -25,7 +27,6 @@ class PendedDoctorModel {
     required this.updatedAt,
   });
 
-  // Factory constructor to create an instance from JSON
   factory PendedDoctorModel.fromJson(Map<String, dynamic> json) {
     return PendedDoctorModel(
       id: json["id"] ?? 0,
@@ -34,15 +35,15 @@ class PendedDoctorModel {
       phone: json["phone"] ?? "",
       specialization: json["specialization"] ?? "",
       proof: json["proof"] ?? "",
-      rating: json["rateing"]?.toDouble() ?? 0.0, // Corrected typo in API response
-      totalRatings: json["total_rateings"] ?? 0, // Corrected typo in API response
+      photo: json["photo"],
+      rating: (json["rateing"] ?? 0).toDouble(),
+      totalRatings: json["total_rateings"] ?? 0,
       status: json["status"] ?? "",
-      createdAt: json["created_at"] ?? "",
-      updatedAt: json["updated_at"] ?? "",
+      createdAt: DateTime.parse(json["created_at"] ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json["updated_at"] ?? DateTime.now().toIso8601String()),
     );
   }
 
-  // Convert the object to a JSON format
   Map<String, dynamic> toJson() {
     return {
       "id": id,
@@ -51,11 +52,25 @@ class PendedDoctorModel {
       "phone": phone,
       "specialization": specialization,
       "proof": proof,
+      "photo": photo,
       "rateing": rating,
       "total_rateings": totalRatings,
       "status": status,
-      "created_at": createdAt,
-      "updated_at": updatedAt,
+      "created_at": createdAt.toIso8601String(),
+      "updated_at": updatedAt.toIso8601String(),
     };
+  }
+
+  // Helper method to get full proof URL
+  String get fullProofUrl {
+    if (proof.startsWith('http')) return proof;
+    return 'https://nagel-production.up.railway.app/$proof';
+  }
+
+  // Helper method to get full photo URL if exists
+  String? get fullPhotoUrl {
+    if (photo == null) return null;
+    if (photo!.startsWith('http')) return photo;
+    return 'https://nagel-production.up.railway.app/$photo';
   }
 }

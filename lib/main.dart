@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => TokenProvider(), // Create an instance of TokenProvider
+      create: (_) => TokenProvider(),
       child: const MyApp(),
     ),
   );

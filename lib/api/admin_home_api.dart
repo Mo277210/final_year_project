@@ -1,10 +1,14 @@
+import 'package:collogefinalpoject/model/admin/Reject.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../model/admin_home.dart'; // Import the PendedDoctorModel
+
+import '../model/admin_home.dart';
 
 class APIService {
+  static const String baseUrl = 'https://nagel-production.up.railway.app/api/admin';
+
   Future<List<PendedDoctorModel>> showPendedDoctors(String token) async {
-    final url = Uri.parse('https://nagel-production.up.railway.app/api/admin/showPendedDoctors');
+    final url = Uri.parse('$baseUrl/showPendedDoctors');
 
     try {
       final response = await http.get(
@@ -18,14 +22,45 @@ class APIService {
       final responseBody = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        // Assuming the response is a list of pended doctors
-        List<PendedDoctorModel> pendedDoctors = (responseBody as List)
-            .map((doctor) => PendedDoctorModel.fromJson(doctor))
-            .toList();
-        return pendedDoctors;
+        if (responseBody is List) {
+          return responseBody.map<PendedDoctorModel>((doctor) => PendedDoctorModel.fromJson(doctor)).toList();
+        } else {
+          throw Exception("Unexpected response format");
+        }
       } else {
         throw Exception(
-            "Failed to fetch pended doctors: ${responseBody["error"] ?? "Unknown error"}");
+            "Failed to fetch pended doctors: ${responseBody["message"] ?? "Status code: ${response.statusCode}"}");
+      }
+    } catch (e) {
+      throw Exception("Network error: $e");
+    }
+  }
+
+  Future<RejectDoctorResponse> rejectDoctor({
+    required String token,
+    required int doctorId,
+  }) async {
+    final url = Uri.parse('$baseUrl/rejectDoctor/$doctorId');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: json.encode({
+          "status": "rejected",
+        }),
+      );
+
+      final responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        return RejectDoctorResponse.fromJson(responseBody);
+      } else {
+        throw Exception(
+            "Failed to reject doctor: ${responseBody["message"] ?? "Status code: ${response.statusCode}"}");
       }
     } catch (e) {
       throw Exception("Network error: $e");

@@ -1,5 +1,13 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/patient_setting/editpassword.dart';
+import 'package:collogefinalpoject/api/patient_setting/editphone.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
+import 'package:collogefinalpoject/model/patient_setting/editemail.dart';
+import 'package:collogefinalpoject/model/patient_setting/editpassword.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SettingPatientPage extends StatefulWidget {
   const SettingPatientPage({Key? key}) : super(key: key);
@@ -28,6 +36,150 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
   final Color blueColor = Color(0xFF105DFB);
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  // Add API service methods
+  Future<void> _updateName() async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final url = Uri.parse('https://nagel-production.up.railway.app/api/patient/editName');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Authorization': 'Bearer ${tokenProvider.token}',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'name': nameController.text}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'] ?? "Name updated successfully")),
+          );
+        } else {
+          throw Exception(data['message'] ?? "Failed to update name");
+        }
+      } else {
+        throw Exception("Failed to update name: ${response.statusCode}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    }
+  }
+  Future<void> _updateEmail() async {
+    if (emailController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter an email")),
+      );
+      return;
+    }
+
+    // Validate email format
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(emailController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a valid email address")),
+      );
+      return;
+    }
+
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final request = PatientEmailRequest(email: emailController.text.trim());
+
+    try {
+      final response = await http.put(
+        Uri.parse('https://nagel-production.up.railway.app/api/patient/editEmail'),
+        headers: {
+          'Authorization': 'Bearer ${tokenProvider.token}',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode(request.toJson()),
+      );
+
+      final responseData = json.decode(response.body);
+      final emailResponse = PatientEmailResponse.fromJson(responseData);
+
+      if (response.statusCode == 200 && emailResponse.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(emailResponse.message)),
+        );
+      } else {
+        throw Exception(emailResponse.message);
+      }
+    } on http.ClientException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Network error: ${e.message}")),
+      );
+    } on FormatException catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Invalid server response")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update email: ${e.toString()}")),
+      );
+    }
+  }
+  Future<void> _updatePassword() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final passwordService = PatientEditPasswordApiService(tokenProvider.token);
+
+    try {
+      final response = await passwordService.changePassword(
+        currentPassword: oldPasswordController.text,
+        newPassword: passwordController.text,
+        newPasswordConfirmation: confirmPasswordController.text,
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+
+        // Clear password fields after successful update
+        oldPasswordController.clear();
+        passwordController.clear();
+        confirmPasswordController.clear();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update password: ${e.toString()}")),
+      );
+    }
+  }
+  Future<void> _updatePhone() async {
+    if (phoneController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a phone number")),
+      );
+      return;
+    }
+
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final phoneService = PatientEditPhoneApiService(tokenProvider.token);
+
+    try {
+      final response = await phoneService.updatePhone(phoneController.text);
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+        phoneController.clear(); // Clear field after success
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update phone: ${e.toString()}")),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,8 +227,10 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                 onPressed: () {
                   String newName = nameController.text;
                   if (newName.isNotEmpty) {
+                    _updateName();
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Name updated to: $newName")),
+                      SnackBar(content: Text("Please enter a name")),
                     );
                   }
                 },
@@ -107,6 +261,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                 child: TextField(
                   controller: emailController,
                   cursorColor: blueColor,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: 'Enter new email',
                     labelStyle: TextStyle(color: blueColor),
@@ -129,8 +284,10 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                 onPressed: () {
                   String newEmail = emailController.text;
                   if (newEmail.isNotEmpty) {
+                    _updateEmail();
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Email updated to: $newEmail")),
+                      SnackBar(content: Text("Please enter an email")),
                     );
                   }
                 },
@@ -196,6 +353,12 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                             borderSide: BorderSide(color: blueColor),
                           ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your old password';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
@@ -237,6 +400,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                             return 'Please enter a password';
                           } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
                             return 'Password should contain special characters';
+                          } else if (value.length < 8) {
+                            return 'Password should be at least 8 characters';
                           }
                           return null;
                         },
@@ -287,13 +452,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                       ),
                       const SizedBox(height: 10),
                       ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Password updated")),
-                            );
-                          }
-                        },
+                        onPressed: _updatePassword,
                         child: const Text('Save Password'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -325,6 +484,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                 child: TextField(
                   controller: phoneController,
                   cursorColor: blueColor,
+                  keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     labelText: 'Enter new phone number',
                     labelStyle: TextStyle(color: blueColor),
@@ -347,8 +507,10 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                 onPressed: () {
                   String newPhone = phoneController.text;
                   if (newPhone.isNotEmpty) {
+                    _updatePhone();
+                  } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Phone number updated")),
+                      SnackBar(content: Text("Please enter a phone number")),
                     );
                   }
                 },
@@ -365,7 +527,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
             leading: Icon(Icons.exit_to_app, color: blueColor),
             title: const Text('Log Out'),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => LoginScreenPatient()),
               );
@@ -378,8 +540,13 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
 }
 
 void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: SettingPatientPage(),
-  ));
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TokenProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: SettingPatientPage(),
+      ),
+    ),
+  );
 }
