@@ -1,6 +1,10 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DoctorSearchPage extends StatefulWidget {
   @override
@@ -9,10 +13,101 @@ class DoctorSearchPage extends StatefulWidget {
 
 class _DoctorSearchPageState extends State<DoctorSearchPage> {
   String? selectedChip = 'All';
+  List<Doctor> doctors = [];
+  List<Doctor> filteredDoctors = [];
+  bool isLoading = false;
+  bool isDisposed = false;
+  final TextEditingController searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDoctors();
+  }
+
+  @override
+  void dispose() {
+    isDisposed = true;
+    searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchDoctors() async {
+    if (isDisposed) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+      final response = await http.get(
+        Uri.parse('https://nagel-production.up.railway.app/api/patient/showDoctors'),
+        headers: {
+          'Authorization': 'Bearer ${tokenProvider.token}',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> doctorsJson = data['data'];
+        final fetchedDoctors = doctorsJson.map((json) => Doctor.fromJson(json)).toList();
+
+        if (!isDisposed) {
+          setState(() {
+            doctors = fetchedDoctors;
+            filteredDoctors = fetchedDoctors;
+            isLoading = false;
+          });
+        }
+      } else {
+        if (!isDisposed) {
+          setState(() {
+            isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load doctors: ${response.statusCode}')),
+          );
+        }
+      }
+    } catch (e) {
+      if (!isDisposed) {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load doctors: $e')),
+        );
+      }
+    }
+  }
+
+  void _filterDoctors() {
+    final query = searchController.text.toLowerCase();
+    final specialtyFilter = selectedChip == 'All' ? null : selectedChip;
+
+    if (selectedChip == 'All') {
+      _fetchDoctors();
+      return;
+    }
+
+    setState(() {
+      filteredDoctors = doctors.where((doctor) {
+        final matchesSpecialty = specialtyFilter == null ||
+            doctor.specialization.toLowerCase().contains(specialtyFilter!.toLowerCase());
+        final matchesSearch = query.isEmpty ||
+            doctor.name.toLowerCase().contains(query) ||
+            doctor.specialization.toLowerCase().contains(query);
+        return matchesSpecialty && matchesSearch;
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final specialties = ['All', 'Dermatology', 'Cardiology', 'Pediatrics'];
+    final specialties = ['All', 'Dermatology', 'Cardiology', 'Pediatrics', 'Neurology', 'heart'];
 
     return Scaffold(
       backgroundColor: Color(0xFFF1F4F8),
@@ -50,11 +145,13 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                         SizedBox(width: 8),
                         Expanded(
                           child: TextField(
+                            controller: searchController,
                             cursorColor: Color(0xFF105DFB),
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Search for doctors...',
                             ),
+                            onChanged: (_) => _filterDoctors(),
                           ),
                         ),
                       ],
@@ -84,6 +181,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                             onSelected: (bool selected) {
                               setState(() {
                                 selectedChip = specialty;
+                                _filterDoctors();
                               });
                             },
                           ),
@@ -96,76 +194,23 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView(
-                  children: [
-                    DoctorCard(
-                    image:  'assets/img_12.png',
-                    name: "Dr. Mohamed Hisham",
-                    specialty: "Dermatologist",
-                    starRating: 4.5,
-                    email: "dr.Monaser@clinic.com",
-                    phone: "+2010909900",
-                    availableHours: [
-                      {"Main:Mon": "9:00-17:00"},
-                      {"Main:Tue": "9:00-17:00"},
-                      {"Branch:Thu": "9:00-17:00"},
-                      {"Main:Fri": "9:00-15:00"},
-                    ],
-                    mainClinic: "6 Tahrir Street, directly above ",
-                    branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : filteredDoctors.isEmpty
+                  ? Center(child: Text('No doctors found'))
+                  : RefreshIndicator(
+                onRefresh: _fetchDoctors,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ListView.builder(
+                    itemCount: filteredDoctors.length,
+                    itemBuilder: (context, index) {
+                      final doctor = filteredDoctors[index];
+                      return DoctorCard(
+                        doctor: doctor,
+                      );
+                    },
                   ),
-                    DoctorCard(
-                      image:  'assets/Doctorimage.jpg',
-                      name: "Dr. Mohamed ahmed",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Main:Thu": "9:00-17:00"},
-                        {"Branch:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
-                    DoctorCard(
-                      image: 'assets/img_10.png',
-                      name: "Dr. Mohamed Monaser",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Branch:Thu": "9:00-17:00"},
-                        {"Branch:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
-                    DoctorCard(
-                     image:  'assets/img_11.png',
-                      name: "Dr. Mona ahmed",
-                      specialty: "Dermatologist",
-                      starRating: 4.5,
-                      email: "dr.Monaser@clinic.com",
-                      phone: "+2010909900",
-                      availableHours: [
-                        {"Main:Mon": "9:00-17:00"},
-                        {"Branch:Tue": "9:00-17:00"},
-                        {"Main:Thu": "9:00-17:00"},
-                        {"Main:Fri": "9:00-15:00"},
-                      ],
-                      mainClinic: "6 Tahrir Street, directly above ",
-                      branchClinic: "https://maps.app.goo.gl/bmm8j5hXVrZpEU5R6",
-                    ),
-
-                  ],
                 ),
               ),
             ),
@@ -176,43 +221,88 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
   }
 }
 
-class DoctorCard extends StatelessWidget {
-  final String image;
+class Doctor {
   final String name;
-  final String specialty;
-  final double starRating;
   final String email;
   final String phone;
-  final List<Map<String, String>> availableHours;
-  final String mainClinic;
-  final String branchClinic;
+  final double? rating;
+  final String specialization;
+  final int totalRatings;
+  final String? photo;
+  final List<Clinic> clinics;
+  final List<String> availableHours;
 
-  const DoctorCard({
-    required this.image,
+  Doctor({
     required this.name,
-    required this.specialty,
-    required this.starRating,
     required this.email,
     required this.phone,
+    this.rating,
+    required this.specialization,
+    required this.totalRatings,
+    this.photo,
+    required this.clinics,
     required this.availableHours,
-    required this.mainClinic,
-    required this.branchClinic,
   });
 
+  factory Doctor.fromJson(Map<String, dynamic> json) {
+    return Doctor(
+      name: json['name'],
+      email: json['email'],
+      phone: json['phone'],
+      rating: json['rating']?.toDouble(),
+      specialization: json['specialization'],
+      totalRatings: json['total_rateings'] ?? 0,
+      photo: json['photo'],
+      clinics: (json['clinics'] as List? ?? [])
+          .map((clinic) => Clinic.fromJson(clinic))
+          .toList(),
+      availableHours: List<String>.from(json['available_hours'] ?? []),
+    );
+  }
+}
+
+class Clinic {
+  final String name;
+  final String address;
+  final String phone;
+
+  Clinic({
+    required this.name,
+    required this.address,
+    required this.phone,
+  });
+
+  factory Clinic.fromJson(Map<String, dynamic> json) {
+    return Clinic(
+      name: json['name'],
+      address: json['address'],
+      phone: json['phone'],
+    );
+  }
+}
+
+class DoctorCard extends StatelessWidget {
+  final Doctor doctor;
+
+  const DoctorCard({
+    required this.doctor,
+  });
 
   Future<void> _launchUrl(String url) async {
-    final Uri _url = Uri.parse(url);
-    if (!await launchUrl(_url)) {
-      throw Exception('Could not launch $_url');
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      final Uri _url = Uri.parse(url);
+      if (!await launchUrl(_url)) {
+        throw Exception('Could not launch $_url');
+      }
     }
-  }
-
-  bool _isLink(String text) {
-    return text.contains('http://') || text.contains('https://') || text.contains('www.');
   }
 
   @override
   Widget build(BuildContext context) {
+    // Cap the rating at 5 stars
+    final  double rating = doctor.rating != null ? (doctor.rating! > 5 ? 5 : doctor.rating!) : 0;
+    final totalRatings = doctor.totalRatings > 5 ? 5 : doctor.totalRatings;
+
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -228,25 +318,27 @@ class DoctorCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage(image),
+                  backgroundImage: doctor.photo != null
+                      ? NetworkImage(doctor.photo!)
+                      : AssetImage('assets/default_doctor.png') as ImageProvider,
                 ),
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      name,
+                      "Dr. ${doctor.name}",
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      specialty,
+                      doctor.specialization,
                       style: TextStyle(color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
                         RatingBar.builder(
-                          initialRating: starRating,
+                          initialRating: rating.toDouble(),
                           minRating: 1,
                           direction: Axis.horizontal,
                           allowHalfRating: true,
@@ -254,17 +346,15 @@ class DoctorCard extends StatelessWidget {
                           itemSize: 20,
                           itemBuilder: (context, index) => Icon(
                             Icons.star,
-                            color: index < starRating
+                            color: index < rating
                                 ? Colors.amber
                                 : Colors.grey[400],
                           ),
-                          onRatingUpdate: (rating) {
-                            // Handle rating update
-                          },
+                          onRatingUpdate: (rating) {},
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          "($starRating)",
+                          "($totalRatings)",
                           style: TextStyle(color: Colors.grey),
                         ),
                       ],
@@ -278,7 +368,7 @@ class DoctorCard extends StatelessWidget {
               children: [
                 Icon(Icons.email, color: Color(0xFF105DFB)),
                 SizedBox(width: 8),
-                Text(email),
+                Text(doctor.email),
               ],
             ),
             const SizedBox(height: 8),
@@ -286,102 +376,75 @@ class DoctorCard extends StatelessWidget {
               children: [
                 Icon(Icons.phone, color: Color(0xFF105DFB)),
                 SizedBox(width: 8),
-                Text(phone),
+                Text(doctor.phone),
               ],
             ),
-            const SizedBox(height: 16),
-            Center(
-              child: Text(
-                "Available Hours",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF105DFB),
+            if (doctor.availableHours.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  "Available Hours",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF105DFB),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: availableHours.map((dayTime) {
-                  final day = dayTime.keys.first;
-                  final time = dayTime.values.first;
-                  return Container(
-                    margin: const EdgeInsets.only(right: 8),
-                    padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.lightBlue[100],
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: doctor.availableHours.map((hour) {
+                    // Show the full available hour string
+                    return Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue[100],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        hour, // Display the full hour string
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+            if (doctor.clinics.isNotEmpty) ...[
+              ...doctor.clinics.map((clinic) => Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Center(
                     child: Text(
-                      "$day: $time",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 14),
+                      "${clinic.name} Clinic",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF105DFB),
+                      ),
                     ),
-                  );
-                }).toList(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Text(
-                "Main Clinic",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF105DFB),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _isLink(mainClinic)
-                ? InkWell(
-              onTap: () => _launchUrl(mainClinic),
-              child: Center(
-                child: Text(
-                  mainClinic,
-                  style: TextStyle(color: Colors.blue),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-                : Center(
-              child: Text(
-                mainClinic,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Text(
-                "Branch Clinic",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF105DFB),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _isLink(branchClinic)
-                ? InkWell(
-              onTap: () => _launchUrl(branchClinic),
-              child: Center(
-                child: Text(
-                  branchClinic,
-                  style: TextStyle(color: Colors.blue),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            )
-                : Center(
-              child: Text(
-                branchClinic,
-                textAlign: TextAlign.center,
-              ),
-            ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      clinic.address,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      clinic.phone,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              )),
+            ],
           ],
         ),
       ),
@@ -390,7 +453,12 @@ class DoctorCard extends StatelessWidget {
 }
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => TokenProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

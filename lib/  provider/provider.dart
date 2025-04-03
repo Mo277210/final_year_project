@@ -9,4 +9,8 @@ class TokenProvider with ChangeNotifier {
     _token = newToken;
     notifyListeners(); // Notify all listeners that the token has changed
   }
+  void clearToken() {
+    _token = '';
+    notifyListeners();
+  }
 }

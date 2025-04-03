@@ -1,4 +1,5 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/patient_setting/Logout.dart';
 import 'package:collogefinalpoject/api/patient_setting/editpassword.dart';
 import 'package:collogefinalpoject/api/patient_setting/editphone.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
@@ -19,7 +20,8 @@ class SettingPatientPage extends StatefulWidget {
 class _SettingPatientPageState extends State<SettingPatientPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final TextEditingController oldPasswordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -40,7 +42,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
   // Add API service methods
   Future<void> _updateName() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final url = Uri.parse('https://nagel-production.up.railway.app/api/patient/editName');
+    final url = Uri.parse(
+        'https://nagel-production.up.railway.app/api/patient/editName');
 
     try {
       final response = await http.put(
@@ -56,7 +59,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(data['message'] ?? "Name updated successfully")),
+            SnackBar(
+                content: Text(data['message'] ?? "Name updated successfully")),
           );
         } else {
           throw Exception(data['message'] ?? "Failed to update name");
@@ -70,6 +74,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       );
     }
   }
+
   Future<void> _updateEmail() async {
     if (emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +84,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
     }
 
     // Validate email format
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(emailController.text)) {
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+        .hasMatch(emailController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter a valid email address")),
       );
@@ -91,7 +97,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
 
     try {
       final response = await http.put(
-        Uri.parse('https://nagel-production.up.railway.app/api/patient/editEmail'),
+        Uri.parse(
+            'https://nagel-production.up.railway.app/api/patient/editEmail'),
         headers: {
           'Authorization': 'Bearer ${tokenProvider.token}',
           'Content-Type': 'application/json',
@@ -124,6 +131,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       );
     }
   }
+
   Future<void> _updatePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -153,6 +161,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       );
     }
   }
+
   Future<void> _updatePhone() async {
     if (phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,7 +188,6 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -398,7 +406,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a password';
-                          } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                          } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                              .hasMatch(value)) {
                             return 'Password should contain special characters';
                           } else if (value.length < 8) {
                             return 'Password should be at least 8 characters';
@@ -422,7 +431,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
                               });
                             },
                           ),
@@ -523,14 +533,57 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
             ],
           ),
+          // In your ListTile for logout, update the onTap:
           ListTile(
             leading: Icon(Icons.exit_to_app, color: blueColor),
             title: const Text('Log Out'),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreenPatient()),
-              );
+            onTap: () async {
+              final tokenProvider =
+                  Provider.of<TokenProvider>(context, listen: false);
+              final logoutService =
+                  PatientLogoutApiService(tokenProvider.token);
+
+              try {
+                // Show loading indicator
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                );
+
+                final response = await logoutService.logout();
+
+                // Close loading indicator
+                Navigator.of(context).pop();
+
+                if (response.success) {
+                  // Clear the token
+                  tokenProvider.clearToken();
+
+                  // Navigate to login screen
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LoginScreenPatient()),
+                    (Route<dynamic> route) => false,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(response.message)),
+                  );
+                }
+              } catch (e) {
+                // Close loading indicator if still showing
+                Navigator.of(context).pop();
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Logout failed: ${e.toString()}')),
+                );
+              }
             },
           ),
         ],
