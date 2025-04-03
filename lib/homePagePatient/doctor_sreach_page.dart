@@ -1,10 +1,17 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/patient_setting/DoctorRating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+
+
+
+//todo: rating stars
+
 
 class DoctorSearchPage extends StatefulWidget {
   @override
@@ -18,6 +25,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
   bool isLoading = false;
   bool isDisposed = false;
   final TextEditingController searchController = TextEditingController();
+  FocusNode searchFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -29,6 +37,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
   void dispose() {
     isDisposed = true;
     searchController.dispose();
+    searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -37,6 +46,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 
     setState(() {
       isLoading = true;
+      filteredDoctors = [];
     });
 
     try {
@@ -86,20 +96,26 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 
   void _filterDoctors() {
     final query = searchController.text.toLowerCase();
-    final specialtyFilter = selectedChip == 'All' ? null : selectedChip;
 
-    if (selectedChip == 'All') {
-      _fetchDoctors();
+    if (query.isEmpty && selectedChip == 'All') {
+      setState(() {
+        filteredDoctors = doctors;
+      });
       return;
     }
 
     setState(() {
       filteredDoctors = doctors.where((doctor) {
-        final matchesSpecialty = specialtyFilter == null ||
-            doctor.specialization.toLowerCase().contains(specialtyFilter!.toLowerCase());
+        // Filter by selected specialty
+        final matchesSpecialty = selectedChip == 'All' ||
+            doctor.specialization.toLowerCase().contains(selectedChip!.toLowerCase());
+
+        // Search in name, specialty, or clinic addresses
         final matchesSearch = query.isEmpty ||
             doctor.name.toLowerCase().contains(query) ||
-            doctor.specialization.toLowerCase().contains(query);
+            doctor.specialization.toLowerCase().contains(query) ||
+            doctor.clinics.any((clinic) => clinic.address.toLowerCase().contains(query));
+
         return matchesSpecialty && matchesSearch;
       }).toList();
     });
@@ -107,7 +123,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final specialties = ['All', 'Dermatology', 'Cardiology', 'Pediatrics', 'Neurology', 'heart'];
+    final specialties = ['All', 'Dermatology', 'Cardiology', 'Pediatrics', 'Neurology', 'heart', 'Surgery'];
 
     return Scaffold(
       backgroundColor: Color(0xFFF1F4F8),
@@ -146,14 +162,24 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                         Expanded(
                           child: TextField(
                             controller: searchController,
+                            focusNode: searchFocusNode,
                             cursorColor: Color(0xFF105DFB),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Search for doctors...',
+                              hintText: 'Search by name, specialty or address...',
                             ),
                             onChanged: (_) => _filterDoctors(),
                           ),
                         ),
+                        if (searchController.text.isNotEmpty)
+                          IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              searchController.clear();
+                              _filterDoctors();
+                              searchFocusNode.requestFocus();
+                            },
+                          ),
                       ],
                     ),
                   ),
@@ -162,7 +188,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                     'Medical Specialties',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -197,7 +223,35 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
               child: isLoading
                   ? Center(child: CircularProgressIndicator())
                   : filteredDoctors.isEmpty
-                  ? Center(child: Text('No doctors found'))
+                  ? Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search_off, size: 64, color: Colors.grey),
+                      SizedBox(height: 12),
+                      Text(
+                        'No doctors found',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      if (searchController.text.isNotEmpty || selectedChip != 'All')
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              searchController.clear();
+                              selectedChip = 'All';
+                            });
+                            _filterDoctors();
+                          },
+                          child: Text('Clear all filters'),
+                        ),
+                    ],
+                  ),
+                ),
+              )
                   : RefreshIndicator(
                 onRefresh: _fetchDoctors,
                 child: Padding(
@@ -208,6 +262,11 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
                       final doctor = filteredDoctors[index];
                       return DoctorCard(
                         doctor: doctor,
+                        onRatingUpdated: (newRating) {
+                          setState(() {
+                            doctor.rating = newRating;
+                          });
+                        },
                       );
                     },
                   ),
@@ -225,9 +284,9 @@ class Doctor {
   final String name;
   final String email;
   final String phone;
-  final double? rating;
+  double? rating;
   final String specialization;
-  final int totalRatings;
+  int totalRatings;
   final String? photo;
   final List<Clinic> clinics;
   final List<String> availableHours;
@@ -283,9 +342,11 @@ class Clinic {
 
 class DoctorCard extends StatelessWidget {
   final Doctor doctor;
+  final Function(double) onRatingUpdated;
 
   const DoctorCard({
     required this.doctor,
+    required this.onRatingUpdated,
   });
 
   Future<void> _launchUrl(String url) async {
@@ -299,8 +360,7 @@ class DoctorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cap the rating at 5 stars
-    final  double rating = doctor.rating != null ? (doctor.rating! > 5 ? 5 : doctor.rating!) : 0;
+    final double rating = doctor.rating != null ? (doctor.rating! > 5 ? 5 : doctor.rating!) : 0;
     final totalRatings = doctor.totalRatings > 5 ? 5 : doctor.totalRatings;
 
     return Card(
@@ -311,141 +371,176 @@ class DoctorCard extends StatelessWidget {
       elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: doctor.photo != null
-                      ? NetworkImage(doctor.photo!)
-                      : AssetImage('assets/default_doctor.png') as ImageProvider,
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Dr. ${doctor.name}",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      doctor.specialization,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
+        child: SingleChildScrollView(  // Added this
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,  // Added this
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: doctor.photo != null
+                        ? NetworkImage(doctor.photo!)
+                        : AssetImage('assets/default_doctor.png') as ImageProvider,
+                    onBackgroundImageError: (_, __) => Icon(Icons.person),
+                  ),
+                  const SizedBox(width: 16),
+                  Flexible(  // Added Flexible
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        RatingBar.builder(
-                          initialRating: rating.toDouble(),
-                          minRating: 1,
-                          direction: Axis.horizontal,
-                          allowHalfRating: true,
-                          itemCount: 5,
-                          itemSize: 20,
-                          itemBuilder: (context, index) => Icon(
-                            Icons.star,
-                            color: index < rating
-                                ? Colors.amber
-                                : Colors.grey[400],
-                          ),
-                          onRatingUpdate: (rating) {},
-                        ),
-                        const SizedBox(width: 8),
                         Text(
-                          "($totalRatings)",
+                          "Dr. ${doctor.name}",
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          doctor.specialization,
                           style: TextStyle(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            RatingBar.builder(
+                              initialRating: rating,
+                              minRating: 1,
+                              maxRating: 5,
+                              direction: Axis.horizontal,
+                              allowHalfRating: true,
+                              itemCount: 5,
+                              itemSize: 20,
+                              itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
+                              itemBuilder: (context, _) => Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                              ),
+                              unratedColor: Colors.grey[400],
+                              onRatingUpdate: (newRating) async {
+                                try {
+                                  final result = await DoctorRatingApiService.rateDoctor(
+                                    context: context,
+                                    rating: newRating,
+                                  );
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Rating submitted! New average: ${result.newRating.toStringAsFixed(1)}'),
+                                    ),
+                                  );
+
+                                  onRatingUpdated(result.newRating);
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Failed to submit rating: $e'),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(  // Added Flexible
+                              child: Text(
+                                "($totalRatings reviews)",
+                                style: TextStyle(color: Colors.grey),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.email, color: Color(0xFF105DFB)),
-                SizedBox(width: 8),
-                Text(doctor.email),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.phone, color: Color(0xFF105DFB)),
-                SizedBox(width: 8),
-                Text(doctor.phone),
-              ],
-            ),
-            if (doctor.availableHours.isNotEmpty) ...[
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  "Available Hours",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF105DFB),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: doctor.availableHours.map((hour) {
-                    // Show the full available hour string
-                    return Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue[100],
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        hour, // Display the full hour string
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-            if (doctor.clinics.isNotEmpty) ...[
-              ...doctor.clinics.map((clinic) => Column(
+              Row(
                 children: [
-                  const SizedBox(height: 16),
-                  Center(
+                  Icon(Icons.email, color: Color(0xFF105DFB)),
+                  SizedBox(width: 8),
+                  Flexible(  // Added Flexible
                     child: Text(
-                      "${clinic.name} Clinic",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF105DFB),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      clinic.address,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      clinic.phone,
-                      textAlign: TextAlign.center,
+                      doctor.email,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
-              )),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.phone, color: Color(0xFF105DFB)),
+                  SizedBox(width: 8),
+                  Text(doctor.phone),
+                ],
+              ),
+              if (doctor.availableHours.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    "Available Hours",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF105DFB),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: doctor.availableHours.map((hour) {
+                      return Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.lightBlue[100],
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          hour,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+              if (doctor.clinics.isNotEmpty) ...[
+                ...doctor.clinics.map((clinic) => Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Text(
+                        "${clinic.name} Clinic",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF105DFB),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        clinic.address,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        clinic.phone,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                )),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
