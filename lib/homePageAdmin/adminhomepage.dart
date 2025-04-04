@@ -2,12 +2,10 @@ import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../api/admin/admin_home_api.dart';
-import '../api/doctor_setting_api/edit_email.dart';
 import '../login/loginScreenAdmin.dart';
 import '../model/admin_home.dart';
 import '../model/admin/Approve.dart';
 import '../model/admin/Reject.dart';
-import '../model/doctor_setting_model/edit_email.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -19,7 +17,6 @@ class AdminHomePage extends StatefulWidget {
 class _AdminHomePageState extends State<AdminHomePage> {
   late Future<List<PendedDoctorModel>> _pendedDoctorsFuture;
   final adminAPIService _apiService = adminAPIService();
-  final DoctorEditEmailAPIService _emailService = DoctorEditEmailAPIService();
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
   GlobalKey<RefreshIndicatorState>();
 
@@ -89,61 +86,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error approving doctor: $e')),
       );
-    }
-  }
-
-  Future<void> _editDoctorEmail(int doctorId, String currentEmail) async {
-    final newEmailController = TextEditingController(text: currentEmail);
-    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Doctor Email'),
-        content: TextField(
-          controller: newEmailController,
-          decoration: const InputDecoration(
-            labelText: 'New Email',
-            border: OutlineInputBorder(),
-          ),
-          keyboardType: TextInputType.emailAddress,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, newEmailController.text),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-
-    if (result != null && result.isNotEmpty && result != currentEmail) {
-      try {
-        final response = await _emailService.editEmail(
-          token: tokenProvider.token,
-          newEmail: result,
-          doctorId: doctorId,
-        );
-
-        if (response.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(response.message)),
-          );
-          await _refreshDoctorsList();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update email: ${response.message}')),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating email: $e')),
-        );
-      }
     }
   }
 
@@ -372,19 +314,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    doctor.email,
-                                    style: Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.edit, size: 18),
-                                  onPressed: () => _editDoctorEmail(doctor.id, doctor.email),
-                                ),
-                              ],
+                            Text(
+                              doctor.email,
+                              style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
                         ),

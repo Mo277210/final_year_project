@@ -1,13 +1,14 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_pasword.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../api/doctor_setting_api/edit_name.dart';
-import '../api/doctor_setting_api/edit_pasword.dart';
-import '../api/doctor_setting_api/edit_phone.dart';
-import '../api/doctor_setting_api/logout.dart';
-import '../api/doctor_setting_api/edit_email.dart';
-import '../login/loginScreenDoctor.dart';
-import '../model/doctor_setting_model/edit_email.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_name.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_phone.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/logout.dart';
+import 'package:collogefinalpoject/api/doctor_setting_api/edit_email.dart';
+import 'package:collogefinalpoject/login/loginScreenDoctor.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -36,6 +37,28 @@ class _SettingsPageState extends State<SettingsPage> {
   final Color _blueColor = const Color(0xFF105DFB);
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  int? _getDoctorId(String token) {
+    try {
+      if (token.isEmpty) return null;
+
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final payload = parts[1];
+      final normalizedPayload = base64Url.normalize(payload);
+      final decodedPayload = utf8.decode(base64Url.decode(normalizedPayload));
+      final payloadMap = json.decode(decodedPayload);
+
+      // Try different possible keys for doctor ID
+      return payloadMap['doctor_id'] as int? ??
+          payloadMap['sub'] as int? ??
+          payloadMap['id'] as int?;
+    } catch (e) {
+      debugPrint('Error extracting doctor ID: $e');
+      return null;
+    }
+  }
+
   Future<void> _updateName() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final newName = _nameController.text.trim();
@@ -57,12 +80,11 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() => _isNameExpanded = false);
       }
     } catch (e) {
-      _showSnackBar("Failed to update name: $e");
+      _showSnackBar(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
   Future<void> _updateEmail() async {
-    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final newEmail = _emailController.text.trim();
 
     if (newEmail.isEmpty) {
@@ -70,26 +92,29 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
-    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-        .hasMatch(newEmail)) {
-      _showSnackBar("Please enter a valid email");
+    // Validate email format
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(newEmail)) {
+      _showSnackBar("Please enter a valid email address");
       return;
     }
 
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+
     try {
-      final response = await DoctorEditEmailAPIService().editEmail(
-        token: tokenProvider.token,
-        newEmail: newEmail,
-        doctorId: _getDoctorId(), // Implement this method to get actual doctor ID
-      );
+      final response = await DoctorEditEmailAPIService(tokenProvider.token)
+          .editDoctorEmail(newEmail);
 
       _showSnackBar(response.message);
       if (response.success) {
         _emailController.clear();
         setState(() => _isEmailExpanded = false);
       }
+    } on http.ClientException catch (e) {
+      _showSnackBar("Network error: ${e.message}");
+    } on FormatException catch (_) {
+      _showSnackBar("Invalid server response");
     } catch (e) {
-      _showSnackBar("Failed to update email: $e");
+      _showSnackBar("Failed to update email: ${e.toString()}");
     }
   }
 
@@ -114,7 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() => _isPasswordExpanded = false);
       }
     } catch (e) {
-      _showSnackBar("Failed to update password: $e");
+      _showSnackBar(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
@@ -139,7 +164,7 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() => _isPhoneExpanded = false);
       }
     } catch (e) {
-      _showSnackBar("Failed to update phone: $e");
+      _showSnackBar(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
@@ -152,7 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
       );
 
       if (response.success) {
-        tokenProvider.setToken('');
+        tokenProvider.clearToken();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreenDoctor()),
@@ -161,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
         _showSnackBar(response.message);
       }
     } catch (e) {
-      _showSnackBar("Failed to logout: $e");
+      _showSnackBar(e.toString().replaceAll('Exception: ', ''));
     }
   }
 
@@ -169,12 +194,6 @@ class _SettingsPageState extends State<SettingsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
-  }
-
-  int _getDoctorId() {
-    // Implement logic to get the current doctor's ID
-    // This might come from your TokenProvider or another source
-    return 0; // Replace with actual implementation
   }
 
   @override

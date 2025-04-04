@@ -1,21 +1,25 @@
-class EditEmailResponse {
+class DoctorEditEmailRequest {
+  final String email;
+
+  DoctorEditEmailRequest({required this.email});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+    };
+  }
+}
+
+class DoctorEditEmailResponse {
   final bool success;
   final String message;
 
-  EditEmailResponse({
-    required this.success,
-    required this.message,
-  });
+  DoctorEditEmailResponse({required this.success, required this.message});
 
-  factory EditEmailResponse.fromJson(Map<String, dynamic> json) {
-    return EditEmailResponse(
-      success: json['success'] as bool? ?? false,
-      message: json['message'] as String? ?? '',
+  factory DoctorEditEmailResponse.fromJson(Map<String, dynamic> json) {
+    return DoctorEditEmailResponse(
+      success: json['success'],
+      message: json['message'],
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    'success': success,
-    'message': message,
-  };
 }
