@@ -1,12 +1,13 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
-import 'package:collogefinalpoject/api/doctor_setting_api/edit_name.dart';
-import 'package:collogefinalpoject/api/doctor_setting_api/edit_pasword.dart';
-import 'package:collogefinalpoject/api/doctor_setting_api/edit_phone.dart';
-import 'package:collogefinalpoject/api/doctor_setting_api/logout.dart';
-import 'package:collogefinalpoject/api/doctor_setting_api/edit_email.dart'; // Import the new email API
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../api/doctor_setting_api/edit_name.dart';
+import '../api/doctor_setting_api/edit_pasword.dart';
+import '../api/doctor_setting_api/edit_phone.dart';
+import '../api/doctor_setting_api/logout.dart';
+import '../api/doctor_setting_api/edit_email.dart';
 import '../login/loginScreenDoctor.dart';
+import '../model/doctor_setting_model/edit_email.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -16,204 +17,164 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-  final TextEditingController oldPasswordController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _oldPasswordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
-  bool isNameExpanded = false;
-  bool isPasswordExpanded = false;
-  bool isEmailExpanded = false;
-  bool isPhoneExpanded = false;
+  bool _isNameExpanded = false;
+  bool _isPasswordExpanded = false;
+  bool _isEmailExpanded = false;
+  bool _isPhoneExpanded = false;
 
   bool _isOldPasswordVisible = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
-  final Color blueColor = Color(0xFF105DFB);
-
+  final Color _blueColor = const Color(0xFF105DFB);
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<void> _updateName(String newName) async {
+  Future<void> _updateName() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token;
+    final newName = _nameController.text.trim();
 
     if (newName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter a name.")),
-      );
+      _showSnackBar("Please enter a name");
       return;
     }
 
     try {
-      final apiService = DoctorAPIService_edit_name();
-      final response = await apiService.editName(token, newName);
+      final response = await DoctorAPIService_edit_name().editName(
+          tokenProvider.token,
+          newName
+      );
 
+      _showSnackBar(response.message);
       if (response.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
+        _nameController.clear();
+        setState(() => _isNameExpanded = false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update name: $e")),
-      );
+      _showSnackBar("Failed to update name: $e");
     }
   }
 
-  Future<void> _updateEmail(String newEmail) async {
+  Future<void> _updateEmail() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token;
+    final newEmail = _emailController.text.trim();
+
     if (newEmail.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter an email.")),
-      );
+      _showSnackBar("Please enter an email");
       return;
     }
+
     if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(newEmail)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter a valid email address.")),
-      );
+      _showSnackBar("Please enter a valid email");
       return;
     }
+
     try {
-      final apiService = DoctorAPIService_edit_email();
-      final response = await apiService.editEmail(
-        token: token,
+      final response = await DoctorEditEmailAPIService().editEmail(
+        token: tokenProvider.token,
         newEmail: newEmail,
-        doctorId: 3, // Replace with the actual doctor ID
+        doctorId: _getDoctorId(), // Implement this method to get actual doctor ID
       );
 
+      _showSnackBar(response.message);
       if (response.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
+        _emailController.clear();
+        setState(() => _isEmailExpanded = false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update email: $e")),
-      );
+      _showSnackBar("Failed to update email: $e");
     }
   }
 
   Future<void> _updatePassword() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token;
-
-    final currentPassword = oldPasswordController.text.trim();
-    final newPassword = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
-
-    if (currentPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill in all fields.")),
-      );
-      return;
-    }
-
-    if (newPassword != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Passwords do not match.")),
-      );
-      return;
-    }
 
     try {
-      final apiService = DoctorAPIService_edit_password();
-      final response = await apiService.editPassword(
-        token: token,
-        currentPassword: currentPassword,
-        newPassword: newPassword,
-        newPasswordConfirmation: confirmPassword,
+      final response = await DoctorAPIService_edit_password().editPassword(
+        token: tokenProvider.token,
+        currentPassword: _oldPasswordController.text.trim(),
+        newPassword: _passwordController.text.trim(),
+        newPasswordConfirmation: _confirmPasswordController.text.trim(),
       );
 
+      _showSnackBar(response.message);
       if (response.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
+        _oldPasswordController.clear();
+        _passwordController.clear();
+        _confirmPasswordController.clear();
+        setState(() => _isPasswordExpanded = false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update password: $e")),
-      );
+      _showSnackBar("Failed to update password: $e");
     }
   }
 
-  Future<void> _updatePhone(String newPhone) async {
+  Future<void> _updatePhone() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token;
+    final newPhone = _phoneController.text.trim();
 
     if (newPhone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please enter a phone number.")),
-      );
+      _showSnackBar("Please enter a phone number");
       return;
     }
 
     try {
-      final apiService = DoctorAPIService_edit_phone();
-      final response = await apiService.editPhone(
-        token: token,
+      final response = await DoctorAPIService_edit_phone().editPhone(
+        token: tokenProvider.token,
         newPhone: newPhone,
-         // Replace with the actual doctor ID
       );
 
+      _showSnackBar(response.message);
       if (response.success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
+        _phoneController.clear();
+        setState(() => _isPhoneExpanded = false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to update phone number: $e")),
-      );
+      _showSnackBar("Failed to update phone: $e");
     }
   }
 
-  Future<void> _logout(BuildContext context) async {
+  Future<void> _logout() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token;
 
     try {
-      final apiService = DoctorAPIService_logout();
-      final response = await apiService.logout(token);
+      final response = await DoctorAPIService_logout().logout(
+          tokenProvider.token
+      );
 
       if (response.success) {
-        // Clear the token when logging out
         tokenProvider.setToken('');
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginScreenDoctor()),
+          MaterialPageRoute(builder: (context) => const LoginScreenDoctor()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.message)),
-        );
+        _showSnackBar(response.message);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to logout: $e")),
-      );
+      _showSnackBar("Failed to logout: $e");
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  int _getDoctorId() {
+    // Implement logic to get the current doctor's ID
+    // This might come from your TokenProvider or another source
+    return 0; // Replace with actual implementation
   }
 
   @override
@@ -222,325 +183,207 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: Colors.white,
       body: ListView(
         children: [
-          ExpansionTile(
-            leading: Icon(Icons.person, color: blueColor),
-            title: const Text('Change Name'),
-            trailing: Icon(
-              isNameExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-              color: blueColor,
-            ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isNameExpanded = expanding;
-              });
-            },
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: nameController,
-                  cursorColor: blueColor,
-                  decoration: InputDecoration(
-                    labelText: 'Enter new name',
-                    labelStyle: TextStyle(color: blueColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  String newName = nameController.text;
-                  _updateName(newName);
-                },
-                child: const Text('Save Name'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: blueColor),
-                  foregroundColor: blueColor,
-                ),
-              ),
-            ],
-          ),
-          ExpansionTile(
-            leading: Icon(Icons.email, color: blueColor),
-            title: const Text('Change Email'),
-            trailing: Icon(
-              isEmailExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-              color: blueColor,
-            ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isEmailExpanded = expanding;
-              });
-            },
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: emailController,
-                  cursorColor: blueColor,
-                  decoration: InputDecoration(
-                    labelText: 'Enter new email',
-                    labelStyle: TextStyle(color: blueColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  String newEmail = emailController.text;
-                  _updateEmail(newEmail);
-                },
-                child: const Text('Save Email'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: blueColor),
-                  foregroundColor: blueColor,
-                ),
-              ),
-            ],
-          ),
-          ExpansionTile(
-            leading: Icon(Icons.lock, color: blueColor),
-            title: const Text('Change Password'),
-            trailing: Icon(
-              isPasswordExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-              color: blueColor,
-            ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isPasswordExpanded = expanding;
-              });
-            },
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: oldPasswordController,
-                        obscureText: !_isOldPasswordVisible,
-                        cursorColor: blueColor,
-                        decoration: InputDecoration(
-                          labelText: 'Old Password',
-                          labelStyle: TextStyle(color: blueColor),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isOldPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isOldPasswordVisible = !_isOldPasswordVisible;
-                              });
-                            },
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: !_isPasswordVisible,
-                        cursorColor: blueColor,
-                        decoration: InputDecoration(
-                          labelText: 'New Password',
-                          labelStyle: TextStyle(color: blueColor),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a password';
-                          } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                            return 'Password should contain special characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: confirmPasswordController,
-                        obscureText: !_isConfirmPasswordVisible,
-                        cursorColor: blueColor,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          labelStyle: TextStyle(color: blueColor),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isConfirmPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                              });
-                            },
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: blueColor),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          } else if (value != passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            _updatePassword();
-                          }
-                        },
-                        child: const Text('Save Password'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: BorderSide(color: blueColor),
-                          foregroundColor: blueColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          ExpansionTile(
-            leading: Icon(Icons.phone, color: blueColor),
-            title: const Text('Change Phone Number'),
-            trailing: Icon(
-              isPhoneExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-              color: blueColor,
-            ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isPhoneExpanded = expanding;
-              });
-            },
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: TextField(
-                  controller: phoneController,
-                  cursorColor: blueColor,
-                  decoration: InputDecoration(
-                    labelText: 'Enter new phone number',
-                    labelStyle: TextStyle(color: blueColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: blueColor),
-                    ),
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  String newPhone = phoneController.text;
-                  _updatePhone(newPhone); // Call the updated method
-                },
-                child: const Text('Save Phone Number'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  side: BorderSide(color: blueColor),
-                  foregroundColor: blueColor,
-                ),
-              ),
-            ],
-          ),
-          ListTile(
-            leading: Icon(Icons.exit_to_app, color: blueColor),
-            title: const Text('Log Out'),
-            onTap: () => _logout(context),
-          ),
+          _buildNameTile(),
+          _buildEmailTile(),
+          _buildPasswordTile(),
+          _buildPhoneTile(),
+          _buildLogoutTile(),
         ],
       ),
+    );
+  }
+
+  Widget _buildNameTile() {
+    return ExpansionTile(
+      leading: Icon(Icons.person, color: _blueColor),
+      title: const Text('Change Name'),
+      trailing: Icon(
+        _isNameExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+        color: _blueColor,
+      ),
+      onExpansionChanged: (expanding) => setState(() => _isNameExpanded = expanding),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: _nameController,
+            cursorColor: _blueColor,
+            decoration: _inputDecoration('Enter new name'),
+          ),
+        ),
+        _buildSaveButton(_updateName, 'Save Name'),
+      ],
+    );
+  }
+
+  Widget _buildEmailTile() {
+    return ExpansionTile(
+      leading: Icon(Icons.email, color: _blueColor),
+      title: const Text('Change Email'),
+      trailing: Icon(
+        _isEmailExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+        color: _blueColor,
+      ),
+      onExpansionChanged: (expanding) => setState(() => _isEmailExpanded = expanding),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: _emailController,
+            cursorColor: _blueColor,
+            keyboardType: TextInputType.emailAddress,
+            decoration: _inputDecoration('Enter new email'),
+          ),
+        ),
+        _buildSaveButton(_updateEmail, 'Save Email'),
+      ],
+    );
+  }
+
+  Widget _buildPasswordTile() {
+    return ExpansionTile(
+      leading: Icon(Icons.lock, color: _blueColor),
+      title: const Text('Change Password'),
+      trailing: Icon(
+        _isPasswordExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+        color: _blueColor,
+      ),
+      onExpansionChanged: (expanding) => setState(() => _isPasswordExpanded = expanding),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildPasswordField(
+                  controller: _oldPasswordController,
+                  label: 'Old Password',
+                  isVisible: _isOldPasswordVisible,
+                  onVisibilityChanged: () => setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
+                ),
+                const SizedBox(height: 10),
+                _buildPasswordField(
+                  controller: _passwordController,
+                  label: 'New Password',
+                  isVisible: _isPasswordVisible,
+                  onVisibilityChanged: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Please enter a password';
+                    if (value.length < 8) return 'Password must be at least 8 characters';
+                    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                      return 'Include a special character';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                _buildPasswordField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm Password',
+                  isVisible: _isConfirmPasswordVisible,
+                  onVisibilityChanged: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                  validator: (value) {
+                    if (value != _passwordController.text) return 'Passwords don\'t match';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                _buildSaveButton(_updatePassword, 'Save Password'),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhoneTile() {
+    return ExpansionTile(
+      leading: Icon(Icons.phone, color: _blueColor),
+      title: const Text('Change Phone Number'),
+      trailing: Icon(
+        _isPhoneExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+        color: _blueColor,
+      ),
+      onExpansionChanged: (expanding) => setState(() => _isPhoneExpanded = expanding),
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: TextField(
+            controller: _phoneController,
+            cursorColor: _blueColor,
+            keyboardType: TextInputType.phone,
+            decoration: _inputDecoration('Enter new phone number'),
+          ),
+        ),
+        _buildSaveButton(_updatePhone, 'Save Phone Number'),
+      ],
+    );
+  }
+
+  Widget _buildLogoutTile() {
+    return ListTile(
+      leading: Icon(Icons.exit_to_app, color: _blueColor),
+      title: const Text('Log Out'),
+      onTap: _logout,
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required bool isVisible,
+    required VoidCallback onVisibilityChanged,
+    FormFieldValidator<String>? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: !isVisible,
+      cursorColor: _blueColor,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: _blueColor),
+        suffixIcon: IconButton(
+          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
+          onPressed: onVisibilityChanged,
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        border: _inputBorder(),
+        focusedBorder: _inputBorder(),
+        enabledBorder: _inputBorder(),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(VoidCallback onPressed, String text) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: Text(text),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        side: BorderSide(color: _blueColor),
+        foregroundColor: _blueColor,
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: _blueColor),
+      border: _inputBorder(),
+      focusedBorder: _inputBorder(),
+      enabledBorder: _inputBorder(),
+    );
+  }
+
+  OutlineInputBorder _inputBorder() {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: _blueColor),
     );
   }
 }

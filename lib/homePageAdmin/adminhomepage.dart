@@ -1,9 +1,13 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../api/admin_home_api.dart';
+import '../api/admin/admin_home_api.dart';
+import '../api/doctor_setting_api/edit_email.dart';
 import '../login/loginScreenAdmin.dart';
 import '../model/admin_home.dart';
+import '../model/admin/Approve.dart';
+import '../model/admin/Reject.dart';
+import '../model/doctor_setting_model/edit_email.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -14,15 +18,24 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   late Future<List<PendedDoctorModel>> _pendedDoctorsFuture;
-  final APIService _apiService = APIService();
+  final adminAPIService _apiService = adminAPIService();
+  final DoctorEditEmailAPIService _emailService = DoctorEditEmailAPIService();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+  GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
     super.initState();
-    _refreshDoctorsList();
+    _loadInitialData();
   }
 
-  void _refreshDoctorsList() {
+  Future<void> _loadInitialData() async {
+    _refreshDoctorsList();
+    await Future.delayed(const Duration(milliseconds: 100));
+    _refreshIndicatorKey.currentState?.show();
+  }
+
+  Future<void> _refreshDoctorsList() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     setState(() {
       _pendedDoctorsFuture = _apiService.showPendedDoctors(tokenProvider.token);
@@ -41,7 +54,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.message)),
         );
-        _refreshDoctorsList();
+        await _refreshDoctorsList();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to reject doctor: ${response.message}')),
@@ -54,11 +67,91 @@ class _AdminHomePageState extends State<AdminHomePage> {
     }
   }
 
+  Future<void> _approveDoctor(int doctorId) async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    try {
+      final response = await _apiService.approveDoctor(
+        token: tokenProvider.token,
+        doctorId: doctorId,
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+        await _refreshDoctorsList();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to approve doctor: ${response.message}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error approving doctor: $e')),
+      );
+    }
+  }
+
+  Future<void> _editDoctorEmail(int doctorId, String currentEmail) async {
+    final newEmailController = TextEditingController(text: currentEmail);
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Doctor Email'),
+        content: TextField(
+          controller: newEmailController,
+          decoration: const InputDecoration(
+            labelText: 'New Email',
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: TextInputType.emailAddress,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, newEmailController.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty && result != currentEmail) {
+      try {
+        final response = await _emailService.editEmail(
+          token: tokenProvider.token,
+          newEmail: result,
+          doctorId: doctorId,
+        );
+
+        if (response.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(response.message)),
+          );
+          await _refreshDoctorsList();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update email: ${response.message}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating email: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80),
+        preferredSize: const Size.fromHeight(80),
         child: AppBar(
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
@@ -67,7 +160,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
               '     Nägel',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontFamily: 'Inter Tight',
-                color: Color(0xFF105DFB),
+                color: const Color(0xFF105DFB),
                 fontWeight: FontWeight.bold,
                 fontSize: 35,
               ),
@@ -75,12 +168,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.exit_to_app, color: Color(0xFF105DFB)),
+              icon: const Icon(Icons.exit_to_app, color: Color(0xFF105DFB)),
               onPressed: () {
                 Provider.of<TokenProvider>(context, listen: false).setToken('');
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginScreenAdmin()),
+                  MaterialPageRoute(builder: (context) => const LoginScreenAdmin()),
                 );
               },
             ),
@@ -100,54 +193,76 @@ class _AdminHomePageState extends State<AdminHomePage> {
               color: Theme.of(context).dividerColor,
             ),
             Expanded(
-              child: FutureBuilder<List<PendedDoctorModel>>(
-                future: _pendedDoctorsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("No pended doctors found."));
-                  } else {
-                    return SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                            child: Text(
-                              'Doctor Requests',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontFamily: 'Inter Tight',
-                                fontWeight: FontWeight.w600,
+              child: RefreshIndicator(
+                key: _refreshIndicatorKey,
+                onRefresh: _refreshDoctorsList,
+                color: const Color(0xFF105DFB),
+                backgroundColor: Colors.white,
+                strokeWidth: 3.0,
+                child: FutureBuilder<List<PendedDoctorModel>>(
+                  future: _pendedDoctorsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text("Error: ${snapshot.error}"));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.search_off, size: 64, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            const Text(
+                              "No pended doctors found",
+                              style: TextStyle(fontSize: 18, color: Colors.grey),
+                            ),
+                            const SizedBox(height: 16),
+                            TextButton(
+                              onPressed: _refreshDoctorsList,
+                              child: const Text('Refresh'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return CustomScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                            sliver: SliverToBoxAdapter(
+                              child: Text(
+                                'Doctor Requests',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  fontFamily: 'Inter Tight',
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                          ListView.builder(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (context, index) {
-                              final doctor = snapshot.data![index];
-                              return Column(
-                                children: [
-                                  _buildDoctorCard(
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                final doctor = snapshot.data![index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: _buildDoctorCard(
                                     context,
                                     doctor: doctor,
                                     onReject: () => _rejectDoctor(doctor.id),
+                                    onApprove: () => _approveDoctor(doctor.id),
                                   ),
-                                  SizedBox(height: 16),
-                                ],
-                              );
-                            },
+                                );
+                              },
+                              childCount: snapshot.data!.length,
+                            ),
                           ),
                         ],
-                      ),
-                    );
-                  }
-                },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ],
@@ -160,12 +275,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
       BuildContext context, {
         required PendedDoctorModel doctor,
         required VoidCallback onReject,
+        required VoidCallback onApprove,
       }) {
     String proofUrl = "https://nagel-production.up.railway.app${doctor.proof}";
 
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -173,12 +289,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
           BoxShadow(
             blurRadius: 4,
             color: Colors.black.withOpacity(0.1),
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -196,7 +312,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         doctor.specialization,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -208,14 +324,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 ),
               ],
             ),
-            Divider(height: 24, thickness: 1),
+            const Divider(height: 24, thickness: 1),
             Row(
               children: [
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(Icons.phone, size: 20, color: Color(0xFF105DFB)),
-                      SizedBox(width: 8),
+                      const Icon(Icons.phone, size: 20, color: Color(0xFF105DFB)),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +343,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               doctor.phone,
                               style: Theme.of(context).textTheme.bodyMedium,
@@ -238,12 +354,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     ],
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Row(
                     children: [
-                      Icon(Icons.email, size: 20, color: Color(0xFF105DFB)),
-                      SizedBox(width: 8),
+                      const Icon(Icons.email, size: 20, color: Color(0xFF105DFB)),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,10 +371,20 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              doctor.email,
-                              style: Theme.of(context).textTheme.bodyMedium,
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    doctor.email,
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.edit, size: 18),
+                                  onPressed: () => _editDoctorEmail(doctor.id, doctor.email),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -268,7 +394,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Medical License Proof',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -276,11 +402,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: doctor.proof.startsWith('/tmp/')
-                  ? Center(
+                  ? const Center(
                 child: Text(
                   'Proof image not available',
                   style: TextStyle(color: Colors.red),
@@ -292,7 +418,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 height: 250,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return Center(
+                  return const Center(
                     child: Text(
                       'Unable to load image',
                       style: TextStyle(color: Colors.red),
@@ -301,14 +427,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 },
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
                   onPressed: onReject,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFF5F5F5),
+                    backgroundColor: const Color(0xFFF5F5F5),
                     foregroundColor: Theme.of(context).colorScheme.error,
                     side: BorderSide(
                       color: Theme.of(context).colorScheme.error,
@@ -317,24 +443,22 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    minimumSize: Size(100, 40),
+                    minimumSize: const Size(100, 40),
                   ),
-                  child: Text('Reject'),
+                  child: const Text('Reject'),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 ElevatedButton(
-                  onPressed: () {
-                    print('Accept pressed');
-                  },
+                  onPressed: onApprove,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF249689),
+                    backgroundColor: const Color(0xFF249689),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    minimumSize: Size(100, 40),
+                    minimumSize: const Size(100, 40),
                   ),
-                  child: Text('Accept'),
+                  child: const Text('Accept'),
                 ),
               ],
             ),
