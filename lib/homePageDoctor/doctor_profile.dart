@@ -1,11 +1,13 @@
+import 'dart:convert';
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/doctor_home/show_clinc.dart';
+import 'package:collogefinalpoject/model/doctor_home/show_clinc.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
 import '../api/doctor_home_api.dart';
 import '../model/doctor_home_model.dart';
-
 
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({Key? key}) : super(key: key);
@@ -22,27 +24,26 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     'main,thu: 9:00-17:00',
     'brranch,fri: 9:00-15:00',
   ];
-
-  String _mainClinic = "6 October";
-  String _branchClinic = "Barse";
-
+  String _mainClinic = "No main clinic available";
+  String _mainClinicPhone = "N/A"; // Add phone for Main Clinic
+  String _branchClinic = "No branch clinic available";
+  String _branchClinicPhone = "N/A"; // Add phone for Branch Clinic
   DoctorInfoModel? _doctorInfo;
   bool _isLoading = true;
   String _errorMessage = '';
+  List<showClinic> _clinics = [];
 
   @override
   void initState() {
     super.initState();
     _fetchDoctorInfo();
+    _fetchClinics();
   }
 
   Future<void> _fetchDoctorInfo() async {
-    // Retrieve the token from TokenProvider
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
-
     final apiService = DoctorAPIService();
-
     try {
       final doctorInfo = await apiService.getDoctorInfo(token);
       setState(() {
@@ -57,11 +58,40 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     }
   }
 
+  Future<void> _fetchClinics() async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token; // Retrieve the token
+    final clinicApiService = ClinicApiService();
+    try {
+      final clinics = await clinicApiService.getClinics(token); // Pass the token
+      setState(() {
+        if (clinics.isEmpty) {
+          // Use fallback values when no clinics are found
+          _mainClinic = "No main clinic available";
+          _mainClinicPhone = "N/A";
+          _branchClinic = "No branch clinic available";
+          _branchClinicPhone = "N/A";
+        } else {
+          _clinics = clinics;
+          _mainClinic = _clinics[0].address ?? "No address available"; // Handle null address
+          _mainClinicPhone = _clinics[0].phone ?? "N/A"; // Handle null phone
+          if (_clinics.length > 1) {
+            _branchClinic = _clinics[1].address ?? "No address available"; // Handle null address
+            _branchClinicPhone = _clinics[1].phone ?? "N/A"; // Handle null phone
+          }
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Failed to fetch clinics: $e";
+      });
+    }
+  }
+
   Future<void> _chooseImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
     );
-
     if (result != null) {
       setState(() {
         _image = File(result.files.single.path!);
@@ -71,7 +101,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
 
   void _showAddHourBottomSheet() {
     final TextEditingController textController = TextEditingController();
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -97,8 +126,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               TextField(
                 controller: textController,
                 decoration: const InputDecoration(
-                  labelText: ' clininc and Day and Hours',
-                  hintText: 'Clinc ,Day,  10:00-12:00',
+                  labelText: 'Clinic and Day and Hours',
+                  hintText: 'Clinic, Day, 10:00-12:00',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -129,7 +158,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     } else {
       textController.text = _branchClinic;
     }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -189,8 +217,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       child: Scaffold(
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
-            : _errorMessage.isNotEmpty
-            ? Center(child: Text(_errorMessage))
             : SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(16.0),
@@ -238,7 +264,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '⭐ ${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
+                            '⭐${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
                             style: const TextStyle(fontSize: 14, color: Colors.orange),
                           ),
                         ],
@@ -369,7 +395,13 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         child: ListTile(
                           title: const Text('Main Clinic',
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(_mainClinic),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_mainClinic), // Display Main Clinic address
+                              Text('Phone: $_mainClinicPhone'), // Display Main Clinic phone
+                            ],
+                          ),
                           trailing: const Icon(Icons.edit),
                         ),
                       ),
@@ -378,7 +410,13 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         child: ListTile(
                           title: const Text('Branch Clinic',
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(_branchClinic),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_branchClinic), // Display Branch Clinic address
+                              Text('Phone: $_branchClinicPhone'), // Display Branch Clinic phone
+                            ],
+                          ),
                           trailing: const Icon(Icons.edit),
                         ),
                       ),
