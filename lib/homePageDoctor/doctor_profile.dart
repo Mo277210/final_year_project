@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_home/AvailableHour.dart';
+import 'package:collogefinalpoject/api/doctor_home/add_clinic.dart';
 import 'package:collogefinalpoject/api/doctor_home/addhourse.dart';
 import 'package:collogefinalpoject/api/doctor_home/sendimage.dart';
 import 'package:flutter/material.dart';
@@ -232,6 +233,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   void _editClinicBottomSheet(String clinicType) {
     final TextEditingController locationController = TextEditingController();
     final TextEditingController phoneController = TextEditingController();
+
     // Pre-fill the text fields with current values
     if (clinicType == 'Main Clinic') {
       locationController.text = _mainClinic;
@@ -240,6 +242,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       locationController.text = _branchClinic;
       phoneController.text = _branchClinicPhone;
     }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -276,23 +279,58 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   labelText: 'Phone Number',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.phone, // Ensures numeric keyboard
+                keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (locationController.text.isNotEmpty &&
                       phoneController.text.isNotEmpty) {
-                    setState(() {
-                      if (clinicType == 'Main Clinic') {
-                        _mainClinic = locationController.text;
-                        _mainClinicPhone = phoneController.text;
+                    try {
+                      // Get the TokenProvider instance
+                      final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+
+                      // Create an instance of DoctorAddClinicApiService with the token provider
+                      final apiService = DoctorAddClinicApiService(tokenProvider);
+
+                      // Call the API to add/update the clinic
+                      final response = await apiService.addClinic(
+                        clinicType, // Use clinicType as the name
+                        locationController.text,
+                        phoneController.text,
+                      );
+
+                      if (response.success) {
+                        // Update the local state if the API call is successful
+                        setState(() {
+                          if (clinicType == 'Main Clinic') {
+                            _mainClinic = locationController.text;
+                            _mainClinicPhone = phoneController.text;
+                          } else {
+                            _branchClinic = locationController.text;
+                            _branchClinicPhone = phoneController.text;
+                          }
+                        });
+
+                        // Show success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(response.message)),
+                        );
                       } else {
-                        _branchClinic = locationController.text;
-                        _branchClinicPhone = phoneController.text;
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed: ${response.message}')),
+                        );
                       }
-                    });
-                    Navigator.pop(context);
+                    } catch (e) {
+                      // Handle errors
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: $e')),
+                      );
+                    } finally {
+                      // Close the bottom sheet
+                      Navigator.pop(context);
+                    }
                   }
                 },
                 child: const Text('Save Changes'),
