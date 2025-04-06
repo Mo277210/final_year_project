@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:provider/provider.dart';
-import 'package:collogefinalpoject/model/patient_setting/DoctorRating.dart';
+import 'package:collogefinalpoject/model/patient_home/DoctorRating.dart';
 
 class DoctorRatingApiService {
   static const String _baseUrl = 'https://nagel-production.up.railway.app/api';

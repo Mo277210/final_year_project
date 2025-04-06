@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:collogefinalpoject/model/patient_setting/history.dart';
+import 'package:collogefinalpoject/model/patient_home/history.dart';
 import 'package:http/http.dart' as http;
 
 class NailApiService {

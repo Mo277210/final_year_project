@@ -1,5 +1,5 @@
 // lib/services/doctor_service.dart
-import 'package:collogefinalpoject/model/patient_setting/DoctorSearch.dart';
+import 'package:collogefinalpoject/model/patient_home/DoctorSearch.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

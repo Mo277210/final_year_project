@@ -1,5 +1,5 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
-import 'package:collogefinalpoject/api/patient_setting/DoctorRating.dart';
+import 'package:collogefinalpoject/api/patient_home/DoctorRating.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';

@@ -1,10 +1,11 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
-import 'package:collogefinalpoject/api/patient_setting/history.dart';
+import 'package:collogefinalpoject/api/patient_home/history.dart';
+import 'package:collogefinalpoject/api/patient_home/name_patient.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:collogefinalpoject/model/patient_setting/history.dart';
-
+import 'package:collogefinalpoject/model/patient_home/history.dart';
+import 'package:collogefinalpoject/model/patient_home/name_patient.dart'; // Import the PatientInfo model
 
 class Historypage extends StatefulWidget {
   const Historypage({Key? key}) : super(key: key);
@@ -15,16 +16,21 @@ class Historypage extends StatefulWidget {
 
 class _HistorypageState extends State<Historypage> {
   late NailApiService _apiService;
+  late patient_info_ApiService _patientInfoApiService; // Add the patient info API service
   List<NailImageHistory> _history = [];
   bool _isLoading = true;
   String _errorMessage = '';
+  String _patientName = ''; // Store the patient's name here
+  bool _isFetchingPatientInfo = true; // Track if patient info is being fetched
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final tokenProvider = Provider.of<TokenProvider>(context);
     _apiService = NailApiService(tokenProvider.token);
+    _patientInfoApiService = patient_info_ApiService(); // Initialize the patient info API service
     _loadHistory();
+    _fetchPatientInfo(tokenProvider.token); // Fetch patient info
   }
 
   Future<void> _loadHistory() async {
@@ -42,6 +48,21 @@ class _HistorypageState extends State<Historypage> {
     }
   }
 
+  Future<void> _fetchPatientInfo(String token) async {
+    try {
+      final patientInfo = await _patientInfoApiService.fetchPatientInfo(token);
+      setState(() {
+        _patientName = patientInfo.name; // Set the patient's name
+        _isFetchingPatientInfo = false; // Mark fetching as complete
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to fetch patient info: $e';
+        _isFetchingPatientInfo = false; // Mark fetching as complete even if it fails
+      });
+    }
+  }
+
   String _formatDate(DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);
   }
@@ -52,7 +73,28 @@ class _HistorypageState extends State<Historypage> {
       backgroundColor: Color(0xFFF6F6F6),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _buildContent(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Display the patient's name and welcome message
+            Center(
+              child: _isFetchingPatientInfo
+                  ? CircularProgressIndicator() // Show loading indicator while fetching patient info
+                  : Text(
+                'Welcome 🖐, $_patientName',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20), // Add spacing between the welcome message and the content
+            Expanded(
+              child: _buildContent(),
+            ),
+          ],
+        ),
       ),
     );
   }
