@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_home/AvailableHour.dart';
+import 'package:collogefinalpoject/api/doctor_home/addhourse.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -147,11 +148,33 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (textController.text.isNotEmpty) {
+                    // Add the hour locally
                     setState(() {
                       _availableHours.add(textController.text);
                     });
+
+                    // Fetch the token from the TokenProvider
+                    final tokenProvider =
+                    Provider.of<TokenProvider>(context, listen: false);
+                    final token = tokenProvider.token;
+
+                    // Call the API to add the available hour
+                    try {
+                      final apiService = DoctoraddhoursApiService();
+                      await apiService.addAvailableHours(token, textController.text);
+
+                      // Optionally, you can fetch the updated hours from the API here
+                      // For now, we assume the local state is sufficient
+                    } catch (e) {
+                      // Handle the error (e.g., show a snackbar or dialog)
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to add hour: $e')),
+                      );
+                    }
+
+                    // Close the bottom sheet
                     Navigator.pop(context);
                   }
                 },
