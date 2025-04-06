@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_home/AvailableHour.dart';
 import 'package:collogefinalpoject/api/doctor_home/addhourse.dart';
+import 'package:collogefinalpoject/api/doctor_home/sendimage.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -107,10 +108,50 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
     );
+
     if (result != null) {
+      final selectedFile = File(result.files.single.path!);
+
+      // Update the local state with the selected image
       setState(() {
-        _image = File(result.files.single.path!);
+        _image = selectedFile;
       });
+
+      // Fetch the token from the TokenProvider
+      final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+      final token = tokenProvider.token;
+
+      // Call the API to upload the profile picture
+      try {
+        final apiService = DoctorApiService();
+        final uploadResponse = await apiService.uploadProfilePicture(selectedFile, token);
+
+        // Update the doctor's photo URL in the local state
+        setState(() {
+          if (_doctorInfo == null) {
+            _doctorInfo = DoctorInfoModel(
+              name: '', // Default values for other fields
+              specialization: '',
+              email: '',
+              phone: '',
+              totalRatings: 0, // Use a double value
+              photo: uploadResponse.photoUrl, // Set the new photo URL
+            );
+          } else {
+            _doctorInfo!.photo = uploadResponse.photoUrl; // Update the photo URL
+          }
+        });
+
+        // Optionally, show a success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(uploadResponse.message)),
+        );
+      } catch (e) {
+        // Handle the error (e.g., show a snackbar or dialog)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to upload image: $e')),
+        );
+      }
     }
   }
 

@@ -1,35 +1,26 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:collogefinalpoject/model/doctor_home/sendimage.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:path/path.dart';
 
-class ApiService {
-  static const String baseUrl = 'https://nagel-production.up.railway.app/api/doctor';
+class DoctorApiService {
+  static const String baseUrl = 'https://nagel-production.up.railway.app';
 
-  // Function to upload profile picture
-  Future<UploadProfilePictureResponse> uploadProfilePicture(File imageFile) async {
-    final url = Uri.parse('$baseUrl/UploadProfilePicture');
+  Future<UploadPhotoResponse> uploadProfilePicture(File imageFile, String token) async {
+    final url = Uri.parse('$baseUrl/api/doctor/UploadProfilePicture');
 
-    // Create a multipart request
-    var request = http.MultipartRequest('POST', url);
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(await http.MultipartFile.fromPath('photo', imageFile.path));
 
-    // Attach the file to the request
-    request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
 
-    // Send the request and get the response
-    final response = await request.send();
-
-    // Read the response body
-    final responseBody = await response.stream.bytesToString();
-
-    // Check if the request was successful
     if (response.statusCode == 200) {
-      // Parse the JSON response
-      final jsonResponse = json.decode(responseBody);
-      return UploadProfilePictureResponse.fromJson(jsonResponse);
+      return UploadPhotoResponse.fromJson(jsonDecode(response.body));
     } else {
-      // Handle errors
-      throw Exception('Failed to upload profile picture: ${response.statusCode}');
+      throw Exception('Failed to upload photo');
     }
   }
 }

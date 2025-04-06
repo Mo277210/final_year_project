@@ -3,8 +3,8 @@ class DoctorInfoModel {
   final String email;
   final String phone;
   final String specialization;
-  final int totalRatings;
-  final String photo; // Add this field
+  final num totalRatings;
+   String photo; // Add this field
 
   DoctorInfoModel({
     required this.name,
