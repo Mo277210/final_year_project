@@ -4,6 +4,7 @@ class DoctorInfoModel {
   final String phone;
   final String specialization;
   final int totalRatings;
+  final String photo; // Add this field
 
   DoctorInfoModel({
     required this.name,
@@ -11,6 +12,7 @@ class DoctorInfoModel {
     required this.phone,
     required this.specialization,
     required this.totalRatings,
+    required this.photo, // Include this field in the constructor
   });
 
   // Factory constructor to create an instance from JSON
@@ -21,6 +23,7 @@ class DoctorInfoModel {
       phone: json["phone"] ?? "",
       specialization: json["specialization"] ?? "",
       totalRatings: json["total_rateings"] ?? 0,
+      photo: json["photo"] ?? "", // Parse the photo field
     );
   }
 
@@ -32,6 +35,7 @@ class DoctorInfoModel {
       "phone": phone,
       "specialization": specialization,
       "total_rateings": totalRatings,
+      "photo": photo, // Include the photo field in the JSON representation
     };
   }
 }

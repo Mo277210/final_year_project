@@ -1,13 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
-import 'package:collogefinalpoject/api/doctor_home/show_clinc.dart';
-import 'package:collogefinalpoject/model/doctor_home/show_clinc.dart';
+import 'package:collogefinalpoject/api/doctor_home/AvailableHour.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
-import '../api/doctor_home_api.dart';
+import '../api/doctor_home_api.dart'; // Import DoctorAPIService
 import '../model/doctor_home_model.dart';
+import '../api/doctor_home/show_clinc.dart';
+import '../model/doctor_home/show_clinc.dart';
 
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({Key? key}) : super(key: key);
@@ -18,12 +19,7 @@ class DoctorProfilePage extends StatefulWidget {
 
 class _DoctorProfilePageState extends State<DoctorProfilePage> {
   File? _image;
-  final List<String> _availableHours = [
-    'main,mon: 9:00-17:00',
-    'branch,tue: 9:00-17:00',
-    'main,thu: 9:00-17:00',
-    'brranch,fri: 9:00-15:00',
-  ];
+  List<String> _availableHours = []; // Initialize as an empty list
   String _mainClinic = "No main clinic available";
   String _mainClinicPhone = "N/A"; // Add phone for Main Clinic
   String _branchClinic = "No branch clinic available";
@@ -38,6 +34,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     super.initState();
     _fetchDoctorInfo();
     _fetchClinics();
+    _fetchAvailableHours(); // Fetch available hours from the API
   }
 
   Future<void> _fetchDoctorInfo() async {
@@ -84,6 +81,23 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     } catch (e) {
       setState(() {
         _errorMessage = "Failed to fetch clinics: $e";
+      });
+    }
+  }
+
+  Future<void> _fetchAvailableHours() async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final token = tokenProvider.token; // Retrieve the token
+    final apiService = DoctorAvailableHourAPIService(); // Use the correct API service
+
+    try {
+      final response = await apiService.getAvailableHours(token); // Fetch available hours
+      setState(() {
+        _availableHours = response.data.map((hour) => hour.availableHours).toList();
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = "Failed to fetch available hours: $e";
       });
     }
   }
@@ -152,11 +166,15 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   }
 
   void _editClinicBottomSheet(String clinicType) {
-    final TextEditingController textController = TextEditingController();
+    final TextEditingController locationController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
+    // Pre-fill the text fields with current values
     if (clinicType == 'Main Clinic') {
-      textController.text = _mainClinic;
+      locationController.text = _mainClinic;
+      phoneController.text = _mainClinicPhone;
     } else {
-      textController.text = _branchClinic;
+      locationController.text = _branchClinic;
+      phoneController.text = _branchClinicPhone;
     }
     showModalBottomSheet(
       context: context,
@@ -176,32 +194,44 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Edit $clinicType Location',
+                'Edit $clinicType Details',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               TextField(
-                controller: textController,
+                controller: locationController,
                 decoration: const InputDecoration(
                   labelText: 'Location',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 20),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.phone, // Ensures numeric keyboard
+              ),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (textController.text.isNotEmpty) {
+                  if (locationController.text.isNotEmpty &&
+                      phoneController.text.isNotEmpty) {
                     setState(() {
                       if (clinicType == 'Main Clinic') {
-                        _mainClinic = textController.text;
+                        _mainClinic = locationController.text;
+                        _mainClinicPhone = phoneController.text;
                       } else {
-                        _branchClinic = textController.text;
+                        _branchClinic = locationController.text;
+                        _branchClinicPhone = phoneController.text;
                       }
                     });
                     Navigator.pop(context);
                   }
                 },
-                child: const Text('Save Location'),
+                child: const Text('Save Changes'),
               ),
               const SizedBox(height: 20),
             ],
@@ -243,6 +273,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         radius: 40,
                         backgroundImage: _image != null
                             ? FileImage(_image!)
+                            : _doctorInfo?.photo != null &&
+                            _doctorInfo!.photo.isNotEmpty
+                            ? NetworkImage(_doctorInfo!.photo)
                             : const AssetImage('assets/doctor.png')
                         as ImageProvider,
                       ),
