@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../model/doctor_home_model.dart'; // Ensure the correct file path
+import '../../model/doctor_home/doctor_home_model.dart'; // Ensure the correct file path
 
 class DoctorAPIService {
   Future<DoctorInfoModel> getDoctorInfo(String token) async {

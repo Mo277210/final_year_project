@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../model/login_patient_model.dart';
+import '../../model/login/login_patient_model.dart';
 
 class APIService {
   Future<LoginResponseModel> login(

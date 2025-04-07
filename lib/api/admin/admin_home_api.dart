@@ -3,7 +3,7 @@ import 'package:collogefinalpoject/model/admin/Approve.dart'; // New import for 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../../model/admin_home.dart';
+import '../../model/admin/admin_home.dart';
 
 class adminAPIService {
   static const String baseUrl = 'https://nagel-production.up.railway.app/api/admin';

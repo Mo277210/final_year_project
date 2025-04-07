@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import '../api/sinupResonsedoctorDM.dart';
-import '../model/sinup_doctor.dart';
+import '../api/sinup/sinupResonsedoctorDM.dart';
+import '../model/sinup/sinup_doctor.dart';
 import 'nagelupbar.dart';
 
 class LicenseUploadScreen extends StatefulWidget {

@@ -3,19 +3,20 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http_parser/http_parser.dart';
 
-import '../model/sinup_doctor.dart';
+import '../../model/sinup/sinup_patient.dart'; // Update the import to refer to the correct model
 
-class APIServiceDm {
-  Future<SinupResponseModelDM> registerDoctor({
+class APIPatientServiceDm { // Renamed to reflect that it's for patients
+  Future<SinupPatientResponseModelDM> registerPatient({ // Updated to use SinupPatientResponseModelDM
     required String name,
     required String email,
     required String password,
     required String passwordConfirmation,
     required String phone,
-    required String specialization, // Changed from speciality to specialization
-    required File proof,
+    required String DOB,
+    required String gender,
+    required String address,
   }) async {
-    String url = "https://nagel-production.up.railway.app/api/doctor/register";
+    String url = "https://nagel-production.up.railway.app/api/patient/register";
 
     try {
       var request = http.MultipartRequest("POST", Uri.parse(url));
@@ -26,15 +27,9 @@ class APIServiceDm {
       request.fields['password'] = password;
       request.fields['password_confirmation'] = passwordConfirmation;
       request.fields['phone'] = phone;
-      request.fields['specialization'] = specialization; // Changed from speciality to specialization
-
-      // Attaching the proof file
-      var fileExtension = proof.path.split('.').last;
-      request.files.add(await http.MultipartFile.fromPath(
-        'proof',
-        proof.path,
-        contentType: MediaType('image', fileExtension), // Adjust dynamically
-      ));
+      request.fields['DOB'] = DOB;
+      request.fields['gender'] = gender;
+      request.fields['address'] = address;
 
       // Sending the request
       var streamedResponse = await request.send();
@@ -42,18 +37,15 @@ class APIServiceDm {
       final responseBody = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        return SinupResponseModelDM.fromJson(responseBody);
+        return SinupPatientResponseModelDM.fromJson(responseBody);
       } else {
-        return SinupResponseModelDM.fromJson({
+        return SinupPatientResponseModelDM.fromJson({
           "success": false,
-          "token": "",
-          "error": responseBody["error"] ?? "Registration failed",
           "message": responseBody["message"] ?? "An error occurred",
-          "doctore": null,
+          "patient": null,
         });
       }
     } catch (e) {
-      print("Network error: $e"); // Log the error for debugging
       throw Exception("Network error: $e");
     }
   }

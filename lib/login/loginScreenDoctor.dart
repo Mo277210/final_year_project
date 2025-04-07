@@ -6,8 +6,8 @@ import 'package:collogefinalpoject/homePageDoctor/homePageDoctor.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:provider/provider.dart';
-import '../api/loginResonseDm.dart';
-import '../model/login_patient_model.dart';
+import '../api/login/loginResonseDm.dart';
+import '../model/login/login_patient_model.dart';
 import '../shared_ui/chipRow.dart';
 
 import 'loginScreenAdmin.dart';

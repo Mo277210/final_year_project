@@ -2,7 +2,7 @@ import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../api/sinuppatienResonseDm.dart';
+import '../api/sinup/sinuppatienResonseDm.dart';
 import '../homePagePatient/homePagePatient.dart';
 import '../login/loginScreenPatient.dart';
 import '../shared_ui/chipRow.dart';

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../  provider/provider.dart';
-import '../api/loginResonseDm.dart';
+import '../api/login/loginResonseDm.dart';
 import '../homePageAdmin/adminhomepage.dart';
-import '../model/login_patient_model.dart';
+import '../model/login/login_patient_model.dart';
 
 import '../shared_ui/nagelupbar.dart';
 import 'loginScreenPatient.dart';

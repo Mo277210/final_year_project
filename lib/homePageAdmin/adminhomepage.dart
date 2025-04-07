@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../api/admin/admin_home_api.dart';
 import '../login/loginScreenAdmin.dart';
-import '../model/admin_home.dart';
+import '../model/admin/admin_home.dart';
 import '../model/admin/Approve.dart';
 import '../model/admin/Reject.dart';
 

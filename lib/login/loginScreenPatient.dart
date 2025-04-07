@@ -2,9 +2,9 @@ import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../api/loginResonseDm.dart'; // Ensure this import is correct
+import '../api/login/loginResonseDm.dart'; // Ensure this import is correct
 import '../homePagePatient/homePagePatient.dart';
-import '../model/login_patient_model.dart'; // Ensure this import is correct
+import '../model/login/login_patient_model.dart'; // Ensure this import is correct
 import '../shared_ui/chipRow.dart';
 
 import '../shared_ui/nagelupbar.dart';

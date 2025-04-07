@@ -4,8 +4,8 @@ import 'package:collogefinalpoject/homePagePatient/questionsdiseasesScreen.dart'
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import '../api/patient_home_image_sender_APIService.dart';
-import '../model/patient_home_image_sender_Model.dart';
+import '../api/patient_home/patient_home_image_sender_APIService.dart';
+import '../model/patient_home/patient_home_image_sender_Model.dart';
 
 
 class Nagelimage extends StatefulWidget {

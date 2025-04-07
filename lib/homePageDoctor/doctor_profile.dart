@@ -8,8 +8,8 @@ import 'package:collogefinalpoject/api/doctor_home/sendimage.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import '../api/doctor_home_api.dart'; // Import DoctorAPIService
-import '../model/doctor_home_model.dart';
+import '../api/doctor_home/doctor_home_api.dart';
+import '../model/doctor_home/doctor_home_model.dart';
 import '../api/doctor_home/show_clinc.dart';
 import '../model/doctor_home/show_clinc.dart';
 
@@ -22,11 +22,11 @@ class DoctorProfilePage extends StatefulWidget {
 
 class _DoctorProfilePageState extends State<DoctorProfilePage> {
   File? _image;
-  List<String> _availableHours = []; // Initialize as an empty list
+  List<String> _availableHours = [];
   String _mainClinic = "No main clinic available";
-  String _mainClinicPhone = "N/A"; // Add phone for Main Clinic
+  String _mainClinicPhone = "N/A";
   String _branchClinic = "No branch clinic available";
-  String _branchClinicPhone = "N/A"; // Add phone for Branch Clinic
+  String _branchClinicPhone = "N/A";
   DoctorInfoModel? _doctorInfo;
   bool _isLoading = true;
   String _errorMessage = '';
@@ -37,7 +37,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     super.initState();
     _fetchDoctorInfo();
     _fetchClinics();
-    _fetchAvailableHours(); // Fetch available hours from the API
+    _fetchAvailableHours();
   }
 
   Future<void> _fetchDoctorInfo() async {
@@ -60,41 +60,55 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
 
   Future<void> _fetchClinics() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token; // Retrieve the token
+    final token = tokenProvider.token;
     final clinicApiService = ClinicApiService();
     try {
-      final clinics = await clinicApiService.getClinics(token); // Pass the token
+      final clinics = await clinicApiService.getClinics(token);
       setState(() {
-        if (clinics.isEmpty) {
-          // Use fallback values when no clinics are found
-          _mainClinic = "No main clinic available";
-          _mainClinicPhone = "N/A";
-          _branchClinic = "No branch clinic available";
-          _branchClinicPhone = "N/A";
-        } else {
-          _clinics = clinics;
-          _mainClinic = _clinics[0].address ?? "No address available"; // Handle null address
-          _mainClinicPhone = _clinics[0].phone ?? "N/A"; // Handle null phone
-          if (_clinics.length > 1) {
-            _branchClinic = _clinics[1].address ?? "No address available"; // Handle null address
-            _branchClinicPhone = _clinics[1].phone ?? "N/A"; // Handle null phone
-          }
-        }
+        _clinics = clinics;
+        _updateClinicDisplay();
       });
     } catch (e) {
       setState(() {
         _errorMessage = "Failed to fetch clinics: $e";
+        _updateClinicDisplay(); // Ensure we still update with default values
+      });
+    }
+  }
+
+  void _updateClinicDisplay() {
+    if (_clinics.isEmpty) {
+      setState(() {
+        _mainClinic = "No main clinic available";
+        _mainClinicPhone = "N/A";
+        _branchClinic = "No branch clinic available";
+        _branchClinicPhone = "N/A";
+      });
+    } else {
+      setState(() {
+        // Find main clinic (assuming it's the first one or has a specific type)
+        _mainClinic = _clinics[0].address ?? "No address available";
+        _mainClinicPhone = _clinics[0].phone ?? "N/A";
+
+        // Find branch clinic if available
+        if (_clinics.length > 1) {
+          _branchClinic = _clinics[1].address ?? "No address available";
+          _branchClinicPhone = _clinics[1].phone ?? "N/A";
+        } else {
+          _branchClinic = "No branch clinic available";
+          _branchClinicPhone = "N/A";
+        }
       });
     }
   }
 
   Future<void> _fetchAvailableHours() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final token = tokenProvider.token; // Retrieve the token
-    final apiService = DoctorAvailableHourAPIService(); // Use the correct API service
+    final token = tokenProvider.token;
+    final apiService = DoctorAvailableHourAPIService();
 
     try {
-      final response = await apiService.getAvailableHours(token); // Fetch available hours
+      final response = await apiService.getAvailableHours(token);
       setState(() {
         _availableHours = response.data.map((hour) => hour.availableHours).toList();
       });
@@ -113,42 +127,36 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     if (result != null) {
       final selectedFile = File(result.files.single.path!);
 
-      // Update the local state with the selected image
       setState(() {
         _image = selectedFile;
       });
 
-      // Fetch the token from the TokenProvider
       final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
       final token = tokenProvider.token;
 
-      // Call the API to upload the profile picture
       try {
         final apiService = DoctorApiService();
         final uploadResponse = await apiService.uploadProfilePicture(selectedFile, token);
 
-        // Update the doctor's photo URL in the local state
         setState(() {
           if (_doctorInfo == null) {
             _doctorInfo = DoctorInfoModel(
-              name: '', // Default values for other fields
+              name: '',
               specialization: '',
               email: '',
               phone: '',
-              totalRatings: 0, // Use a double value
-              photo: uploadResponse.photoUrl, // Set the new photo URL
+              totalRatings: 0,
+              photo: uploadResponse.photoUrl,
             );
           } else {
-            _doctorInfo!.photo = uploadResponse.photoUrl; // Update the photo URL
+            _doctorInfo!.photo = uploadResponse.photoUrl;
           }
         });
 
-        // Optionally, show a success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(uploadResponse.message)),
         );
       } catch (e) {
-        // Handle the error (e.g., show a snackbar or dialog)
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to upload image: $e')),
         );
@@ -192,31 +200,23 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               ElevatedButton(
                 onPressed: () async {
                   if (textController.text.isNotEmpty) {
-                    // Add the hour locally
                     setState(() {
                       _availableHours.add(textController.text);
                     });
 
-                    // Fetch the token from the TokenProvider
                     final tokenProvider =
                     Provider.of<TokenProvider>(context, listen: false);
                     final token = tokenProvider.token;
 
-                    // Call the API to add the available hour
                     try {
                       final apiService = DoctoraddhoursApiService();
                       await apiService.addAvailableHours(token, textController.text);
-
-                      // Optionally, you can fetch the updated hours from the API here
-                      // For now, we assume the local state is sufficient
                     } catch (e) {
-                      // Handle the error (e.g., show a snackbar or dialog)
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Failed to add hour: $e')),
                       );
                     }
 
-                    // Close the bottom sheet
                     Navigator.pop(context);
                   }
                 },
@@ -234,7 +234,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     final TextEditingController locationController = TextEditingController();
     final TextEditingController phoneController = TextEditingController();
 
-    // Pre-fill the text fields with current values
+    // Pre-fill with current values
     if (clinicType == 'Main Clinic') {
       locationController.text = _mainClinic;
       phoneController.text = _mainClinicPhone;
@@ -287,48 +287,32 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   if (locationController.text.isNotEmpty &&
                       phoneController.text.isNotEmpty) {
                     try {
-                      // Get the TokenProvider instance
                       final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-
-                      // Create an instance of DoctorAddClinicApiService with the token provider
                       final apiService = DoctorAddClinicApiService(tokenProvider);
 
-                      // Call the API to add/update the clinic
                       final response = await apiService.addClinic(
-                        clinicType, // Use clinicType as the name
+                        clinicType,
                         locationController.text,
                         phoneController.text,
                       );
 
                       if (response.success) {
-                        // Update the local state if the API call is successful
-                        setState(() {
-                          if (clinicType == 'Main Clinic') {
-                            _mainClinic = locationController.text;
-                            _mainClinicPhone = phoneController.text;
-                          } else {
-                            _branchClinic = locationController.text;
-                            _branchClinicPhone = phoneController.text;
-                          }
-                        });
+                        // Refresh clinics after successful update
+                        await _fetchClinics();
 
-                        // Show success message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(response.message)),
                         );
                       } else {
-                        // Show error message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Failed: ${response.message}')),
                         );
                       }
                     } catch (e) {
-                      // Handle errors
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e')),
                       );
                     } finally {
-                      // Close the bottom sheet
                       Navigator.pop(context);
                     }
                   }
@@ -400,7 +384,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                           const SizedBox(height: 8),
                           Text(
                             '⭐${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
-                            style: const TextStyle(fontSize: 14, color: Colors.orange),
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.orange),
                           ),
                         ],
                       ),
@@ -526,30 +511,30 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       ),
                       const SizedBox(height: 8),
                       GestureDetector(
-                        onTap: () => _editClinicBottomSheet('Main Clinic'),
+                        onTap: () => _editClinicBottomSheet('Main '),
                         child: ListTile(
                           title: const Text('Main Clinic',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_mainClinic), // Display Main Clinic address
-                              Text('Phone: $_mainClinicPhone'), // Display Main Clinic phone
+                              Text(_mainClinic),
+                              Text('Phone: $_mainClinicPhone'),
                             ],
                           ),
                           trailing: const Icon(Icons.edit),
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => _editClinicBottomSheet('Branch Clinic'),
+                        onTap: () => _editClinicBottomSheet('Branch '),
                         child: ListTile(
                           title: const Text('Branch Clinic',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(_branchClinic), // Display Branch Clinic address
-                              Text('Phone: $_branchClinicPhone'), // Display Branch Clinic phone
+                              Text(_branchClinic),
+                              Text('Phone: $_branchClinicPhone'),
                             ],
                           ),
                           trailing: const Icon(Icons.edit),
