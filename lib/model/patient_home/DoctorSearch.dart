@@ -1,16 +1,18 @@
 // lib/models/doctor.dart
 class Doctor {
+  final int id;  // Added id field
   final String name;
   final String email;
   final String phone;
   final double? rating;
   final String specialization;
-  final int totalRatings;
+  final num totalRatings;
   final String? photo;
   final List<Clinic> clinics;
   final List<String> availableHours;
 
   Doctor({
+    required this.id,  // Added id parameter
     required this.name,
     required this.email,
     required this.phone,
@@ -24,6 +26,7 @@ class Doctor {
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
+      id: json['id'],  // Added id mapping
       name: json['name'],
       email: json['email'],
       phone: json['phone'],
@@ -40,11 +43,13 @@ class Doctor {
 }
 
 class Clinic {
+  final int clinic_id;  // Changed from String name to int clinic_id
   final String name;
   final String address;
   final String phone;
 
   Clinic({
+    required this.clinic_id,  // Added clinic_id parameter
     required this.name,
     required this.address,
     required this.phone,
@@ -52,6 +57,7 @@ class Clinic {
 
   factory Clinic.fromJson(Map<String, dynamic> json) {
     return Clinic(
+      clinic_id: json['clinic_id'],  // Added clinic_id mapping
       name: json['name'],
       address: json['address'],
       phone: json['phone'],

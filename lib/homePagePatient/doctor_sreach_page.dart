@@ -281,17 +281,19 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 }
 
 class Doctor {
+  final int id;
   final String name;
   final String email;
   final String phone;
   double? rating;
   final String specialization;
-  int totalRatings;
+  num totalRatings;
   final String? photo;
   final List<Clinic> clinics;
   final List<String> availableHours;
 
   Doctor({
+    required this.id,
     required this.name,
     required this.email,
     required this.phone,
@@ -305,6 +307,7 @@ class Doctor {
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
+      id: json['id'], // Added this line to include the id
       name: json['name'],
       email: json['email'],
       phone: json['phone'],
@@ -418,6 +421,7 @@ class DoctorCard extends StatelessWidget {
                               onRatingUpdate: (newRating) async {
                                 try {
                                   final result = await DoctorRatingApiService.rateDoctor(
+                                    doctorId: doctor.id,
                                     context: context,
                                     rating: newRating,
                                   );

@@ -4,6 +4,8 @@ import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_home/AvailableHour.dart';
 import 'package:collogefinalpoject/api/doctor_home/add_clinic.dart';
 import 'package:collogefinalpoject/api/doctor_home/addhourse.dart';
+import 'package:collogefinalpoject/api/doctor_home/delete_hours.dart';
+import 'package:collogefinalpoject/api/doctor_home/edithour.dart';
 import 'package:collogefinalpoject/api/doctor_home/sendimage.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -89,7 +91,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         // Find main clinic (assuming it's the first one or has a specific type)
         _mainClinic = _clinics[0].address ?? "No address available";
         _mainClinicPhone = _clinics[0].phone ?? "N/A";
-
         // Find branch clinic if available
         if (_clinics.length > 1) {
           _branchClinic = _clinics[1].address ?? "No address available";
@@ -106,7 +107,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
     final apiService = DoctorAvailableHourAPIService();
-
     try {
       final response = await apiService.getAvailableHours(token);
       setState(() {
@@ -123,21 +123,16 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
     );
-
     if (result != null) {
       final selectedFile = File(result.files.single.path!);
-
       setState(() {
         _image = selectedFile;
       });
-
       final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
       final token = tokenProvider.token;
-
       try {
         final apiService = DoctorApiService();
         final uploadResponse = await apiService.uploadProfilePicture(selectedFile, token);
-
         setState(() {
           if (_doctorInfo == null) {
             _doctorInfo = DoctorInfoModel(
@@ -152,7 +147,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             _doctorInfo!.photo = uploadResponse.photoUrl;
           }
         });
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(uploadResponse.message)),
         );
@@ -203,11 +197,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                     setState(() {
                       _availableHours.add(textController.text);
                     });
-
                     final tokenProvider =
                     Provider.of<TokenProvider>(context, listen: false);
                     final token = tokenProvider.token;
-
                     try {
                       final apiService = DoctoraddhoursApiService();
                       await apiService.addAvailableHours(token, textController.text);
@@ -216,11 +208,85 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         SnackBar(content: Text('Failed to add hour: $e')),
                       );
                     }
-
                     Navigator.pop(context);
                   }
                 },
                 child: const Text('Add Hour'),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _editHourBottomSheet(int index, int scheduleId) {
+    final TextEditingController textController = TextEditingController();
+    textController.text = _availableHours[index]; // Pre-fill with current value
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 20,
+            left: 20,
+            right: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Edit Available Hour',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: textController,
+                decoration: const InputDecoration(
+                  labelText: 'Clinic and Day and Hours',
+                  hintText: 'Clinic, Day, 10:00-12:00',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (textController.text.isNotEmpty) {
+                    setState(() {
+                      _availableHours[index] = textController.text;
+                    });
+
+                    final tokenProvider =
+                    Provider.of<TokenProvider>(context, listen: false);
+                    final token = tokenProvider.token;
+
+                    try {
+                      final apiService = edithourseDoctorApiService();
+                      await edithourseDoctorApiService.editAvailableHours(
+                        scheduleId: scheduleId,
+                        availableHours: textController.text,
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Successfully updated hour')),
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to edit hour: $e')),
+                      );
+                    }
+
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text('Save Changes'),
               ),
               const SizedBox(height: 20),
             ],
@@ -289,17 +355,14 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                     try {
                       final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
                       final apiService = DoctorAddClinicApiService(tokenProvider);
-
                       final response = await apiService.addClinic(
                         clinicType,
                         locationController.text,
                         phoneController.text,
                       );
-
                       if (response.success) {
                         // Refresh clinics after successful update
                         await _fetchClinics();
-
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(response.message)),
                         );
@@ -326,6 +389,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -474,15 +538,26 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                           const SizedBox(width: 8),
                           GestureDetector(
                             onTap: () {
+                              _editHourBottomSheet(entry.key, entry.key + 1); // Pass index and scheduleId
+                            },
+                            child: const Icon(
+                              Icons.edit,
+                              size: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
                               setState(() {
                                 _availableHours.removeAt(entry.key);
                               });
                             },
-                            child: const Icon(
-                              Icons.cancel,
-                              size: 18,
-                              color: Colors.black,
-                            ),
+                              child: const Icon(
+                                Icons.cancel,
+                                size: 18,
+                                color: Colors.black,
+                              ),
                           ),
                         ],
                       ),

@@ -10,10 +10,11 @@ class DoctorRatingApiService {
 
   static Future<DoctorRating> rateDoctor({
     required BuildContext context,
+    required int doctorId,
     required double rating,
   }) async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final url = Uri.parse('$_baseUrl/doctors/5/rate'); // Ensure this matches the backend endpoint
+    final url = Uri.parse('$_baseUrl/doctors/$doctorId/rate'); // Ensure this matches the backend endpoint
 
     try {
       final response = await http.post(
