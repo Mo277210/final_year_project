@@ -4,7 +4,6 @@ import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/doctor_home/AvailableHour.dart';
 import 'package:collogefinalpoject/api/doctor_home/add_clinic.dart';
 import 'package:collogefinalpoject/api/doctor_home/addhourse.dart';
-import 'package:collogefinalpoject/api/doctor_home/delete_hours.dart';
 import 'package:collogefinalpoject/api/doctor_home/edithour.dart';
 import 'package:collogefinalpoject/api/doctor_home/sendimage.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,6 @@ import '../api/doctor_home/doctor_home_api.dart';
 import '../model/doctor_home/doctor_home_model.dart';
 import '../api/doctor_home/show_clinc.dart';
 import '../model/doctor_home/show_clinc.dart';
-
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({Key? key}) : super(key: key);
 
@@ -33,7 +31,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   bool _isLoading = true;
   String _errorMessage = '';
   List<showClinic> _clinics = [];
-
+  List<int> id_schedule = []; // Declare id_schedule as a class variable
   @override
   void initState() {
     super.initState();
@@ -59,7 +57,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
-
   Future<void> _fetchClinics() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
@@ -77,7 +74,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
-
   void _updateClinicDisplay() {
     if (_clinics.isEmpty) {
       setState(() {
@@ -102,7 +98,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
-
   Future<void> _fetchAvailableHours() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
@@ -111,6 +106,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       final response = await apiService.getAvailableHours(token);
       setState(() {
         _availableHours = response.data.map((hour) => hour.availableHours).toList();
+        id_schedule = response.data.map((hour) => hour.id).toList(); // Now hour.id will work
       });
     } catch (e) {
       setState(() {
@@ -118,7 +114,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
-
   Future<void> _chooseImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -132,7 +127,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       final token = tokenProvider.token;
       try {
         final apiService = DoctorApiService();
-        final uploadResponse = await apiService.uploadProfilePicture(selectedFile, token);
+        final uploadResponse =
+            await apiService.uploadProfilePicture(selectedFile, token);
         setState(() {
           if (_doctorInfo == null) {
             _doctorInfo = DoctorInfoModel(
@@ -157,7 +153,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       }
     }
   }
-
   void _showAddHourBottomSheet() {
     final TextEditingController textController = TextEditingController();
     showModalBottomSheet(
@@ -194,21 +189,27 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               ElevatedButton(
                 onPressed: () async {
                   if (textController.text.isNotEmpty) {
-                    setState(() {
-                      _availableHours.add(textController.text);
-                    });
                     final tokenProvider =
                     Provider.of<TokenProvider>(context, listen: false);
                     final token = tokenProvider.token;
                     try {
                       final apiService = DoctoraddhoursApiService();
-                      await apiService.addAvailableHours(token, textController.text);
+                      await apiService.addAvailableHours(
+                          token, textController.text);
+
+                      // Refresh the available hours list after successful addition
+                      await _fetchAvailableHours();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Hour added successfully')),
+                      );
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Failed to add hour: $e')),
                       );
+                    } finally {
+                      Navigator.pop(context);
                     }
-                    Navigator.pop(context);
                   }
                 },
                 child: const Text('Add Hour'),
@@ -220,7 +221,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
-
   void _editHourBottomSheet(int index, int scheduleId) {
     final TextEditingController textController = TextEditingController();
     textController.text = _availableHours[index]; // Pre-fill with current value
@@ -264,7 +264,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                     });
 
                     final tokenProvider =
-                    Provider.of<TokenProvider>(context, listen: false);
+                        Provider.of<TokenProvider>(context, listen: false);
                     final token = tokenProvider.token;
 
                     try {
@@ -295,7 +295,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
-
   void _editClinicBottomSheet(String clinicType) {
     final TextEditingController locationController = TextEditingController();
     final TextEditingController phoneController = TextEditingController();
@@ -328,7 +327,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
             children: [
               Text(
                 'Edit $clinicType Details',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -353,8 +353,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   if (locationController.text.isNotEmpty &&
                       phoneController.text.isNotEmpty) {
                     try {
-                      final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-                      final apiService = DoctorAddClinicApiService(tokenProvider);
+                      final tokenProvider =
+                          Provider.of<TokenProvider>(context, listen: false);
+                      final apiService =
+                          DoctorAddClinicApiService(tokenProvider);
                       final response = await apiService.addClinic(
                         clinicType,
                         locationController.text,
@@ -368,7 +370,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed: ${response.message}')),
+                          SnackBar(
+                              content: Text('Failed: ${response.message}')),
                         );
                       }
                     } catch (e) {
@@ -389,7 +392,107 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
-
+  void _deleteHourBottomSheet(int index, int scheduleId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 20,
+            left: 20,
+            right: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Delete Available Hour',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Are you sure you want to delete this hour?',
+                style: TextStyle(fontSize: 16, color: Colors.red),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        // Retrieve the token
+                        final tokenProvider =
+                        Provider.of<TokenProvider>(context, listen: false);
+                        final token = tokenProvider.token;
+                        if (token.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'Authentication token is missing. Please log in again.')),
+                          );
+                          Navigator.pop(context); // Close the bottom sheet
+                          return;
+                        }
+                        // Call the delete API with the token and scheduleId
+                        final apiService = DoctorAvailableHourAPIService();
+                        final deleteResponse =
+                        await apiService.deleteAvailableHour(
+                          id: scheduleId,
+                          token: token,
+                        );
+                        if (deleteResponse.success) {
+                          // Remove the hour and its ID from the local lists
+                          setState(() {
+                            _availableHours.removeAt(index);
+                            id_schedule.removeAt(index);
+                          });
+                          // Show success message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(deleteResponse.message)),
+                          );
+                        } else {
+                          // Show failure message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Failed to delete hour: ${deleteResponse.message}'),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error deleting hour: $e')),
+                        );
+                      } finally {
+                        Navigator.pop(context); // Close the bottom sheet
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('Delete'),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {
+                      // Close the bottom sheet without deleting
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -398,230 +501,233 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 3,
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: _chooseImage,
-                      child: CircleAvatar(
-                        radius: 40,
-                        backgroundImage: _image != null
-                            ? FileImage(_image!)
-                            : _doctorInfo?.photo != null &&
-                            _doctorInfo!.photo.isNotEmpty
-                            ? NetworkImage(_doctorInfo!.photo)
-                            : const AssetImage('assets/doctor.png')
-                        as ImageProvider,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Dr. ${_doctorInfo?.name ?? 'Unknown'}',
-                            style: const TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            _doctorInfo?.specialization ?? 'Specialization',
-                            style: const TextStyle(
-                                fontSize: 16, color: Colors.grey),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '⭐${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.orange),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-                Container(
-                  padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Center(
-                        child: Text(
-                          'Contact Info',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blueAccent),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.email, color: Colors.blueAccent),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _doctorInfo?.email ?? 'No email provided',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.phone, color: Colors.blueAccent),
-                          const SizedBox(width: 8),
-                          Text(
-                            _doctorInfo?.phone ?? 'No phone provided',
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 3,
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                const Center(
-                  child: Text(
-                    'Available Hours',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blueAccent),
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _availableHours
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.lightBlue[100],
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            entry.value,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () {
-                              _editHourBottomSheet(entry.key, entry.key + 1); // Pass index and scheduleId
-                            },
-                            child: const Icon(
-                              Icons.edit,
-                              size: 18,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _availableHours.removeAt(entry.key);
-                              });
-                            },
-                              child: const Icon(
-                                Icons.cancel,
-                                size: 18,
-                                color: Colors.black,
-                              ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                      .toList(),
-                ),
-                const SizedBox(height: 40),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: _chooseImage,
+                            child:CircleAvatar(
+                              radius: 40,
+                              backgroundImage: _image != null
+                                  ? FileImage(_image!)
+                                  : _doctorInfo?.photo != null &&
+                                  Uri.tryParse(_doctorInfo!.photo)?.hasScheme == true &&
+                                  Uri.tryParse(_doctorInfo!.photo)?.hasAuthority == true
+                                  ? NetworkImage(_doctorInfo!.photo)
+                                  : const AssetImage('assets/doctor.png') as ImageProvider,
+                            ),//todo: use in patient doctor sreach screen
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Dr. ${_doctorInfo?.name ?? 'Unknown'}',
+                                  style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  _doctorInfo?.specialization ??
+                                      'Specialization',
+                                  style: const TextStyle(
+                                      fontSize: 16, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '⭐${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
+                                  style: const TextStyle(
+                                      fontSize: 14, color: Colors.orange),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 40),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Center(
+                              child: Text(
+                                'Contact Info',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueAccent),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.email,
+                                    color: Colors.blueAccent),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _doctorInfo?.email ?? 'No email provided',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.phone,
+                                    color: Colors.blueAccent),
+                                const SizedBox(width: 8),
+                                Text(
+                                  _doctorInfo?.phone ?? 'No phone provided',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 40),
                       const Center(
                         child: Text(
-                          'Clinic Locations',
+                          'Available Hours',
                           style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.blueAccent),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () => _editClinicBottomSheet('Main '),
-                        child: ListTile(
-                          title: const Text('Main Clinic',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(_mainClinic),
-                              Text('Phone: $_mainClinicPhone'),
-                            ],
+                      const SizedBox(height: 15),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _availableHours
+                            .asMap()
+                            .entries
+                            .map(
+                              (entry) => Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.lightBlue[100],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  entry.value,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    _editHourBottomSheet(entry.key, id_schedule[entry.key]); // Pass index and scheduleId
+                                  },
+                                  child: const Icon(
+                                    Icons.edit,
+                                    size: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    _deleteHourBottomSheet(entry.key, id_schedule[entry.key]); // Pass index and scheduleId
+                                  },
+                                  child: const Icon(
+                                    Icons.cancel,
+                                    size: 18,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          trailing: const Icon(Icons.edit),
-                        ),
+                        )
+                            .toList(),
                       ),
-                      GestureDetector(
-                        onTap: () => _editClinicBottomSheet('Branch '),
-                        child: ListTile(
-                          title: const Text('Branch Clinic',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(_branchClinic),
-                              Text('Phone: $_branchClinicPhone'),
-                            ],
-                          ),
-                          trailing: const Icon(Icons.edit),
+                      const SizedBox(height: 40),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Center(
+                              child: Text(
+                                'Clinic Locations',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueAccent),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            GestureDetector(
+                              onTap: () => _editClinicBottomSheet('Main '),
+                              child: ListTile(
+                                title: const Text('Main Clinic',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_mainClinic),
+                                    Text('Phone: $_mainClinicPhone'),
+                                  ],
+                                ),
+                                trailing: const Icon(Icons.edit),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => _editClinicBottomSheet('Branch '),
+                              child: ListTile(
+                                title: const Text('Branch Clinic',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_branchClinic),
+                                    Text('Phone: $_branchClinicPhone'),
+                                  ],
+                                ),
+                                trailing: const Icon(Icons.edit),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
         floatingActionButton: FloatingActionButton(
           onPressed: _showAddHourBottomSheet,
           child: const Icon(Icons.add),

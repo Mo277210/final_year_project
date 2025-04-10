@@ -1,16 +1,17 @@
-class DeleteAvailableHourResponse {
+class DeleteAvailableHoursResponse {
   final bool success;
   final String message;
 
-  DeleteAvailableHourResponse({
+  DeleteAvailableHoursResponse({
     required this.success,
     required this.message,
   });
 
-  factory DeleteAvailableHourResponse.fromJson(Map<String, dynamic> json) {
-    return DeleteAvailableHourResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? 'No message provided.',
+  // Factory constructor to parse JSON into a DeleteAvailableHoursResponse object
+  factory DeleteAvailableHoursResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteAvailableHoursResponse(
+      success: json['success'],
+      message: json['message'],
     );
   }
 }

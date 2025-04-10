@@ -7,7 +7,6 @@ class AvailableHour {
     required this.availableHours,
   });
 
-  // Factory constructor to parse JSON into an AvailableHour object
   factory AvailableHour.fromJson(Map<String, dynamic> json) {
     return AvailableHour(
       id: json['id'] ?? 0,
@@ -15,7 +14,6 @@ class AvailableHour {
     );
   }
 
-  // Convert the object back to JSON format
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -31,7 +29,6 @@ class AvailableHoursResponse {
     required this.data,
   });
 
-  // Factory constructor to parse JSON into an AvailableHoursResponse object
   factory AvailableHoursResponse.fromJson(Map<String, dynamic> json) {
     final dataList = json['data'] as List? ?? [];
     return AvailableHoursResponse(
@@ -39,10 +36,26 @@ class AvailableHoursResponse {
     );
   }
 
-  // Convert the object back to JSON format
   Map<String, dynamic> toJson() {
     return {
       'data': data.map((hour) => hour.toJson()).toList(),
     };
+  }
+}
+
+class DeleteAvailableHoursResponse {
+  final bool success;
+  final String message;
+
+  DeleteAvailableHoursResponse({
+    required this.success,
+    required this.message,
+  });
+
+  factory DeleteAvailableHoursResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteAvailableHoursResponse(
+      success: json['success'],
+      message: json['message'],
+    );
   }
 }
