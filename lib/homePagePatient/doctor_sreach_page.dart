@@ -1,5 +1,6 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/patient_home/DoctorRating.dart';
+import 'package:collogefinalpoject/api/patient_home/address.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
@@ -26,11 +27,13 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
   bool isDisposed = false;
   final TextEditingController searchController = TextEditingController();
   FocusNode searchFocusNode = FocusNode();
+  String? patientAddress;
 
   @override
   void initState() {
     super.initState();
     _fetchDoctors();
+    _fetchPatientAddress();
   }
 
   @override
@@ -39,6 +42,18 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
     searchController.dispose();
     searchFocusNode.dispose();
     super.dispose();
+  }
+  Future<void> _fetchPatientAddress() async {
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final result = await PatientAddressAPIService.fetchPatientAddress(tokenProvider.token);
+
+    if (!isDisposed && result != null) {
+      setState(() {
+        patientAddress = result.address;
+        searchController.text = result.address; // ✅ يدخل العنوان في البحث تلقائي
+      });
+      _filterDoctors(); // ✅ يعمل فلترة تلقائية
+    }
   }
 
   Future<void> _fetchDoctors() async {
