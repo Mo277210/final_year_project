@@ -398,11 +398,13 @@ class DoctorCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: doctor.photo != null
+                    backgroundImage: doctor.photo != null &&
+                        Uri.tryParse(doctor.photo!)?.hasScheme == true &&
+                        Uri.tryParse(doctor.photo!)?.hasAuthority == true
                         ? NetworkImage(doctor.photo!)
-                        : AssetImage('assets/default_doctor.png') as ImageProvider,
-                    onBackgroundImageError: (_, __) => Icon(Icons.person),
+                        : const AssetImage('assets/doctor.png') as ImageProvider,
                   ),
+
                   const SizedBox(width: 16),
                   Flexible(  // Added Flexible
                     child: Column(
