@@ -8,7 +8,7 @@ class patient_info_ApiService {
   // Fetch patient info
   Future<PatientInfo> fetchPatientInfo(String token) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/patient/info'),
+      Uri.parse('$_baseUrl/patient/name'),
       headers: {
         'Authorization': 'Bearer $token', // Include the token in the request header
         'Content-Type': 'application/json',
