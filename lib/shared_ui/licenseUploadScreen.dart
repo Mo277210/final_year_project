@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:collogefinalpoject/login/loginScreenDoctor.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -85,7 +86,7 @@ class _LicenseUploadScreenState extends State<LicenseUploadScreen> {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => SignUpScreenDoctor()),
+                      MaterialPageRoute(builder: (context) => LoginScreenDoctor()),
                     );
                   },
                   child: Text('OK'),
