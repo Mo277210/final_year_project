@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../api/patient_home/patient_home_image_sender_APIService.dart';
 import '../model/patient_home/patient_home_image_sender_Model.dart';
 
-
 class Nagelimage extends StatefulWidget {
   @override
   _Nagelimage createState() => _Nagelimage();
@@ -70,7 +69,7 @@ class _Nagelimage extends State<Nagelimage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text('Error: ${e.toString()}'),
           backgroundColor: Colors.red,
         ),
       );
@@ -83,25 +82,28 @@ class _Nagelimage extends State<Nagelimage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Prediction Result'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Predicted Class: ${result.predictedClass}'),
-              Text('Confidence: ${result.confidence.toStringAsFixed(2)}%'),
-              const SizedBox(height: 10),
-              const Text('Probabilities:'),
-              ...result.probabilities.entries.map((entry) {
-                return Text('${entry.key}: ${entry.value.toStringAsFixed(2)}%');
-              }).toList(),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Diagnosis: ${result.nailImage.diagnosis}'),
+                Text('Confidence: ${result.nailImage.confidence.toStringAsFixed(2)}%'),
+                const SizedBox(height: 10),
+                const Text('Probabilities:'),
+                ...result.nailImage.probabilities.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: Text('${entry.key}: ${entry.value.toStringAsFixed(2)}%'),
+                  );
+                }).toList(),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                // Close the dialog
                 Navigator.pop(context);
-                // Navigate to FilterPage
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const FilterPage()),
@@ -144,8 +146,12 @@ class _Nagelimage extends State<Nagelimage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Upload nail image ",
-                      style: TextStyle(fontSize: 22, color: Colors.black, fontWeight: FontWeight.bold),
+                      "Upload nail image",
+                      style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold
+                      ),
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
@@ -224,7 +230,11 @@ class _Nagelimage extends State<Nagelimage> {
             const Center(
               child: Text(
                 "Please upload a clear image of the affected area",
-                style: TextStyle(fontSize: 14, color: Color(0xff5a5c60), fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xff5a5c60),
+                    fontWeight: FontWeight.bold
+                ),
               ),
             )
           ],

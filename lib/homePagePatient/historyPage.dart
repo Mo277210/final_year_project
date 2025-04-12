@@ -186,8 +186,9 @@ class _HistorypageState extends State<Historypage> {
                   ),
                 ),
                 const SizedBox(height: 10),
+                // Display confidence without multiplying by 100
                 Text(
-                  'Confidence: ${(historyItem.confidence * 100).toStringAsFixed(1)}%',
+                  'Confidence: ${historyItem.confidence.toStringAsFixed(1)}%',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -195,11 +196,12 @@ class _HistorypageState extends State<Historypage> {
                   'Probabilities:',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
+                // Display probabilities without multiplying by 100
                 ...historyItem.probabilities.entries.map((entry) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: Text(
-                      '${entry.key}: ${(entry.value * 100).toStringAsFixed(1)}%',
+                      '${entry.key}: ${entry.value.toStringAsFixed(1)}%',
                     ),
                   );
                 }).toList(),
