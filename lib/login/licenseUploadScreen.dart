@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../api/sinup/sinupResonsedoctorDM.dart';
 import '../model/sinup/sinup_doctor.dart';
-import 'nagelupbar.dart';
+import '../shared_ui/nagelupbar.dart';
 
 class LicenseUploadScreen extends StatefulWidget {
   final String fullName;

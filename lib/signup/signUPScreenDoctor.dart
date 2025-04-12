@@ -1,5 +1,5 @@
 import 'package:collogefinalpoject/login/loginScreenDoctor.dart';
-import 'package:collogefinalpoject/shared_ui/licenseUploadScreen.dart';
+import 'package:collogefinalpoject/login/licenseUploadScreen.dart';
 import 'package:flutter/material.dart';
 import '../shared_ui/chipRow.dart';
 
