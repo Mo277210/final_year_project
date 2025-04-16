@@ -1,8 +1,8 @@
 import 'package:collogefinalpoject/login/loginScreenDoctor.dart';
-import 'package:collogefinalpoject/login/licenseUploadScreen.dart';
+import 'package:collogefinalpoject/shared_ui/custom%20buttonloading.dart';
+import 'package:collogefinalpoject/signup/licenseUploadScreen.dart';
 import 'package:flutter/material.dart';
 import '../shared_ui/chipRow.dart';
-
 import '../shared_ui/customButton.dart';
 import '../shared_ui/nagelupbar.dart';
 import 'signUpScreenPatient.dart';
@@ -18,16 +18,49 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
   List<bool> isSelected = [false, true];
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false; // Track loading state
   final _formKey = GlobalKey<FormState>();
-
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
-
-  // 🔹 Variable to store the selected specialization
   String? _selectedSpecialization;
+
+  Future<void> _signup() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    try {
+      // Simulate a delay for API call or processing
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Navigate to the LicenseUploadScreen after successful validation
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LicenseUploadScreen(
+            fullName: _fullNameController.text,
+            email: _emailController.text,
+            phone: _phoneController.text,
+            password: _passwordController.text,
+            specialization: _selectedSpecialization ?? "",
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +72,7 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
             const SizedBox(height: 50),
             const Nagelupbar(),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: Column(
@@ -68,15 +100,13 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                             ChipRow(
                               chipNames: const ['Patient', 'Doctor'],
                               onChipTap: [
-                                () {
+                                    () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            SignUpScreenPatient()),
+                                    MaterialPageRoute(builder: (context) => SignUpScreenPatient()),
                                   );
                                 },
-                                () {},
+                                    () {},
                               ],
                               isSelected: isSelected,
                             ),
@@ -108,8 +138,7 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
@@ -128,15 +157,12 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter an email';
-                                      } else if (!RegExp(
-                                              r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
-                                          .hasMatch(value)) {
+                                      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$').hasMatch(value)) {
                                         return 'Enter a valid email';
                                       }
                                       return null;
@@ -153,14 +179,12 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter your phone number';
-                                      } else if (!RegExp(r'^\+?[0-9]{7,15}$')
-                                          .hasMatch(value)) {
+                                      } else if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)) {
                                         return 'Enter a valid phone number';
                                       }
                                       return null;
@@ -175,8 +199,7 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     items: [
                                       'Cardiology',
@@ -211,14 +234,11 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       labelText: 'Password',
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _isPasswordVisible
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
+                                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _isPasswordVisible =
-                                                !_isPasswordVisible;
+                                            _isPasswordVisible = !_isPasswordVisible;
                                           });
                                         },
                                       ),
@@ -227,15 +247,12 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter a password';
-                                      } else if (!RegExp(
-                                              r'[!@#$%^&*(),.?":{}|<>]')
-                                          .hasMatch(value)) {
+                                      } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
                                         return 'Password should contain special characters';
                                       }
                                       return null;
@@ -249,14 +266,11 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       labelText: 'Confirm Password',
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _isConfirmPasswordVisible
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
+                                          _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            _isConfirmPasswordVisible =
-                                                !_isConfirmPasswordVisible;
+                                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                                           });
                                         },
                                       ),
@@ -265,43 +279,23 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      labelStyle:
-                                          const TextStyle(color: Colors.black),
+                                      labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please confirm your password';
-                                      } else if (value !=
-                                          _passwordController.text) {
+                                      } else if (value != _passwordController.text) {
                                         return 'Passwords do not match';
                                       }
                                       return null;
                                     },
                                   ),
                                   const SizedBox(height: 20),
-                                  CustomButton(
-                                    buttonText: 'Sign Up',
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                LicenseUploadScreen(
-                                              fullName:
-                                                  _fullNameController.text,
-                                              email: _emailController.text,
-                                              phone: _phoneController.text,
-                                              password:
-                                                  _passwordController.text,
-                                              specialization:
-                                                  _selectedSpecialization ??
-                                                      "", // ✅ Pass specialization
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    },
+                                  // Use CustomButtonloading here
+                                  CustomButtonloading(
+                                    buttonText: _isLoading ? 'Signing up...' : 'Sign Up',
+                                    onPressed: _isLoading ? null : _signup,
+                                    buttonColor: const Color(0xFF105DFB),
                                   ),
                                 ],
                               ),
@@ -323,11 +317,9 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            // Navigate to the SignUpScreenPatient
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => LoginScreenDoctor()),
+                              MaterialPageRoute(builder: (context) => LoginScreenDoctor()),
                             );
                           },
                           child: const Text(

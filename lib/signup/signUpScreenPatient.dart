@@ -1,3 +1,4 @@
+import 'package:collogefinalpoject/shared_ui/custom%20buttonloading.dart';
 import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import '../homePagePatient/homePagePatient.dart';
 import '../login/loginScreenPatient.dart';
 import '../shared_ui/chipRow.dart';
 import '../shared_ui/nagelupbar.dart';
-
 
 class SignUpScreenPatient extends StatefulWidget {
   const SignUpScreenPatient({super.key});
@@ -32,7 +32,6 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
   final TextEditingController _dobController = TextEditingController();
   String? _calculatedAge;
   String? _selectedGender;
-
   final APIPatientServiceDm _apiService = APIPatientServiceDm();
 
   @override
@@ -45,8 +44,7 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
             const SizedBox(height: 50),
             const Nagelupbar(),
             Padding(
-              padding:
-              const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 16.0),
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: Column(
@@ -359,9 +357,11 @@ class _SignUpScreenPatientState extends State<SignUpScreenPatient> {
                                         ),
                                       ),
                                     ),
-                                  CustomButton(
-                                    buttonText: _isLoading ? 'Signing up...' : 'Sign Up', // Dynamic button text
-                                    onPressed: _isLoading ? () {} : _signup, // Use an empty function when loading
+                                  // Use CustomButtonloading here
+                                  CustomButtonloading(
+                                    buttonText: _isLoading ? 'Signing up...' : 'Sign Up',
+                                    onPressed: _isLoading ? null : _signup,
+                                    buttonColor: const Color(0xFF105DFB),
                                   ),
                                 ],
                               ),

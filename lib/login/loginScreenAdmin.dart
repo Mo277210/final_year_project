@@ -48,30 +48,47 @@ class _LoginScreenAdminState extends State<LoginScreenAdmin> {
       var response = await apiService.login("admin", requestModel);
 
       print("Token Response: ${response.token}");
+      print("Error Response: ${response.error}");
 
       if (response.token.isNotEmpty) {
-        // Pass the token to AdminHomePage
         Provider.of<TokenProvider>(context, listen: false).setToken(response.token);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) => AdminHomePage(),
-          ),
+          MaterialPageRoute(builder: (context) => const AdminHomePage()),
         );
       } else {
-        setState(() {
-          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
-        });
+        // More flexible error checking
+        if (response.error.toLowerCase().contains('incorrect') ||
+            response.error.toLowerCase().contains('invalid') ||
+            response.error.toLowerCase().contains('wrong')) {
+          setState(() {
+            _errorMessage = "Incorrect email or password. Please try again.";
+          });
+          // Also show as SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Incorrect email or password. Please try again."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          setState(() {
+            _errorMessage = response.error.isNotEmpty
+                ? response.error
+                : "Login failed. Please try again.";
+          });
+        }
       }
     } catch (e) {
       setState(() {
         _errorMessage = "An error occurred. Please check your connection.";
       });
+      print("Login error: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override

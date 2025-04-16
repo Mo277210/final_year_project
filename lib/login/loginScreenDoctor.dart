@@ -1,17 +1,16 @@
+import 'package:collogefinalpoject/login/loginScreenAdmin.dart';
+import 'package:collogefinalpoject/shared_ui/chipRow.dart';
+import 'package:collogefinalpoject/shared_ui/custom%20buttonloading.dart';
+import 'package:flutter/material.dart';
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:collogefinalpoject/shared_ui/nagelupbar.dart';
-import 'package:flutter/material.dart';
+import 'package:collogefinalpoject/api/login/loginResonseDm.dart';
+import 'package:collogefinalpoject/model/login/login_patient_model.dart';
 import 'package:collogefinalpoject/homePageDoctor/homePageDoctor.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
 import 'package:collogefinalpoject/signup/signUPScreenDoctor.dart';
 import 'package:provider/provider.dart';
-import '../api/login/loginResonseDm.dart';
-import '../model/login/login_patient_model.dart';
-import '../shared_ui/chipRow.dart';
-
-import 'loginScreenAdmin.dart';
-
 
 class LoginScreenDoctor extends StatefulWidget {
   const LoginScreenDoctor({super.key});
@@ -45,31 +44,48 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
     try {
       APIService apiService = APIService();
       var response = await apiService.login("doctor", requestModel);
-
       print("Token Response: ${response.token}");
+      print("Error Response: ${response.error}");
 
       if (response.token.isNotEmpty) {
-        // Set the token in the TokenProvider
         Provider.of<TokenProvider>(context, listen: false).setToken(response.token);
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomepageDoctor()),
         );
       } else {
-        setState(() {
-          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
-        });
+        // More flexible error checking
+        if (response.error.toLowerCase().contains('incorrect') ||
+            response.error.toLowerCase().contains('invalid') ||
+            response.error.toLowerCase().contains('wrong')) {
+          setState(() {
+            _errorMessage = "Incorrect email or password. Please try again.";
+          });
+          // Also show as SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Incorrect email or password. Please try again."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          setState(() {
+            _errorMessage = response.error.isNotEmpty
+                ? response.error
+                : "Login failed. Please try again.";
+          });
+        }
       }
     } catch (e) {
       setState(() {
         _errorMessage = "An error occurred. Please check your connection.";
       });
+      print("Login error: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
@@ -200,11 +216,11 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
                                       style: const TextStyle(color: Colors.red, fontSize: 14),
                                     ),
                                   const SizedBox(height: 10),
-
-                                  // Login Button
-                                  CustomButton(
+                                  // CustomButtonloading used here
+                                  CustomButtonloading(
                                     buttonText: _isLoading ? 'Logging in...' : 'Log In',
-                                    onPressed: _isLoading ? () {} : _login,
+                                    onPressed: _isLoading ? null : _login,
+                                    buttonColor: Color(0xFF105DFB),
                                   ),
                                 ],
                               ),
@@ -242,12 +258,13 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    InkWell(onTap: (){ Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              LoginScreenAdmin()),
-                    );},
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreenAdmin()),
+                        );
+                      },
                       child: Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(8, 12, 8, 12),
                         child: Align(
@@ -290,18 +307,7 @@ class _LoginScreenDoctorState extends State<LoginScreenDoctor> {
             ),
           ],
         ),
-
       ),
     );
   }
 }
-
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: LoginScreenDoctor(),
-  ));
-}
-
-
-

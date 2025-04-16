@@ -62,6 +62,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
             SnackBar(
                 content: Text(data['message'] ?? "Name updated successfully")),
           );
+          nameController.clear(); // Clear the field after success
         } else {
           throw Exception(data['message'] ?? "Failed to update name");
         }
@@ -114,6 +115,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(emailResponse.message)),
         );
+        emailController.clear(); // Clear the field after success
       } else {
         throw Exception(emailResponse.message);
       }
@@ -150,7 +152,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
           SnackBar(content: Text(response.message)),
         );
 
-        // Clear password fields after successful update
+        // Clear all password fields after successful update
         oldPasswordController.clear();
         passwordController.clear();
         confirmPasswordController.clear();

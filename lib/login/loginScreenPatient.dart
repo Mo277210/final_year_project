@@ -1,4 +1,5 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/shared_ui/custom%20buttonloading.dart';
 import 'package:collogefinalpoject/shared_ui/customButton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +7,6 @@ import '../api/login/loginResonseDm.dart'; // Ensure this import is correct
 import '../homePagePatient/homePagePatient.dart';
 import '../model/login/login_patient_model.dart'; // Ensure this import is correct
 import '../shared_ui/chipRow.dart';
-
 import '../shared_ui/nagelupbar.dart';
 import '../signup/signUpScreenPatient.dart';
 import 'loginScreenAdmin.dart';
@@ -24,7 +24,6 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String _errorMessage = '';
-
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -45,31 +44,48 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
     try {
       APIService apiService = APIService();
       var response = await apiService.login("patient", requestModel);
-
       print("Token Response: ${response.token}");
+      print("Error Response: ${response.error}");
 
       if (response.token.isNotEmpty) {
-        // Set the token in the TokenProvider
         Provider.of<TokenProvider>(context, listen: false).setToken(response.token);
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Homepagepatient()),
         );
       } else {
-        setState(() {
-          _errorMessage = response.error.isNotEmpty ? response.error : "Login failed. Please try again.";
-        });
+        // More flexible error checking
+        if (response.error.toLowerCase().contains('incorrect') ||
+            response.error.toLowerCase().contains('invalid') ||
+            response.error.toLowerCase().contains('wrong')) {
+          setState(() {
+            _errorMessage = "Incorrect email or password. Please try again.";
+          });
+          // Also show as SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Incorrect email or password. Please try again."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          setState(() {
+            _errorMessage = response.error.isNotEmpty
+                ? response.error
+                : "Login failed. Please try again.";
+          });
+        }
       }
     } catch (e) {
       setState(() {
         _errorMessage = "An error occurred. Please check your connection.";
       });
+      print("Login error: $e");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void _showAdminMessage() {
@@ -123,8 +139,8 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                 ChipRow(
                                   chipNames: const ['Patient', 'Doctor'],
                                   onChipTap: [
-                                    () {},
-                                    () {
+                                        () {},
+                                        () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -162,7 +178,7 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                           fillColor: Colors.grey[300],
                                           border: OutlineInputBorder(
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                            BorderRadius.circular(8),
                                           ),
                                           labelStyle: const TextStyle(
                                               color: Colors.black),
@@ -171,7 +187,7 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                           if (value == null || value.isEmpty) {
                                             return 'Please enter an email';
                                           } else if (!RegExp(
-                                                  r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$')
                                               .hasMatch(value)) {
                                             return 'Enter a valid email';
                                           }
@@ -193,7 +209,7 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                             onPressed: () {
                                               setState(() {
                                                 _isPasswordVisible =
-                                                    !_isPasswordVisible;
+                                                !_isPasswordVisible;
                                               });
                                             },
                                           ),
@@ -201,7 +217,7 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                           fillColor: Colors.grey[300],
                                           border: OutlineInputBorder(
                                             borderRadius:
-                                                BorderRadius.circular(8),
+                                            BorderRadius.circular(8),
                                           ),
                                           labelStyle: const TextStyle(
                                               color: Colors.black),
@@ -210,7 +226,7 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                           if (value == null || value.isEmpty) {
                                             return 'Please enter a password';
                                           } else if (!RegExp(
-                                                  r'[!@#$%^&*(),.?":{}|<>]')
+                                              r'[!@#$%^&*(),.?":{}|<>]')
                                               .hasMatch(value)) {
                                             return 'Password should contain special characters';
                                           }
@@ -218,7 +234,6 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                         },
                                       ),
                                       const SizedBox(height: 20),
-
                                       // Error Message Display
                                       if (_errorMessage.isNotEmpty)
                                         Text(
@@ -227,13 +242,11 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                               color: Colors.red, fontSize: 14),
                                         ),
                                       const SizedBox(height: 10),
-
                                       // Login Button
-                                      CustomButton(
-                                        buttonText: _isLoading
-                                            ? 'Logging in...'
-                                            : 'Log In',
-                                        onPressed: _isLoading ? () {} : _login,
+                                      CustomButtonloading(
+                                        buttonText: _isLoading ? 'Logging in...' : 'Log In',
+                                        onPressed: _isLoading ? null : _login, // This works now
+                                        buttonColor: _isLoading ? Colors.grey : const Color(0xFF105DFB),
                                       ),
                                     ],
                                   ),
@@ -273,12 +286,14 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                           ],
                         ),
                         const SizedBox(height: 20),
-                        InkWell(onTap: (){ Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  LoginScreenAdmin()),
-                        );},
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreenAdmin()),
+                            );
+                          },
                           child: Padding(
                             padding: EdgeInsetsDirectional.fromSTEB(8, 12, 8, 12),
                             child: Align(
@@ -289,20 +304,25 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 20),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.admin_panel_settings,
-                                        color: Theme.of(context).colorScheme.onPrimary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
                                         size: 24,
                                       ),
                                       SizedBox(width: 10),
                                       Text(
                                         'Admin',
                                         style: TextStyle(
-                                          color: Theme.of(context).colorScheme.onPrimary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
                                           fontFamily: 'Inter',
                                           fontSize: 16,
                                           letterSpacing: 0.0,
@@ -326,11 +346,4 @@ class _LoginScreenPatientState extends State<LoginScreenPatient> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: LoginScreenPatient(),
-  ));
 }

@@ -1,11 +1,10 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/patient_home/history.dart';
-import 'package:collogefinalpoject/api/patient_home/name_patient.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import 'package:collogefinalpoject/api/patient_home/patient_info.dart';
 import 'package:collogefinalpoject/model/patient_home/history.dart';
-import 'package:collogefinalpoject/model/patient_home/name_patient.dart'; // Import the PatientInfo model
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class Historypage extends StatefulWidget {
   const Historypage({Key? key}) : super(key: key);
@@ -16,7 +15,7 @@ class Historypage extends StatefulWidget {
 
 class _HistorypageState extends State<Historypage> {
   late NailApiService _apiService;
-  late patient_info_ApiService _patientInfoApiService; // Add the patient info API service
+  late PatientInfoApiService _patientInfoApiService; // API service for patient info
   List<NailImageHistory> _history = [];
   bool _isLoading = true;
   String _errorMessage = '';
@@ -28,7 +27,7 @@ class _HistorypageState extends State<Historypage> {
     super.didChangeDependencies();
     final tokenProvider = Provider.of<TokenProvider>(context);
     _apiService = NailApiService(tokenProvider.token);
-    _patientInfoApiService = patient_info_ApiService(); // Initialize the patient info API service
+    _patientInfoApiService = PatientInfoApiService(); // Initialize the patient info API service
     _loadHistory();
     _fetchPatientInfo(tokenProvider.token); // Fetch patient info
   }
@@ -50,14 +49,18 @@ class _HistorypageState extends State<Historypage> {
 
   Future<void> _fetchPatientInfo(String token) async {
     try {
-      final patientInfo = await _patientInfoApiService.fetchPatientInfo(token);
+      final patientInfoResponse = await _patientInfoApiService.getPatientInfo(token);
       setState(() {
-        _patientName = patientInfo.name; // Set the patient's name
+        // Check if the response is not null and the name is not null or empty
+        _patientName = patientInfoResponse?.data.name != null && patientInfoResponse!.data.name.isNotEmpty
+            ? patientInfoResponse.data.name
+            : 'Guest'; // Fallback name if API returns null or an empty name
         _isFetchingPatientInfo = false; // Mark fetching as complete
       });
     } catch (e) {
       setState(() {
         _errorMessage = 'Failed to fetch patient info: $e';
+        _patientName = 'Guest'; // Fallback name in case of error
         _isFetchingPatientInfo = false; // Mark fetching as complete even if it fails
       });
     }
@@ -81,7 +84,7 @@ class _HistorypageState extends State<Historypage> {
               child: _isFetchingPatientInfo
                   ? CircularProgressIndicator() // Show loading indicator while fetching patient info
                   : Text(
-                'Welcome 🖐, $_patientName',
+                'Welcome 🖐, $_patientName', // Use _patientName here
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
