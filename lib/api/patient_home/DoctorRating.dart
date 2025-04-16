@@ -25,7 +25,7 @@ class DoctorRatingApiService {
           'Accept': 'application/json',
         },
         body: json.encode({
-          'rateing': rating, // Note: Typo in 'rateing'
+          'rating': rating, // Note: Typo in 'rateing'
         }),
       );
 
