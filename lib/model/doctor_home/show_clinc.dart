@@ -1,9 +1,11 @@
 class showClinic {
+  final int id; // New field added
   final String name;
   final String phone;
   final String address;
 
   showClinic({
+    required this.id, // Include id in constructor
     required this.name,
     required this.phone,
     required this.address,
@@ -11,14 +13,16 @@ class showClinic {
 
   factory showClinic.fromJson(Map<String, dynamic> json) {
     return showClinic(
-      name: json['name'] ?? 'Unnamed Clinic', // Handle null name
-      phone: json['phone'] ?? 'N/A', // Handle null phone
-      address: json['address'] ?? 'No address available', // Handle null address
+      id: json['id'] ?? 0, // Handle null id
+      name: json['name'] ?? 'Unnamed Clinic',
+      phone: json['phone'] ?? 'N/A',
+      address: json['address'] ?? 'No address available',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id, // Add id to toJson
       'name': name,
       'phone': phone,
       'address': address,
@@ -27,9 +31,10 @@ class showClinic {
 
   @override
   String toString() {
-    return 'Clinic(name: $name, phone: $phone, address: $address)';
+    return 'Clinic(id: $id, name: $name, phone: $phone, address: $address)';
   }
 }
+
 
 // Clinic Response Model
 class ClinicResponse {

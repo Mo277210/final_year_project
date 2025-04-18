@@ -23,12 +23,41 @@ class ClinicApiService {
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final clinicResponse = ClinicResponse.fromJson(jsonData);
+
+        // Extract and save IDs
+        List<int> clinicIds = clinicResponse.data.map((clinic) => clinic.id).toList();
+        print('Extracted Clinic IDs: $clinicIds'); // Debugging output
+
         return clinicResponse.data;
       } else {
         throw Exception('Failed to load clinics: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load clinics: $e');
+    }
+  }
+
+  // Method to fetch only clinic IDs
+  Future<List<int>> getClinicIds(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/DisplayClinics'),
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the request headers
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final clinicResponse = ClinicResponse.fromJson(jsonData);
+
+        // Extract and return IDs
+        return clinicResponse.data.map((clinic) => clinic.id).toList();
+      } else {
+        throw Exception('Failed to load clinic IDs: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load clinic IDs: $e');
     }
   }
 }

@@ -13,6 +13,7 @@ import '../api/doctor_home/doctor_home_api.dart';
 import '../model/doctor_home/doctor_home_model.dart';
 import '../api/doctor_home/show_clinc.dart';
 import '../model/doctor_home/show_clinc.dart';
+
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({Key? key}) : super(key: key);
 
@@ -32,6 +33,8 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
   String _errorMessage = '';
   List<showClinic> _clinics = [];
   List<int> id_schedule = []; // Declare id_schedule as a class variable
+  List<int> clinic_id = []; // New list to store clinic IDs
+
   @override
   void initState() {
     super.initState();
@@ -57,14 +60,17 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
+
   Future<void> _fetchClinics() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
     final clinicApiService = ClinicApiService();
     try {
       final clinics = await clinicApiService.getClinics(token);
+      final clinicIds = clinics.map((clinic) => clinic.id).toList(); // Extract clinic IDs
       setState(() {
         _clinics = clinics;
+        clinic_id = clinicIds; // Save clinic IDs to clinic_id list
         _updateClinicDisplay();
       });
     } catch (e) {
@@ -74,6 +80,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
+
   void _updateClinicDisplay() {
     if (_clinics.isEmpty) {
       setState(() {
@@ -98,6 +105,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
+
   Future<void> _fetchAvailableHours() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
     final token = tokenProvider.token;
@@ -105,8 +113,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     try {
       final response = await apiService.getAvailableHours(token);
       setState(() {
-        _availableHours = response.data.map((hour) => hour.availableHours).toList();
-        id_schedule = response.data.map((hour) => hour.id).toList(); // Now hour.id will work
+        _availableHours =
+            response.data.map((hour) => hour.availableHours).toList();
+        id_schedule = response.data.map((hour) => hour.id).toList();
       });
     } catch (e) {
       setState(() {
@@ -114,6 +123,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       });
     }
   }
+
   Future<void> _chooseImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -128,7 +138,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       try {
         final apiService = DoctorApiService();
         final uploadResponse =
-            await apiService.uploadProfilePicture(selectedFile, token);
+        await apiService.uploadProfilePicture(selectedFile, token);
         setState(() {
           if (_doctorInfo == null) {
             _doctorInfo = DoctorInfoModel(
@@ -153,6 +163,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       }
     }
   }
+
   void _showAddHourBottomSheet() {
     final TextEditingController textController = TextEditingController();
     showModalBottomSheet(
@@ -196,10 +207,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       final apiService = DoctoraddhoursApiService();
                       await apiService.addAvailableHours(
                           token, textController.text);
-
-                      // Refresh the available hours list after successful addition
                       await _fetchAvailableHours();
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Hour added successfully')),
                       );
@@ -221,10 +229,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
+
   void _editHourBottomSheet(int index, int scheduleId) {
     final TextEditingController textController = TextEditingController();
-    textController.text = _availableHours[index]; // Pre-fill with current value
-
+    textController.text = _availableHours[index];
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -262,18 +270,15 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                     setState(() {
                       _availableHours[index] = textController.text;
                     });
-
                     final tokenProvider =
-                        Provider.of<TokenProvider>(context, listen: false);
+                    Provider.of<TokenProvider>(context, listen: false);
                     final token = tokenProvider.token;
-
                     try {
                       final apiService = edithourseDoctorApiService();
                       await edithourseDoctorApiService.editAvailableHours(
                         scheduleId: scheduleId,
                         availableHours: textController.text,
                       );
-
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Successfully updated hour')),
                       );
@@ -282,7 +287,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                         SnackBar(content: Text('Failed to edit hour: $e')),
                       );
                     }
-
                     Navigator.pop(context);
                   }
                 },
@@ -295,11 +299,10 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
+
   void _editClinicBottomSheet(String clinicType) {
     final TextEditingController locationController = TextEditingController();
     final TextEditingController phoneController = TextEditingController();
-
-    // Pre-fill with current values
     if (clinicType == 'Main Clinic') {
       locationController.text = _mainClinic;
       phoneController.text = _mainClinicPhone;
@@ -307,7 +310,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       locationController.text = _branchClinic;
       phoneController.text = _branchClinicPhone;
     }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -328,7 +330,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
               Text(
                 'Edit $clinicType Details',
                 style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -354,16 +356,15 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                       phoneController.text.isNotEmpty) {
                     try {
                       final tokenProvider =
-                          Provider.of<TokenProvider>(context, listen: false);
+                      Provider.of<TokenProvider>(context, listen: false);
                       final apiService =
-                          DoctorAddClinicApiService(tokenProvider);
+                      DoctorAddClinicApiService(tokenProvider);
                       final response = await apiService.addClinic(
                         clinicType,
                         locationController.text,
                         phoneController.text,
                       );
                       if (response.success) {
-                        // Refresh clinics after successful update
                         await _fetchClinics();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(response.message)),
@@ -392,6 +393,7 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       },
     );
   }
+
   void _deleteHourBottomSheet(int index, int scheduleId) {
     showModalBottomSheet(
       context: context,
@@ -426,7 +428,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   ElevatedButton(
                     onPressed: () async {
                       try {
-                        // Retrieve the token
                         final tokenProvider =
                         Provider.of<TokenProvider>(context, listen: false);
                         final token = tokenProvider.token;
@@ -436,10 +437,9 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                                 content: Text(
                                     'Authentication token is missing. Please log in again.')),
                           );
-                          Navigator.pop(context); // Close the bottom sheet
+                          Navigator.pop(context);
                           return;
                         }
-                        // Call the delete API with the token and scheduleId
                         final apiService = DoctorAvailableHourAPIService();
                         final deleteResponse =
                         await apiService.deleteAvailableHour(
@@ -447,17 +447,14 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                           token: token,
                         );
                         if (deleteResponse.success) {
-                          // Remove the hour and its ID from the local lists
                           setState(() {
                             _availableHours.removeAt(index);
                             id_schedule.removeAt(index);
                           });
-                          // Show success message
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(deleteResponse.message)),
                           );
                         } else {
-                          // Show failure message
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -466,12 +463,11 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                           );
                         }
                       } catch (e) {
-                        // Show error message
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Error deleting hour: $e')),
                         );
                       } finally {
-                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.pop(context);
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -479,7 +475,6 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
                   ),
                   OutlinedButton(
                     onPressed: () {
-                      // Close the bottom sheet without deleting
                       Navigator.pop(context);
                     },
                     child: const Text('Cancel'),
@@ -501,233 +496,241 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 3,
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 3,
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: _chooseImage,
+                      child: CircleAvatar(
+                        radius: 40,
+                        backgroundImage: _image != null
+                            ? FileImage(_image!)
+                            : _doctorInfo?.photo != null &&
+                            Uri.tryParse(_doctorInfo!.photo)
+                                ?.hasScheme ==
+                                true &&
+                            Uri.tryParse(_doctorInfo!.photo)
+                                ?.hasAuthority ==
+                                true
+                            ? NetworkImage(_doctorInfo!.photo)
+                            : const AssetImage('assets/doctor.png')
+                        as ImageProvider,
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GestureDetector(
-                            onTap: _chooseImage,
-                            child:CircleAvatar(
-                              radius: 40,
-                              backgroundImage: _image != null
-                                  ? FileImage(_image!)
-                                  : _doctorInfo?.photo != null &&
-                                  Uri.tryParse(_doctorInfo!.photo)?.hasScheme == true &&
-                                  Uri.tryParse(_doctorInfo!.photo)?.hasAuthority == true
-                                  ? NetworkImage(_doctorInfo!.photo)
-                                  : const AssetImage('assets/doctor.png') as ImageProvider,
-                            ),//todo: use in patient doctor sreach screen
+                          Text(
+                            'Dr. ${_doctorInfo?.name ?? 'Unknown'}',
+                            style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Dr. ${_doctorInfo?.name ?? 'Unknown'}',
-                                  style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  _doctorInfo?.specialization ??
-                                      'Specialization',
-                                  style: const TextStyle(
-                                      fontSize: 16, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '⭐${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
-                                  style: const TextStyle(
-                                      fontSize: 14, color: Colors.orange),
-                                ),
-                              ],
-                            ),
+                          Text(
+                            _doctorInfo?.specialization ??
+                                'Specialization',
+                            style: const TextStyle(
+                                fontSize: 16, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '⭐${_doctorInfo?.totalRatings?.toStringAsFixed(1) ?? '0.0'} ',
+                            style: const TextStyle(
+                                fontSize: 14, color: Colors.orange),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 40),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const Center(
-                              child: Text(
-                                'Contact Info',
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blueAccent),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(Icons.email,
-                                    color: Colors.blueAccent),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    _doctorInfo?.email ?? 'No email provided',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(Icons.phone,
-                                    color: Colors.blueAccent),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _doctorInfo?.phone ?? 'No phone provided',
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 40),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                       const Center(
                         child: Text(
-                          'Available Hours',
+                          'Contact Info',
                           style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.blueAccent),
                         ),
                       ),
-                      const SizedBox(height: 15),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _availableHours
-                            .asMap()
-                            .entries
-                            .map(
-                              (entry) => Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.lightBlue[100],
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  entry.value,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    _editHourBottomSheet(entry.key, id_schedule[entry.key]); // Pass index and scheduleId
-                                  },
-                                  child: const Icon(
-                                    Icons.edit,
-                                    size: 18,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    _deleteHourBottomSheet(entry.key, id_schedule[entry.key]); // Pass index and scheduleId
-                                  },
-                                  child: const Icon(
-                                    Icons.cancel,
-                                    size: 18,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.email,
+                              color: Colors.blueAccent),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _doctorInfo?.email ?? 'No email provided',
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ),
-                        )
-                            .toList(),
+                        ],
                       ),
-                      const SizedBox(height: 40),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.phone,
+                              color: Colors.blueAccent),
+                          const SizedBox(width: 8),
+                          Text(
+                            _doctorInfo?.phone ?? 'No phone provided',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40),
+                const Center(
+                  child: Text(
+                    'Available Hours',
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueAccent),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _availableHours
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.lightBlue[100],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            entry.value,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
+                              _editHourBottomSheet(
+                                  entry.key, id_schedule[entry.key]);
+                            },
+                            child: const Icon(
+                              Icons.edit,
+                              size: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
+                              _deleteHourBottomSheet(
+                                  entry.key, id_schedule[entry.key]);
+                            },
+                            child: const Icon(
+                              Icons.cancel,
+                              size: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                      .toList(),
+                ),
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'Clinic Locations',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Center(
-                              child: Text(
-                                'Clinic Locations',
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blueAccent),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: () => _editClinicBottomSheet('Main '),
-                              child: ListTile(
-                                title: const Text('Main Clinic',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(_mainClinic),
-                                    Text('Phone: $_mainClinicPhone'),
-                                  ],
-                                ),
-                                trailing: const Icon(Icons.edit),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => _editClinicBottomSheet('Branch '),
-                              child: ListTile(
-                                title: const Text('Branch Clinic',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(_branchClinic),
-                                    Text('Phone: $_branchClinicPhone'),
-                                  ],
-                                ),
-                                trailing: const Icon(Icons.edit),
-                              ),
-                            ),
-                          ],
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () => _editClinicBottomSheet('Main '),
+                        child: ListTile(
+                          title: const Text('Main Clinic',
+                              style:
+                              TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_mainClinic),
+                              Text('Phone: $_mainClinicPhone'),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.edit),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => _editClinicBottomSheet('Branch '),
+                        child: ListTile(
+                          title: const Text('Branch Clinic',
+                              style:
+                              TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_branchClinic),
+                              Text('Phone: $_branchClinicPhone'),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.edit),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
+              ],
+            ),
+          ),
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: _showAddHourBottomSheet,
           child: const Icon(Icons.add),
