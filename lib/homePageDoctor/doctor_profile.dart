@@ -45,12 +45,20 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
     _fetchAvailableHours();
   }
   void _launchURL(String url) async {
-    final uri = Uri.parse(url.trim());
+    print('Trying to launch: $url');
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null || uri.scheme.isEmpty || !['http', 'https'].contains(uri.scheme)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid URL: $url')),
+      );
+      return;
+    }
+
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid URL: $url')),
+        SnackBar(content: Text('Unable to launch URL: $url')),
       );
     }
   }
