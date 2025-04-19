@@ -541,9 +541,30 @@ class DoctorCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Center(
-                      child: Text(
-                        clinic.address,
-                        textAlign: TextAlign.center,
+                      child: GestureDetector(
+                        onTap: () {
+                          final isValidUrl = Uri.tryParse(clinic.address)?.hasScheme == true &&
+                              (clinic.address.startsWith('http://') || clinic.address.startsWith('https://'));
+                          if (isValidUrl) {
+                            _launchUrl(clinic.address);
+                          } else {
+                            // Do nothing or just show an alert when it's not a valid URL
+                          }
+                        },
+                        child: Text(
+                          clinic.address,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Uri.tryParse(clinic.address)?.hasScheme == true &&
+                                (clinic.address.startsWith('http://') || clinic.address.startsWith('https://'))
+                                ? Colors.blue
+                                : Colors.black,
+                            decoration: Uri.tryParse(clinic.address)?.hasScheme == true &&
+                                (clinic.address.startsWith('http://') || clinic.address.startsWith('https://'))
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -563,3 +584,4 @@ class DoctorCard extends StatelessWidget {
     );
   }
 }
+
