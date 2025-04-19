@@ -229,14 +229,18 @@ class _Nagelimage extends State<Nagelimage> {
             ),
             const Center(
               child: Text(
-                "Please upload a clear image of the affected area",
+                'Make sure the image shows one finger and one nail only\n'
+                    'Crop the image to fit just the nail area\n'
+                    'Use clear lighting when taking the photo\n'
+                    'Do not use the phone flash',
                 style: TextStyle(
                     fontSize: 14,
                     color: Color(0xff5a5c60),
                     fontWeight: FontWeight.bold
                 ),
               ),
-            )
+            ),
+            SizedBox(height: 10,)
           ],
         ),
       ),
