@@ -139,12 +139,13 @@ class _HistorypageState extends State<Historypage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Increase the height and width of the image here
                 historyItem.imageFile.isNotEmpty
                     ? Image.network(
                   historyItem.fullImageUrl,
-                  height: 150,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+                  height: 300, // Increased height
+                  width: double.infinity, // Full width
+                  fit: BoxFit.cover, // Ensures the image covers the area without distortion
                   loadingBuilder: (BuildContext context, Widget child,
                       ImageChunkEvent? loadingProgress) {
                     if (loadingProgress == null) return child;
@@ -158,7 +159,7 @@ class _HistorypageState extends State<Historypage> {
                     );
                   },
                   errorBuilder: (context, error, stackTrace) => Container(
-                    height: 150,
+                    height: 300, // Match the increased height
                     color: Colors.grey[300],
                     child: Center(
                       child: Icon(Icons.broken_image),
@@ -166,7 +167,7 @@ class _HistorypageState extends State<Historypage> {
                   ),
                 )
                     : Container(
-                  height: 150,
+                  height: 300, // Match the increased height
                   color: Colors.grey[300],
                   child: Center(
                     child: Icon(Icons.image_not_supported),
