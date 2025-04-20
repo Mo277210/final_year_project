@@ -10,7 +10,7 @@ class DoctorRating {
   factory DoctorRating.fromJson(Map<String, dynamic> json) {
     return DoctorRating(
       rating: json['rating']?.toDouble() ?? 0.0,
-      newRating: json['new_rating']?.toDouble() ?? 0.0,
+      newRating: json['total_rating']?.toDouble() ?? 0.0,
     );
   }
 

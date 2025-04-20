@@ -329,7 +329,7 @@ class Doctor {
       phone: json['phone'] ?? 'No phone provided',
       rating: json['rating']?.toDouble() ?? 0.0,
       specialization: json['specialization'] ?? 'General Practitioner',
-      totalRatings: json['total_rateings']?.toInt() ?? 0,
+      totalRatings: json['total_ratings']?.toDouble() ?? 0.0,
       photo: json['photo'],
       clinics: (json['clinics'] as List? ?? []).map((clinic) => Clinic.fromJson(clinic)).toList(),
       availableHours: List<String>.from(json['available_hours'] ?? []),
@@ -420,7 +420,7 @@ class DoctorCard extends StatelessWidget {
                         Row(
                           children: [
                             RatingBar.builder(
-                              initialRating: rating,
+                              initialRating:  totalRatings?.toDouble() ?? 0.0,
                               minRating: 1,
                               maxRating: 5,
                               direction: Axis.horizontal,

@@ -32,7 +32,7 @@ class Doctor {
       phone: json['phone'],
       rating: json['rating']?.toDouble(),
       specialization: json['specialization'],
-      totalRatings: json['total_rateings'] ?? 0,
+      totalRatings: json['total_ratings'] ?? 0,
       photo: json['photo'],
       clinics: (json['clinics'] as List? ?? [])
           .map((clinic) => Clinic.fromJson(clinic))
