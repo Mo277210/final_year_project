@@ -77,45 +77,76 @@ class _Nagelimage extends State<Nagelimage> {
   }
 
   void _showPredictionResult(PredictionResponseModel result) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Prediction Result'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Diagnosis: ${result.nailImage.diagnosis}'),
-                Text('Confidence: ${result.nailImage.confidence.toStringAsFixed(2)}%'),
-                const SizedBox(height: 10),
-                const Text('Probabilities:'),
-                ...result.nailImage.probabilities.entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2.0),
-                    child: Text('${entry.key}: ${entry.value.toStringAsFixed(2)}%'),
+    print("Diagnosis from API: '${result.nailImage.diagnosis}'");
+    String diagnosis = result.nailImage.diagnosis;
+
+    if (diagnosis == "Healthy Nail" || diagnosis == "Error-Not Nail") {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Prediction Result'),
+            content: Text(
+              diagnosis == "Healthy Nail"
+                  ? "Your nail appears to be healthy. No further action is needed."
+                  : "The image provided does not appear to be a valid nail image. Please try again with a clearer image.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Prediction Result'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Diagnosis: ${result.nailImage.diagnosis}'),
+                  Text('Confidence: ${result.nailImage.confidence.toStringAsFixed(2)}%'),
+                  const SizedBox(height: 10),
+                  const Text('Probabilities:'),
+                  ...result.nailImage.probabilities.entries.map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Text('${entry.key}: ${entry.value.toStringAsFixed(2)}%'),
+                    );
+                  }).toList(),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FilterPage(diagnosis: result.nailImage.diagnosis),
+                    ),
                   );
-                }).toList(),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FilterPage()),
-                );
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {

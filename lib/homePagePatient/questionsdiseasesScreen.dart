@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'homePagePatient.dart';
 
 class FilterPage extends StatefulWidget {
-  const FilterPage({Key? key}) : super(key: key);
+  final String diagnosis;
+  const FilterPage({Key? key, required this.diagnosis}) : super(key: key);
 
   @override
   State<FilterPage> createState() => _FilterPageState();
@@ -11,20 +11,34 @@ class FilterPage extends StatefulWidget {
 
 class _FilterPageState extends State<FilterPage> {
   int selectedIndex = 0;
-
   final List<String> filterCategories = [
-    'ALM',
+    'Acral Lentiginous Melanoma',
     'Blue Finger',
-    'Beau\'s Line',
+    'Beaus Line',
     'Clubbing',
     'Koilonychia',
-    'Muehrcke\'s Lines',
+    'Muehrckes Lines',
     'Pitting',
-    'Terry\'s Nail'
+    'Terrys Nail'
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Loop through filterCategories and find the index of the diagnosis
+    for (int i = 0; i < filterCategories.length; i++) {
+      if (filterCategories[i] == widget.diagnosis) {
+        selectedIndex = i;  // Set the selectedIndex based on the diagnosis
+        break;  // Exit the loop once the match is found
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Get the diagnosis based on the selectedIndex
+    String currentDiagnosis = filterCategories[selectedIndex];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -40,6 +54,7 @@ class _FilterPageState extends State<FilterPage> {
       ),
       body: Column(
         children: [
+          // Print diagnosis value at the top
           Expanded(
             child: Row(
               children: [
@@ -76,9 +91,9 @@ class _FilterPageState extends State<FilterPage> {
                   ),
                 ),
 
-                // Filter Options Panel
+                // Filter Options Panel based on the diagnosis
                 Expanded(
-                  child: FilterOptions(title: filterCategories[selectedIndex]),
+                  child: FilterOptions(diagnosis: currentDiagnosis),
                 ),
               ],
             ),
@@ -89,10 +104,12 @@ class _FilterPageState extends State<FilterPage> {
   }
 }
 
-class FilterOptions extends StatefulWidget {
-  final String title;
 
-  const FilterOptions({Key? key, required this.title}) : super(key: key);
+
+class FilterOptions extends StatefulWidget {
+  final String diagnosis;  // Changed from 'title' to 'diagnosis'
+
+  const FilterOptions({Key? key, required this.diagnosis}) : super(key: key);
 
   @override
   State<FilterOptions> createState() => _FilterOptionsState();
@@ -103,23 +120,25 @@ class _FilterOptionsState extends State<FilterOptions> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> options = getFilterOptions(widget.title);
+    List<Widget> options = getFilterOptions(widget.diagnosis);  // Using diagnosis instead of title
 
     return Column(
       children: [
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Select ${widget.title}",
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                ...options,
-              ],
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Select ${widget.diagnosis}",  // Using diagnosis here
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  ...options,
+                ],
+              ),
             ),
           ),
         ),
@@ -132,7 +151,6 @@ class _FilterOptionsState extends State<FilterOptions> {
             child: ElevatedButton(
               onPressed: () {
                 if (selectedCheckboxValues.isEmpty) {
-                  // Show error if nothing is selected
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text("Please select at least one option before saving."),
@@ -140,8 +158,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                     ),
                   );
                 } else {
-                  // Proceed with selecting a doctor
-                  String specialty = getDoctorSpecialty(widget.title);
+                  String specialty = getDoctorSpecialty(widget.diagnosis);  // Using diagnosis here
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -151,7 +168,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              selectedCheckboxValues.clear(); // Clear selections
+                              selectedCheckboxValues.clear();
                             });
                             Navigator.push(
                               context,
@@ -177,40 +194,61 @@ class _FilterOptionsState extends State<FilterOptions> {
     );
   }
 
-  List<Widget> getFilterOptions(String category) {
-    switch (category) {
-      case "ALM":
+  List<Widget> getFilterOptions(String diagnosis) {  // Parameter renamed to diagnosis
+    switch (diagnosis) {  // Using diagnosis instead of category
+      case "Acral Lentiginous Melanoma":
         return [
-          checkboxTile("Do you have dark spots under your nails?"),
-          checkboxTile("Have you noticed any color changes in your nails?"),
-          checkboxTile("Is there a family history of melanoma?"),
-          checkboxTile("Have you experienced any nail pain or tenderness?"),
-
+          checkboxTile("Have you noticed any dark spots or new moles on your skin?"),
+          checkboxTile("Have you observed any asymmetry, irregular borders, or multiple colors in a mole or spot?"),
+          checkboxTile("Has a mole or spot started to bleed or become itchy recently?"),
+          checkboxTile("Do you have a family history of melanoma or other skin cancers?"),
+          checkboxTile("Have you had significant exposure to sunlight or tanning beds?"),
+          checkboxTile("Do you have a history of immune-suppressing conditions or treatments like chemotherapy?"),
         ];
       case "Blue Finger":
         return [
-          checkboxTile("Do your fingers often feel cold?"),
-          checkboxTile("Do your nails turn blue when exposed to cold?"),
-          checkboxTile("Do you have circulation problems?"),
-          checkboxTile("Do your fingers return to normal color after warming up?"),
-
-
+          checkboxTile("Do you have shortness of breath or severe chest pain?"),
+          checkboxTile("Do you suffer from a persistent cough with phlegm?"),
+          checkboxTile("Do you experience a loss of appetite?"),
+          checkboxTile("Do you suffer from a persistent headache?"),
+          checkboxTile("Do you have a family history of heart disease?"),
+          checkboxTile("Do you suffer from any chronic heart problems or diseases?"),
+          checkboxTile("Do you experience rapid and irregular heartbeat?"),
+          checkboxTile("Do you experience severe shortness of breath even when resting?"),
+          checkboxTile("Do you experience swelling in your legs or ankles?"),
+          checkboxTile("Have you noticed excessive sweating for no reason?"),
+          checkboxTile("Do you experience sudden fainting or dizziness?"),
+          checkboxTile("Do you experience numbness or tingling in your fingers when exposed to cold?"),
+          checkboxTile("Do your fingers feel extremely cold?"),
+          checkboxTile("Have you noticed the color of your fingers changing in three stages: white, then blue, then red?"),
         ];
-      case "Beau's Line":
+      case "Beaus Line":
         return [
-          checkboxTile("Have you noticed horizontal grooves on your nails?"),
-          checkboxTile("Have you experienced severe malnutrition recently?"),
-          checkboxTile("Do you have any chronic illnesses like diabetes?"),
-          checkboxTile("Have you recently recovered from a severe illness?"),
-
+          checkboxTile("Have you noticed horizontal grooves or ridges across your nails?"),
+          checkboxTile("Have you experienced any significant illness or infection recently?"),
+          checkboxTile("Have you experienced any trauma or injury to your hands or nails?"),
+          checkboxTile("Do you have any chronic conditions like diabetes, cardiovascular disease, or autoimmune disorders?"),
+          checkboxTile("Have you been under significant physical or emotional stress recently?"),
+          checkboxTile("Do you have a history of malnutrition or poor nutrition?"),
+          checkboxTile("Are you taking any medications that may affect the absorption of essential nutrients?"),
         ];
       case "Clubbing":
         return [
-          checkboxTile("Do your nails appear more curved than usual?"),
-          checkboxTile("Do you have breathing or heart problems?"),
-          checkboxTile("Have you been diagnosed with any chronic lung disease?"),
-          checkboxTile("Do your fingertips appear swollen?"),
-
+          checkboxTile("Have you noticed a long-term change in the shape of your nails?"),
+          checkboxTile("Is the change affecting one hand or both hands?"),
+          checkboxTile("Do you feel pain, swelling, or redness in your fingers or nails?"),
+          checkboxTile("Are there any other accompanying symptoms like changes in nail texture?"),
+          checkboxTile("Do you have a persistent cough or difficulty breathing?"),
+          checkboxTile("Have you been diagnosed with chronic pneumonia, tuberculosis, lung cancer, or pulmonary fibrosis?"),
+          checkboxTile("Have you been diagnosed with any heart disease?"),
+          checkboxTile("Do you experience shortness of breath upon exertion or rest?"),
+          checkboxTile("Have you ever been diagnosed with endocarditis or heart valve disease?"),
+          checkboxTile("Do you have chronic liver or intestinal diseases like cirrhosis or Crohn’s disease?"),
+          checkboxTile("Do you experience recurrent abdominal pain or changes in bowel movements?"),
+          checkboxTile("Have you experienced unexplained weight loss or poor appetite?"),
+          checkboxTile("Is there a family history of heart, lung, liver, or hereditary diseases?"),
+          checkboxTile("Do you smoke or use tobacco products?"),
+          checkboxTile("Are you frequently exposed to environmental pollutants or chemicals?"),
         ];
       case "Koilonychia":
         return [
@@ -218,35 +256,50 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you have iron deficiency or anemia?"),
           checkboxTile("Have you noticed any discoloration in your nails?"),
           checkboxTile("Do your nails break easily?"),
-
+          checkboxTile("Do you suffer from fatigue, exhaustion, persistent headaches, dizziness, or lightheadedness?"),
+          checkboxTile("Have you noticed hair loss, weakness, or irregular heartbeat?"),
+          checkboxTile("Do you have inflammation or ulcers in your tongue or mouth?"),
+          checkboxTile("Do you suffer from chronic diarrhea, rectal bleeding, or severe bloating?"),
+          checkboxTile("Have you experienced abdominal pain, nausea, or unexplained weight loss?"),
+          checkboxTile("Do you constantly feel anxious or depressed?"),
+          checkboxTile("Do you have a weakened immune system or slow wound healing?"),
+          checkboxTile("Are you experiencing a loss of appetite or a decreased sense of taste or smell?"),
         ];
-      case "Muehrcke's Lines":
+      case "Muehrckes Lines":
         return [
-          checkboxTile("Do you have white horizontal lines on your nails?"),
-          checkboxTile("Do you have kidney or liver disease?"),
+          checkboxTile("Have you noticed white horizontal bands across your nails?"),
+          checkboxTile("Do you have kidney or liver disease, or have you had abnormal liver or kidney function tests recently?"),
           checkboxTile("Do you have low albumin levels in your blood?"),
-          checkboxTile("Have you experienced chronic malnutrition?"),
-
+          checkboxTile("Have you experienced chronic malnutrition or protein deficiency?"),
+          checkboxTile("Are you underweight or have you lost significant weight unintentionally?"),
+          checkboxTile("Are you experiencing swelling in your legs, face, or body?"),
+          checkboxTile("Have you noticed fluid retention or difficulty urinating recently?"),
         ];
       case "Pitting":
         return [
-          checkboxTile("Do your nails have small pits or dents?"),
-          checkboxTile("Do you have psoriasis or alopecia?"),
-          checkboxTile("Are there any other changes in your skin or scalp?"),
-          checkboxTile("Have you noticed any changes in nail thickness?"),
+          checkboxTile("Do your nails have small pits or indentations?"),
+          checkboxTile("Do you have psoriasis, alopecia, or any autoimmune skin conditions?"),
+          checkboxTile("Have you noticed changes in your skin or scalp, such as rashes, scaly patches, or thinning hair?"),
+          checkboxTile("Have you experienced changes in your nail thickness or separation from the nail bed?"),
+          checkboxTile("Are you experiencing joint pain, swelling, or stiffness, especially in your fingers or toes?"),
+          checkboxTile("Have you been diagnosed with psoriatic arthritis or any other autoimmune disorders?"),
+          checkboxTile("Have you experienced any changes in your skin’s appearance like discoloration or thickening?"),
+          checkboxTile("Are you dealing with emotional or physical stress that could be affecting your health?"),
         ];
-      case "Terry's Nail":
+      case "Terrys Nail":
         return [
           checkboxTile("Are your nails half white and half brown?"),
-          checkboxTile("Do you have liver disease?"),
-          checkboxTile("Do you have any other health issues like diabetes or kidney failure?"),
-          checkboxTile("Have you noticed any changes in nail texture?"),
-
+          checkboxTile("Do you have liver disease or any other health issues like diabetes or kidney failure?"),
+          checkboxTile("Have you noticed any changes in nail texture or shape?"),
+          checkboxTile("Do you experience swelling in your face, arms, or body (edema)?"),
+          checkboxTile("Have you noticed any changes in the amount or color of your urine?"),
+          checkboxTile("Do you have a family history of liver or kidney disease?"),
         ];
       default:
         return [const Text("No options available")];
     }
   }
+
 
   Widget checkboxTile(String text) {
     return ListTile(
@@ -269,32 +322,25 @@ class _FilterOptionsState extends State<FilterOptions> {
 }
 
 // Function to map conditions to doctor specialties
-String getDoctorSpecialty(String condition) {
-  switch (condition) {
-    case "ALM":
+String getDoctorSpecialty(String diagnosis) {  // Parameter renamed to diagnosis
+  switch (diagnosis) {  // Using diagnosis instead of condition
+    case "Acral Lentiginous Melanoma":
       return "Dermatologist or Oncologist";
     case "Blue Finger":
       return "Cardiologist or Vascular Specialist";
-    case "Beau's Line":
+    case "Beaus Line":
       return "General Physician or Endocrinologist";
     case "Clubbing":
       return "Pulmonologist or Cardiologist";
     case "Koilonychia":
       return "Hematologist or Nutritionist";
-    case "Muehrcke's Lines":
+    case "Muehrckes Lines":
       return "Nephrologist or Hepatologist";
     case "Pitting":
       return "Dermatologist (Psoriasis/Alopecia Specialist)";
-    case "Terry's Nail":
+    case "Terrys Nail":
       return "Hepatologist or Endocrinologist";
     default:
       return "General Physician";
   }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: FilterPage(),
-  ));
 }
