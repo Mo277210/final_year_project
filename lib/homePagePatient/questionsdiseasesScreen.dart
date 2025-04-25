@@ -28,8 +28,8 @@ class _FilterPageState extends State<FilterPage> {
     // Loop through filterCategories and find the index of the diagnosis
     for (int i = 0; i < filterCategories.length; i++) {
       if (filterCategories[i] == widget.diagnosis) {
-        selectedIndex = i;  // Set the selectedIndex based on the diagnosis
-        break;  // Exit the loop once the match is found
+        selectedIndex = i; // Set the selectedIndex based on the diagnosis
+        break; // Exit the loop once the match is found
       }
     }
   }
@@ -38,7 +38,6 @@ class _FilterPageState extends State<FilterPage> {
   Widget build(BuildContext context) {
     // Get the diagnosis based on the selectedIndex
     String currentDiagnosis = filterCategories[selectedIndex];
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -79,9 +78,8 @@ class _FilterPageState extends State<FilterPage> {
                           child: Text(
                             filterCategories[index],
                             style: TextStyle(
-                              color: selectedIndex == index
-                                  ? Colors.blue
-                                  : Colors.black,
+                              color:
+                              selectedIndex == index ? Colors.blue : Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -90,7 +88,6 @@ class _FilterPageState extends State<FilterPage> {
                     },
                   ),
                 ),
-
                 // Filter Options Panel based on the diagnosis
                 Expanded(
                   child: FilterOptions(diagnosis: currentDiagnosis),
@@ -104,11 +101,8 @@ class _FilterPageState extends State<FilterPage> {
   }
 }
 
-
-
 class FilterOptions extends StatefulWidget {
-  final String diagnosis;  // Changed from 'title' to 'diagnosis'
-
+  final String diagnosis; // Changed from 'title' to 'diagnosis'
   const FilterOptions({Key? key, required this.diagnosis}) : super(key: key);
 
   @override
@@ -120,8 +114,7 @@ class _FilterOptionsState extends State<FilterOptions> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> options = getFilterOptions(widget.diagnosis);  // Using diagnosis instead of title
-
+    List<Widget> options = getFilterOptions(widget.diagnosis); // Using diagnosis instead of title
     return Column(
       children: [
         Expanded(
@@ -132,7 +125,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Select ${widget.diagnosis}",  // Using diagnosis here
+                    "Select ${widget.diagnosis}", // Using diagnosis here
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
@@ -142,7 +135,6 @@ class _FilterOptionsState extends State<FilterOptions> {
             ),
           ),
         ),
-
         // Save Button with Validation
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -158,7 +150,10 @@ class _FilterOptionsState extends State<FilterOptions> {
                     ),
                   );
                 } else {
-                  String specialty = getDoctorSpecialtyFromQuestion(widget.diagnosis);  // Using diagnosis here
+                  // Use the first selected question to determine the specialty
+                  String selectedQuestion = selectedCheckboxValues.first;
+                  String specialty = getDoctorSpecialtyFromQuestion(selectedQuestion);
+
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -168,7 +163,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              selectedCheckboxValues.clear();
+                              selectedCheckboxValues.clear(); // Clear selections
                             });
                             Navigator.push(
                               context,
@@ -194,8 +189,8 @@ class _FilterOptionsState extends State<FilterOptions> {
     );
   }
 
-  List<Widget> getFilterOptions(String diagnosis) {  // Parameter renamed to diagnosis
-    switch (diagnosis) {  // Using diagnosis instead of category
+  List<Widget> getFilterOptions(String diagnosis) {
+    switch (diagnosis) {
       case "Acral Lentiginous Melanoma":
         return [
           checkboxTile("Have you noticed any dark spots or new moles on your skin?"),
@@ -348,8 +343,6 @@ class _FilterOptionsState extends State<FilterOptions> {
     }
   }
 
-
-
   Widget checkboxTile(String text) {
     return ListTile(
       title: Text(text),
@@ -371,85 +364,92 @@ class _FilterOptionsState extends State<FilterOptions> {
 }
 
 String getDoctorSpecialtyFromQuestion(String question) {
-  switch (question) {
+  // Normalize the input question
+  String normalizedQuestion = question.trim().toLowerCase();
+
   // Cardiology
-    case "Do you have a family history of heart disease?":
-    case "Do you suffer from any chronic heart problems or diseases?":
-    case "Do you experience a rapid and irregular heartbeat?":
-    case "Do you experience severe shortness of breath even when resting?":
-    case "Do you experience swelling in your legs or ankles?":
-    case "Have you noticed excessive sweating for no reason?":
-    case "Do you experience sudden fainting or dizziness?":
-      return "Cardiologist";
+  if (normalizedQuestion == "do you have a family history of heart disease?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from any chronic heart problems or diseases?".toLowerCase() ||
+      normalizedQuestion == "do you experience a rapid and irregular heartbeat?".toLowerCase() ||
+      normalizedQuestion == "do you experience severe shortness of breath even when resting?".toLowerCase() ||
+      normalizedQuestion == "do you experience swelling in your legs or ankles?".toLowerCase() ||
+      normalizedQuestion == "have you noticed excessive sweating for no reason?".toLowerCase() ||
+      normalizedQuestion == "do you experience sudden fainting or dizziness?".toLowerCase()) {
+    return "Cardiologist";
+  }
 
   // Pulmonology
-    case "Do you have shortness of breath or severe chest pain?":
-    case "Do you suffer from a persistent cough with phlegm?":
-      return "Pulmonologist";
+  if (normalizedQuestion == "do you have shortness of breath or severe chest pain?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from a persistent cough with phlegm?".toLowerCase()) {
+    return "Pulmonologist";
+  }
 
   // Dermatology / Oncology
-    case "Have you noticed any dark spots or new moles on your skin?":
-    case "Have you observed any asymmetry, irregular borders, or multiple colors in a mole or spot?":
-    case "Has a mole or spot started to bleed or become itchy recently?":
-    case "Do you have a family history of melanoma or other skin cancers?":
-    case "Have you had significant exposure to sunlight or tanning beds?":
-    case "Do you have a history of immune-suppressing conditions or treatments like chemotherapy?":
-    case "Have you noticed any changes in the texture of your skin or moles?":
-    case "Do you experience any unusual pain or tenderness in a mole or skin spot?":
-    case "Has a mole or spot changed in size or shape over time?":
-    case "Have you noticed any new or unusual growths on your palms, soles, or under your nails?":
-    case "Do you have a history of skin conditions or conditions that affect your skin’s ability to heal?":
-    case "Are there any moles or spots that have irregular or jagged edges?":
-    case "Have you ever been diagnosed with atypical moles or dysplastic nevi?":
-    case "Do you have a history of frequent sunburns, especially in childhood?":
-    case "Have you ever noticed a mole or skin lesion that is painful or bothersome?":
-    case "Do you wear sunscreen regularly or protect your skin from excessive sun exposure?":
-      return "Dermatologist or Oncologist";
+  if (normalizedQuestion == "have you noticed any dark spots or new moles on your skin?".toLowerCase() ||
+      normalizedQuestion == "have you observed any asymmetry, irregular borders, or multiple colors in a mole or spot?".toLowerCase() ||
+      normalizedQuestion == "has a mole or spot started to bleed or become itchy recently?".toLowerCase() ||
+      normalizedQuestion == "do you have a family history of melanoma or other skin cancers?".toLowerCase() ||
+      normalizedQuestion == "have you had significant exposure to sunlight or tanning beds?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of immune-suppressing conditions or treatments like chemotherapy?".toLowerCase() ||
+      normalizedQuestion == "have you noticed any changes in the texture of your skin or moles?".toLowerCase() ||
+      normalizedQuestion == "do you experience any unusual pain or tenderness in a mole or skin spot?".toLowerCase() ||
+      normalizedQuestion == "has a mole or spot changed in size or shape over time?".toLowerCase() ||
+      normalizedQuestion == "have you noticed any new or unusual growths on your palms, soles, or under your nails?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of skin conditions or conditions that affect your skin’s ability to heal?".toLowerCase() ||
+      normalizedQuestion == "are there any moles or spots that have irregular or jagged edges?".toLowerCase() ||
+      normalizedQuestion == "have you ever been diagnosed with atypical moles or dysplastic nevi?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of frequent sunburns, especially in childhood?".toLowerCase() ||
+      normalizedQuestion == "have you ever noticed a mole or skin lesion that is painful or bothersome?".toLowerCase() ||
+      normalizedQuestion == "do you wear sunscreen regularly or protect your skin from excessive sun exposure?".toLowerCase()) {
+    return "Dermatologist or Oncologist";
+  }
 
   // Hematology / Nutrition
-    case "Do you have iron deficiency or anemia?":
-    case "Have you noticed hair loss, weakness, or irregular heartbeat?":
-      return "Hematologist or Nutritionist";
+  if (normalizedQuestion == "do you have iron deficiency or anemia?".toLowerCase() ||
+      normalizedQuestion == "have you noticed hair loss, weakness, or irregular heartbeat?".toLowerCase()) {
+    return "Hematologist or Nutritionist";
+  }
 
   // Hepatology / Nephrology
-    case "Do you have liver disease or any other health issues like diabetes or kidney failure?":
-    case "Have you noticed any changes in the amount or color of your urine?":
-    case "Are your nails half white and half brown?":
-    case "Do you have a family history of liver or kidney disease?":
-    case "Do you experience swelling in your face, arms, or body (edema)?":
-    case "Have you noticed any unexplained weight gain or loss?":
-    case "Do you have chronic shortness of breath or cough?":
-    case "Are you experiencing changes in appetite or digestion?":
-    case "Do you have a history of liver cirrhosis or hepatitis?":
-      return "Hepatologist or Nephrologist";
+  if (normalizedQuestion == "do you have liver disease or any other health issues like diabetes or kidney failure?".toLowerCase() ||
+      normalizedQuestion == "have you noticed any changes in the amount or color of your urine?".toLowerCase() ||
+      normalizedQuestion == "are your nails half white and half brown?".toLowerCase() ||
+      normalizedQuestion == "do you have a family history of liver or kidney disease?".toLowerCase() ||
+      normalizedQuestion == "do you experience swelling in your face, arms, or body (edema)?".toLowerCase() ||
+      normalizedQuestion == "have you noticed any unexplained weight gain or loss?".toLowerCase() ||
+      normalizedQuestion == "do you have chronic shortness of breath or cough?".toLowerCase() ||
+      normalizedQuestion == "are you experiencing changes in appetite or digestion?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of liver cirrhosis or hepatitis?".toLowerCase()) {
+    return "Hepatologist or Nephrologist";
+  }
 
   // Rheumatology / Immunology
-    case "Do you have psoriasis, alopecia, or any autoimmune skin conditions?":
-    case "Have you been diagnosed with psoriatic arthritis or any other autoimmune disorders?":
-    case "Do you experience pain or stiffness in your joints, especially in the mornings?":
-    case "Have you been diagnosed with rheumatoid arthritis or lupus?":
-    case "Do you have a history of chronic joint inflammation or deformities?":
-    case "Do you have a family history of autoimmune disorders like rheumatoid arthritis or lupus?":
-      return "Rheumatologist or Immunologist";
+  if (normalizedQuestion == "do you have psoriasis, alopecia, or any autoimmune skin conditions?".toLowerCase() ||
+      normalizedQuestion == "have you been diagnosed with psoriatic arthritis or any other autoimmune disorders?".toLowerCase() ||
+      normalizedQuestion == "do you experience pain or stiffness in your joints, especially in the mornings?".toLowerCase() ||
+      normalizedQuestion == "have you been diagnosed with rheumatoid arthritis or lupus?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of chronic joint inflammation or deformities?".toLowerCase() ||
+      normalizedQuestion == "do you have a family history of autoimmune disorders like rheumatoid arthritis or lupus?".toLowerCase()) {
+    return "Rheumatologist or Immunologist";
+  }
 
   // Vascular / Internal Medicine
-    case "Do you experience numbness or tingling in your fingers when exposed to cold?":
-    case "Do your fingers feel extremely cold?":
-    case "Have you noticed the color of your fingers changing in three stages: white, then blue, then red?":
-    case "Do you experience pain or cramping in your legs after walking a short distance?":
-    case "Have you noticed varicose veins or spider veins on your legs?":
-    case "Do you have swelling or heaviness in your legs, especially after standing for long periods?":
-    case "Do you have a family history of blood clots or deep vein thrombosis (DVT)?":
-      return "Vascular Specialist or Internal Medicine";
+  if (normalizedQuestion == "do you experience numbness or tingling in your fingers when exposed to cold?".toLowerCase() ||
+      normalizedQuestion == "do your fingers feel extremely cold?".toLowerCase() ||
+      normalizedQuestion == "have you noticed the color of your fingers changing in three stages: white, then blue, then red?".toLowerCase() ||
+      normalizedQuestion == "do you experience pain or cramping in your legs after walking a short distance?".toLowerCase() ||
+      normalizedQuestion == "have you noticed varicose veins or spider veins on your legs?".toLowerCase() ||
+      normalizedQuestion == "do you have swelling or heaviness in your legs, especially after standing for long periods?".toLowerCase() ||
+      normalizedQuestion == "do you have a family history of blood clots or deep vein thrombosis (dvt)?".toLowerCase()) {
+    return "Vascular Specialist or Internal Medicine";
+  }
 
   // Endocrinology
-    case "Do you have a history of thyroid disorders?":
-    case "Do you have a history of polycystic ovary syndrome (PCOS) or other hormonal imbalances?":
-      return "Endocrinologist";
-
-    default:
-      return "General Physician";
+  if (normalizedQuestion == "do you have a history of thyroid disorders?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of polycystic ovary syndrome (pcos) or other hormonal imbalances?".toLowerCase()) {
+    return "Endocrinologist";
   }
+
+  // Default
+  return "General Physician";
 }
-
-
