@@ -3,12 +3,60 @@ import 'package:collogefinalpoject/homePagePatient/nagelimage.dart';
 import 'package:collogefinalpoject/homePagePatient/setting_Patient_Page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'doctor_sreach_page.dart';
 import 'information_nail.dart';
 
-class Homepagepatient extends StatelessWidget {
+class Homepagepatient extends StatefulWidget {
   const Homepagepatient({super.key});
+
+  @override
+  _HomepagepatientState createState() => _HomepagepatientState();
+}
+
+class _HomepagepatientState extends State<Homepagepatient> {
+  int _currentIndex = 0;
+  bool _isLoading = true;
+  List<bool> _isPageLoaded = [false, false, false, false, false];
+
+  final List<Widget> _pages = [
+    Nagelimage(),
+    Historypage(),
+    DoctorSearchPage(),
+    InformationNail(),
+    SettingPatientPage(),
+  ];
+
+  final List<int> _loadingTimes = [0,0, 0, 7, 0];
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: _loadingTimes[0]), () {
+      setState(() {
+        _isLoading = false;
+        _isPageLoaded[0] = true;
+      });
+    });
+  }
+
+  void _onTabTapped(int index) {
+    if (_isPageLoaded[index]) {
+      setState(() {
+        _currentIndex = index;
+      });
+    } else {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = index;
+      });
+      Future.delayed(Duration(seconds: _loadingTimes[index]), () {
+        setState(() {
+          _isLoading = false;
+          _isPageLoaded[index] = true;
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +82,11 @@ class Homepagepatient extends StatelessWidget {
                 ),
               ],
             ),
-            bottom: const TabBar(
+            bottom: TabBar(
               indicatorColor: Colors.blue,
               indicatorWeight: 5,
-              tabs: [
+              onTap: _onTabTapped,
+              tabs: const [
                 Tab(icon: Icon(Icons.image_search, color: Colors.black)),
                 Tab(
                     icon: ImageIcon(
@@ -55,27 +104,14 @@ class Homepagepatient extends StatelessWidget {
         ),
         body: Container(
           color: Colors.white,
-          child: TabBarView(
-            children: [
-              Nagelimage(),
-              Historypage(),
-              DoctorSearchPage(),
-              InformationNail(),
-              SettingPatientPage(),
-            ],
-          ),
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _pages[_currentIndex],
         ),
       ),
     );
   }
 }
-
-Widget buildpage(String text) => Center(
-  child: Text(
-    text,
-    style: const TextStyle(fontSize: 20),
-  ),
-);
 
 void main() {
   runApp(const MaterialApp(

@@ -158,7 +158,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                     ),
                   );
                 } else {
-                  String specialty = getDoctorSpecialty(widget.diagnosis);  // Using diagnosis here
+                  String specialty = getDoctorSpecialtyFromQuestion(widget.diagnosis);  // Using diagnosis here
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -204,6 +204,16 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you have a family history of melanoma or other skin cancers?"),
           checkboxTile("Have you had significant exposure to sunlight or tanning beds?"),
           checkboxTile("Do you have a history of immune-suppressing conditions or treatments like chemotherapy?"),
+          checkboxTile("Have you noticed any changes in the texture of your skin or moles?"),
+          checkboxTile("Do you experience any unusual pain or tenderness in a mole or skin spot?"),
+          checkboxTile("Has a mole or spot changed in size or shape over time?"),
+          checkboxTile("Have you noticed any new or unusual growths on your palms, soles, or under your nails?"),
+          checkboxTile("Do you have a history of skin conditions or conditions that affect your skin’s ability to heal?"),
+          checkboxTile("Are there any moles or spots that have irregular or jagged edges?"),
+          checkboxTile("Have you ever been diagnosed with atypical moles or dysplastic nevi?"),
+          checkboxTile("Do you have a history of frequent sunburns, especially in childhood?"),
+          checkboxTile("Have you ever noticed a mole or skin lesion that is painful or bothersome?"),
+          checkboxTile("Do you wear sunscreen regularly or protect your skin from excessive sun exposure?"),
         ];
       case "Blue Finger":
         return [
@@ -221,6 +231,10 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you experience numbness or tingling in your fingers when exposed to cold?"),
           checkboxTile("Do your fingers feel extremely cold?"),
           checkboxTile("Have you noticed the color of your fingers changing in three stages: white, then blue, then red?"),
+          checkboxTile("Do you experience pain or cramping in your legs after walking a short distance?"),
+          checkboxTile("Have you noticed varicose veins or spider veins on your legs?"),
+          checkboxTile("Do you have swelling or heaviness in your legs, especially after standing for long periods?"),
+          checkboxTile("Do you have a family history of blood clots or deep vein thrombosis (DVT)?"),
         ];
       case "Beaus Line":
         return [
@@ -231,6 +245,15 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Have you been under significant physical or emotional stress recently?"),
           checkboxTile("Do you have a history of malnutrition or poor nutrition?"),
           checkboxTile("Are you taking any medications that may affect the absorption of essential nutrients?"),
+          checkboxTile("Do you have a history of hypertension or high blood pressure?"),
+          checkboxTile("Have you experienced frequent headaches, dizziness, or lightheadedness?"),
+          checkboxTile("Do you have a history of diabetes or high cholesterol?"),
+          checkboxTile("Do you experience chronic fatigue or unusual weakness?"),
+          checkboxTile("Have you been diagnosed with thyroid disorders such as hypothyroidism or hyperthyroidism?"),
+          checkboxTile("Do you experience unexplained changes in weight or energy levels?"),
+          checkboxTile("Do you experience unexplained weight gain or loss?"),
+          checkboxTile("Have you noticed changes in your skin, hair, or nails that could be linked to a thyroid condition?"),
+          checkboxTile("Do you have a history of polycystic ovary syndrome (PCOS) or other hormonal imbalances?"),
         ];
       case "Clubbing":
         return [
@@ -249,6 +272,10 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Is there a family history of heart, lung, liver, or hereditary diseases?"),
           checkboxTile("Do you smoke or use tobacco products?"),
           checkboxTile("Are you frequently exposed to environmental pollutants or chemicals?"),
+          checkboxTile("Do you suffer from chronic acid reflux or heartburn?"),
+          checkboxTile("Have you been diagnosed with irritable bowel syndrome (IBS) or Crohn's disease?"),
+          checkboxTile("Do you experience abdominal pain, bloating, or constipation?"),
+          checkboxTile("Have you noticed changes in your bowel movements, such as diarrhea or blood in your stool?"),
         ];
       case "Koilonychia":
         return [
@@ -264,6 +291,10 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you constantly feel anxious or depressed?"),
           checkboxTile("Do you have a weakened immune system or slow wound healing?"),
           checkboxTile("Are you experiencing a loss of appetite or a decreased sense of taste or smell?"),
+          checkboxTile("Do you have a family history of diabetes or thyroid disorders?"),
+          checkboxTile("Do you experience unexplained weight gain or loss?"),
+          checkboxTile("Have you noticed changes in your skin, hair, or nails that could be linked to a thyroid condition?"),
+          checkboxTile("Do you have a history of polycystic ovary syndrome (PCOS) or other hormonal imbalances?"),
         ];
       case "Muehrckes Lines":
         return [
@@ -274,6 +305,14 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Are you underweight or have you lost significant weight unintentionally?"),
           checkboxTile("Are you experiencing swelling in your legs, face, or body?"),
           checkboxTile("Have you noticed fluid retention or difficulty urinating recently?"),
+          checkboxTile("Do you have a family history of diabetes or thyroid disorders?"),
+          checkboxTile("Do you experience unexplained weight gain or loss?"),
+          checkboxTile("Have you noticed changes in your skin, hair, or nails that could be linked to a thyroid condition?"),
+          checkboxTile("Do you have a history of polycystic ovary syndrome (PCOS) or other hormonal imbalances?"),
+          checkboxTile("Do you experience frequent urination, especially at night?"),
+          checkboxTile("Have you noticed any changes in the color or smell of your urine?"),
+          checkboxTile("Do you experience swelling in your legs, ankles, or face?"),
+          checkboxTile("Have you been diagnosed with kidney disease or kidney stones in the past?"),
         ];
       case "Pitting":
         return [
@@ -285,6 +324,10 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Have you been diagnosed with psoriatic arthritis or any other autoimmune disorders?"),
           checkboxTile("Have you experienced any changes in your skin’s appearance like discoloration or thickening?"),
           checkboxTile("Are you dealing with emotional or physical stress that could be affecting your health?"),
+          checkboxTile("Do you experience pain or stiffness in your joints, especially in the mornings?"),
+          checkboxTile("Have you been diagnosed with rheumatoid arthritis or lupus?"),
+          checkboxTile("Do you have a history of chronic joint inflammation or deformities?"),
+          checkboxTile("Do you have a family history of autoimmune disorders like rheumatoid arthritis or lupus?"),
         ];
       case "Terrys Nail":
         return [
@@ -294,11 +337,17 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you experience swelling in your face, arms, or body (edema)?"),
           checkboxTile("Have you noticed any changes in the amount or color of your urine?"),
           checkboxTile("Do you have a family history of liver or kidney disease?"),
+          checkboxTile("Do you experience fatigue, weakness, or lack of energy?"),
+          checkboxTile("Have you noticed any unexplained weight gain or loss?"),
+          checkboxTile("Do you have chronic shortness of breath or cough?"),
+          checkboxTile("Are you experiencing changes in appetite or digestion?"),
+          checkboxTile("Do you have a history of liver cirrhosis or hepatitis?"),
         ];
       default:
         return [const Text("No options available")];
     }
   }
+
 
 
   Widget checkboxTile(String text) {
@@ -321,26 +370,86 @@ class _FilterOptionsState extends State<FilterOptions> {
   }
 }
 
-// Function to map conditions to doctor specialties
-String getDoctorSpecialty(String diagnosis) {  // Parameter renamed to diagnosis
-  switch (diagnosis) {  // Using diagnosis instead of condition
-    case "Acral Lentiginous Melanoma":
+String getDoctorSpecialtyFromQuestion(String question) {
+  switch (question) {
+  // Cardiology
+    case "Do you have a family history of heart disease?":
+    case "Do you suffer from any chronic heart problems or diseases?":
+    case "Do you experience a rapid and irregular heartbeat?":
+    case "Do you experience severe shortness of breath even when resting?":
+    case "Do you experience swelling in your legs or ankles?":
+    case "Have you noticed excessive sweating for no reason?":
+    case "Do you experience sudden fainting or dizziness?":
+      return "Cardiologist";
+
+  // Pulmonology
+    case "Do you have shortness of breath or severe chest pain?":
+    case "Do you suffer from a persistent cough with phlegm?":
+      return "Pulmonologist";
+
+  // Dermatology / Oncology
+    case "Have you noticed any dark spots or new moles on your skin?":
+    case "Have you observed any asymmetry, irregular borders, or multiple colors in a mole or spot?":
+    case "Has a mole or spot started to bleed or become itchy recently?":
+    case "Do you have a family history of melanoma or other skin cancers?":
+    case "Have you had significant exposure to sunlight or tanning beds?":
+    case "Do you have a history of immune-suppressing conditions or treatments like chemotherapy?":
+    case "Have you noticed any changes in the texture of your skin or moles?":
+    case "Do you experience any unusual pain or tenderness in a mole or skin spot?":
+    case "Has a mole or spot changed in size or shape over time?":
+    case "Have you noticed any new or unusual growths on your palms, soles, or under your nails?":
+    case "Do you have a history of skin conditions or conditions that affect your skin’s ability to heal?":
+    case "Are there any moles or spots that have irregular or jagged edges?":
+    case "Have you ever been diagnosed with atypical moles or dysplastic nevi?":
+    case "Do you have a history of frequent sunburns, especially in childhood?":
+    case "Have you ever noticed a mole or skin lesion that is painful or bothersome?":
+    case "Do you wear sunscreen regularly or protect your skin from excessive sun exposure?":
       return "Dermatologist or Oncologist";
-    case "Blue Finger":
-      return "Cardiologist or Vascular Specialist";
-    case "Beaus Line":
-      return "General Physician or Endocrinologist";
-    case "Clubbing":
-      return "Pulmonologist or Cardiologist";
-    case "Koilonychia":
+
+  // Hematology / Nutrition
+    case "Do you have iron deficiency or anemia?":
+    case "Have you noticed hair loss, weakness, or irregular heartbeat?":
       return "Hematologist or Nutritionist";
-    case "Muehrckes Lines":
-      return "Nephrologist or Hepatologist";
-    case "Pitting":
-      return "Dermatologist (Psoriasis/Alopecia Specialist)";
-    case "Terrys Nail":
-      return "Hepatologist or Endocrinologist";
+
+  // Hepatology / Nephrology
+    case "Do you have liver disease or any other health issues like diabetes or kidney failure?":
+    case "Have you noticed any changes in the amount or color of your urine?":
+    case "Are your nails half white and half brown?":
+    case "Do you have a family history of liver or kidney disease?":
+    case "Do you experience swelling in your face, arms, or body (edema)?":
+    case "Have you noticed any unexplained weight gain or loss?":
+    case "Do you have chronic shortness of breath or cough?":
+    case "Are you experiencing changes in appetite or digestion?":
+    case "Do you have a history of liver cirrhosis or hepatitis?":
+      return "Hepatologist or Nephrologist";
+
+  // Rheumatology / Immunology
+    case "Do you have psoriasis, alopecia, or any autoimmune skin conditions?":
+    case "Have you been diagnosed with psoriatic arthritis or any other autoimmune disorders?":
+    case "Do you experience pain or stiffness in your joints, especially in the mornings?":
+    case "Have you been diagnosed with rheumatoid arthritis or lupus?":
+    case "Do you have a history of chronic joint inflammation or deformities?":
+    case "Do you have a family history of autoimmune disorders like rheumatoid arthritis or lupus?":
+      return "Rheumatologist or Immunologist";
+
+  // Vascular / Internal Medicine
+    case "Do you experience numbness or tingling in your fingers when exposed to cold?":
+    case "Do your fingers feel extremely cold?":
+    case "Have you noticed the color of your fingers changing in three stages: white, then blue, then red?":
+    case "Do you experience pain or cramping in your legs after walking a short distance?":
+    case "Have you noticed varicose veins or spider veins on your legs?":
+    case "Do you have swelling or heaviness in your legs, especially after standing for long periods?":
+    case "Do you have a family history of blood clots or deep vein thrombosis (DVT)?":
+      return "Vascular Specialist or Internal Medicine";
+
+  // Endocrinology
+    case "Do you have a history of thyroid disorders?":
+    case "Do you have a history of polycystic ovary syndrome (PCOS) or other hormonal imbalances?":
+      return "Endocrinologist";
+
     default:
       return "General Physician";
   }
 }
+
+

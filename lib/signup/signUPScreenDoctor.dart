@@ -202,12 +202,20 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       labelStyle: const TextStyle(color: Colors.black),
                                     ),
                                     items: [
-                                      'Cardiology',
-                                      'Dermatology',
-                                      'Neurology',
-                                      'Pediatrics',
-                                      'Radiology',
-                                      'Surgery'
+                                      "Dermatology", // الجلدية
+                                      "Oncology", // الأورام
+                                      "Cardiology", // أمراض القلب
+                                      "Vascular Medicine", // الأوعية الدموية
+                                      "Pulmonology", // الرئة
+                                      "Internal Medicine", // الطب الباطني
+                                      "Nutrition", // التغذية
+                                      "Endocrinology", // الغدد الصماء
+                                      "Hematology", // أمراض الدم
+                                      "Hepatology", // أمراض الكبد
+                                      "Nephrology", // أمراض الكلى
+                                      "Rheumatology", // الروماتيزم
+                                      "Immunology", // أمراض المناعة الذاتية
+                                      "Gastroenterology", // الجهاز الهضمي
                                     ].map((specialization) {
                                       return DropdownMenuItem<String>(
                                         value: specialization,

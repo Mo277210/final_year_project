@@ -140,7 +140,22 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final specialties = ['All', 'Dermatology', 'Cardiology', 'Pediatrics', 'Neurology', 'Heart', 'Surgery'];
+    final specialties = ['All',
+      "Dermatology", // الجلدية
+    "Oncology", // الأورام
+    "Cardiology", // أمراض القلب
+    "Vascular Medicine", // الأوعية الدموية
+    "Pulmonology", // الرئة
+    "Internal Medicine", // الطب الباطني
+    "Nutrition", // التغذية
+    "Endocrinology", // الغدد الصماء
+    "Hematology", // أمراض الدم
+    "Hepatology", // أمراض الكبد
+    "Nephrology", // أمراض الكلى
+    "Rheumatology", // الروماتيزم
+    "Immunology", // أمراض المناعة الذاتية
+    "Gastroenterology", //الجهاز الهضمي
+    ];
     return Scaffold(
       backgroundColor: Color(0xFFF1F4F8),
       body: SafeArea(
