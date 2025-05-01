@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onPressed;
+  final IconData? icon;
 
   const CustomButton({
     Key? key,
     required this.buttonText,
     required this.onPressed,
+    this.icon,
   }) : super(key: key);
 
   @override
@@ -21,13 +23,26 @@ class CustomButton extends StatelessWidget {
         ),
         minimumSize: const Size(double.infinity, 50),
       ),
-      child: Text(
-        buttonText,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            buttonText,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (icon != null) ...[
+            const SizedBox(width: 8),
+            Icon(
+              icon,
+              color: Colors.white, // ← هذا هو المهم
+            ),
+          ],
+        ],
       ),
     );
   }

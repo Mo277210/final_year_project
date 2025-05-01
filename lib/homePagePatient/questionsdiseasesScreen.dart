@@ -212,25 +212,28 @@ class _FilterOptionsState extends State<FilterOptions> {
         ];
       case "Blue Finger":
         return [
-          checkboxTile("Do you have shortness of breath or severe chest pain?"),
+          // Respiratory Issues
+          checkboxTile("Do you experience shortness of breath?"),
+          checkboxTile("Do you have sharp chest pain?"),
           checkboxTile("Do you suffer from a persistent cough with phlegm?"),
-          checkboxTile("Do you experience a loss of appetite?"),
-          checkboxTile("Do you suffer from a persistent headache?"),
+          checkboxTile("Do you feel a loss of appetite?"),
+          checkboxTile("Do you experience persistent headaches?"),
+
+          // Heart Conditions
           checkboxTile("Do you have a family history of heart disease?"),
           checkboxTile("Do you suffer from any chronic heart problems or diseases?"),
           checkboxTile("Do you experience rapid and irregular heartbeat?"),
-          checkboxTile("Do you experience severe shortness of breath even when resting?"),
+          checkboxTile("Do you have severe shortness of breath even at rest?"),
           checkboxTile("Do you experience swelling in your legs or ankles?"),
           checkboxTile("Have you noticed excessive sweating for no reason?"),
           checkboxTile("Do you experience sudden fainting or dizziness?"),
+
+          // Vascular Issues (Raynaud's Phenomenon)
           checkboxTile("Do you experience numbness or tingling in your fingers when exposed to cold?"),
           checkboxTile("Do your fingers feel extremely cold?"),
-          checkboxTile("Have you noticed the color of your fingers changing in three stages: white, then blue, then red?"),
-          checkboxTile("Do you experience pain or cramping in your legs after walking a short distance?"),
-          checkboxTile("Have you noticed varicose veins or spider veins on your legs?"),
-          checkboxTile("Do you have swelling or heaviness in your legs, especially after standing for long periods?"),
-          checkboxTile("Do you have a family history of blood clots or deep vein thrombosis (DVT)?"),
+          checkboxTile("Have you noticed color changes in your fingers in three phases: white, then blue, then red?"),
         ];
+
       case "Beaus Line":
         return [
           checkboxTile("Have you noticed horizontal grooves or ridges across your nails?"),
@@ -252,45 +255,70 @@ class _FilterOptionsState extends State<FilterOptions> {
         ];
       case "Clubbing":
         return [
+          // General Symptoms
           checkboxTile("Have you noticed a long-term change in the shape of your nails?"),
           checkboxTile("Is the change affecting one hand or both hands?"),
           checkboxTile("Do you feel pain, swelling, or redness in your fingers or nails?"),
           checkboxTile("Are there any other accompanying symptoms like changes in nail texture?"),
+
+          // Respiratory Diseases
           checkboxTile("Do you have a persistent cough or difficulty breathing?"),
           checkboxTile("Have you been diagnosed with chronic pneumonia, tuberculosis, lung cancer, or pulmonary fibrosis?"),
+
+          // Heart Diseases
           checkboxTile("Have you been diagnosed with any heart disease?"),
           checkboxTile("Do you experience shortness of breath upon exertion or rest?"),
           checkboxTile("Have you ever been diagnosed with endocarditis or heart valve disease?"),
+
+          // Digestive & Liver Diseases
           checkboxTile("Do you have chronic liver or intestinal diseases like cirrhosis or Crohn’s disease?"),
           checkboxTile("Do you experience recurrent abdominal pain or changes in bowel movements?"),
           checkboxTile("Have you experienced unexplained weight loss or poor appetite?"),
-          checkboxTile("Is there a family history of heart, lung, liver, or hereditary diseases?"),
-          checkboxTile("Do you smoke or use tobacco products?"),
-          checkboxTile("Are you frequently exposed to environmental pollutants or chemicals?"),
           checkboxTile("Do you suffer from chronic acid reflux or heartburn?"),
           checkboxTile("Have you been diagnosed with irritable bowel syndrome (IBS) or Crohn's disease?"),
           checkboxTile("Do you experience abdominal pain, bloating, or constipation?"),
           checkboxTile("Have you noticed changes in your bowel movements, such as diarrhea or blood in your stool?"),
+
+          // Family History
+          checkboxTile("Is there a family history of heart, lung, liver, or hereditary diseases?"),
+
+          // Lifestyle
+          checkboxTile("Do you smoke or use tobacco products?"),
+          checkboxTile("Are you frequently exposed to environmental pollutants or chemicals?"),
         ];
+
       case "Koilonychia":
         return [
-          checkboxTile("Are your nails thin and spoon-shaped?"),
-          checkboxTile("Do you have iron deficiency or anemia?"),
-          checkboxTile("Have you noticed any discoloration in your nails?"),
-          checkboxTile("Do your nails break easily?"),
-          checkboxTile("Do you suffer from fatigue, exhaustion, persistent headaches, dizziness, or lightheadedness?"),
-          checkboxTile("Have you noticed hair loss, weakness, or irregular heartbeat?"),
+          // Occupational Exposure
+          checkboxTile("Are you frequently exposed to chemicals at work that may affect your nails?"),
+
+          // Nutritional Deficiency (Iron Deficiency)
+          checkboxTile("Do you feel tired or fatigued even with minimal effort?"),
+          checkboxTile("Do you experience persistent headaches?"),
+          checkboxTile("Are you suffering from hair loss or thinning hair?"),
+          checkboxTile("Do you feel dizzy or lightheaded, possibly to the point of fainting?"),
+          checkboxTile("Do you have irregular or rapid heartbeats?"),
           checkboxTile("Do you have inflammation or ulcers in your tongue or mouth?"),
-          checkboxTile("Do you suffer from chronic diarrhea, rectal bleeding, or severe bloating?"),
-          checkboxTile("Have you experienced abdominal pain, nausea, or unexplained weight loss?"),
-          checkboxTile("Do you constantly feel anxious or depressed?"),
-          checkboxTile("Do you have a weakened immune system or slow wound healing?"),
-          checkboxTile("Are you experiencing a loss of appetite or a decreased sense of taste or smell?"),
-          checkboxTile("Do you have a family history of diabetes or thyroid disorders?"),
-          checkboxTile("Do you experience unexplained weight gain or loss?"),
-          checkboxTile("Have you noticed changes in your skin, hair, or nails that could be linked to a thyroid condition?"),
-          checkboxTile("Do you have a history of polycystic ovary syndrome (PCOS) or other hormonal imbalances?"),
+
+          // Digestive Issues
+          checkboxTile("Do you suffer from chronic diarrhea?"),
+          checkboxTile("Do you experience rectal bleeding?"),
+          checkboxTile("Do you have frequent bloating or excessive gas?"),
+          checkboxTile("Do you suffer from abdominal pain or cramps?"),
+          checkboxTile("Do you experience nausea or vomiting?"),
+          checkboxTile("Have you noticed unexplained weight loss?"),
+          checkboxTile("Do you have skin rashes?"),
+          checkboxTile("Do you often feel anxious or depressed?"),
+          checkboxTile("Do you suffer from red or swollen eyes?"),
+
+          // Immune & Sensory Issues
+          checkboxTile("Do you have a weakened immune system?"),
+          checkboxTile("Do your wounds take a long time to heal?"),
+          checkboxTile("Do you experience a loss of appetite?"),
+          checkboxTile("Have you noticed a reduced sense of taste or smell?"),
+          checkboxTile("Do you have problems with concentration or memory?"),
         ];
+
       case "Muehrckes Lines":
         return [
           checkboxTile("Have you noticed white horizontal bands across your nails?"),
@@ -326,18 +354,38 @@ class _FilterOptionsState extends State<FilterOptions> {
         ];
       case "Terrys Nail":
         return [
-          checkboxTile("Are your nails half white and half brown?"),
-          checkboxTile("Do you have liver disease or any other health issues like diabetes or kidney failure?"),
-          checkboxTile("Have you noticed any changes in nail texture or shape?"),
-          checkboxTile("Do you experience swelling in your face, arms, or body (edema)?"),
-          checkboxTile("Have you noticed any changes in the amount or color of your urine?"),
-          checkboxTile("Do you have a family history of liver or kidney disease?"),
-          checkboxTile("Do you experience fatigue, weakness, or lack of energy?"),
-          checkboxTile("Have you noticed any unexplained weight gain or loss?"),
-          checkboxTile("Do you have chronic shortness of breath or cough?"),
-          checkboxTile("Are you experiencing changes in appetite or digestion?"),
-          checkboxTile("Do you have a history of liver cirrhosis or hepatitis?"),
+          // Liver Disease
+          checkboxTile("Have you ever been diagnosed with any liver disease?"),
+          checkboxTile("Do you experience yellowing of the skin or whites of the eyes?"),
+          checkboxTile("Do you experience swelling in your abdomen or feet?"),
+          checkboxTile("Have you noticed a change in the color of your urine (very dark) or stools (very light)?"),
+
+          // Heart Disease
+          checkboxTile("Do you have any chronic heart disease?"),
+          checkboxTile("Do you feel short of breath with minimal exertion?"),
+          checkboxTile("Do you experience swelling in your legs or ankles?"),
+          checkboxTile("Do you feel pain or pressure in your chest area?"),
+
+          // Diabetes
+          checkboxTile("Have you been diagnosed with diabetes?"),
+          checkboxTile("Do you experience constant thirst or frequent urination?"),
+          checkboxTile("Have you noticed slow healing of wounds?"),
+          checkboxTile("Do you experience numbness or tingling in your hands or feet?"),
+
+          // Malnutrition
+          checkboxTile("Have you recently lost significant weight for no apparent reason?"),
+          checkboxTile("Do you experience general weakness or persistent fatigue?"),
+          checkboxTile("Is your daily diet healthy?"),
+
+          // Kidney Disease
+          checkboxTile("Are you experiencing swelling in your face or body?"),
+          checkboxTile("Have you noticed a change in the amount or color of your urine?"),
+          checkboxTile("Have you ever been diagnosed with any kidney disease?"),
+
+          // Family History
+          checkboxTile("Is there a family history of liver, heart, kidney, or diabetes disease?"),
         ];
+
       default:
         return [const Text("No options available")];
     }
@@ -370,7 +418,7 @@ String getDoctorSpecialtyFromQuestion(String question) {
   // Cardiology
   if (normalizedQuestion == "do you have a family history of heart disease?".toLowerCase() ||
       normalizedQuestion == "do you suffer from any chronic heart problems or diseases?".toLowerCase() ||
-      normalizedQuestion == "do you experience a rapid and irregular heartbeat?".toLowerCase() ||
+      normalizedQuestion == "do you experience rapid and irregular heartbeat?".toLowerCase() ||
       normalizedQuestion == "do you experience severe shortness of breath even when resting?".toLowerCase() ||
       normalizedQuestion == "do you experience swelling in your legs or ankles?".toLowerCase() ||
       normalizedQuestion == "have you noticed excessive sweating for no reason?".toLowerCase() ||
