@@ -54,9 +54,11 @@ class _HistorypageState extends State<Historypage> {
 
   Future<void> _fetchPatientInfo(String token) async {
     try {
-      final patientInfoResponse = await _patientInfoApiService.getPatientInfo(token);
+      final patientInfoResponse =
+          await _patientInfoApiService.getPatientInfo(token);
       setState(() {
-        _patientName = patientInfoResponse?.data.name != null && patientInfoResponse!.data.name.isNotEmpty
+        _patientName = patientInfoResponse?.data.name != null &&
+                patientInfoResponse!.data.name.isNotEmpty
             ? patientInfoResponse.data.name
             : 'Guest';
         _isFetchingPatientInfo = false;
@@ -93,6 +95,15 @@ class _HistorypageState extends State<Historypage> {
     final isExpanded = _expandedItems[index] ?? false;
     final showAll = isExpanded || entries.length <= 3;
 
+    // دالة مساعدة لتنسيق النسبة بنفس شكل JSON
+    String _formatProbability(double value) {
+      if (value == value.toInt()) {
+        return value.toInt().toString(); // عرض كعدد صحيح إذا كان العدد صحيحاً
+      } else {
+        return value.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), ''); // إزالة الأصفار غير الضرورية
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -100,12 +111,13 @@ class _HistorypageState extends State<Historypage> {
           'Probabilities:',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        ...entries
-            .take(showAll ? entries.length : 3)
-            .map((entry) => Padding(
+        ...entries.take(showAll ? entries.length : 3).map((entry) => Padding(
           padding: const EdgeInsets.only(top: 5.0),
           child: Text(
-            '${entry.key}: ${entry.value.toStringAsFixed(1)}%',
+            '${entry.key}: ${_formatProbability(entry.value)}%',
+            style: TextStyle(
+              color: entry.value > 0 ? Colors.black : Colors.grey,
+            ),
           ),
         )),
         if (entries.length > 3)
@@ -142,12 +154,20 @@ class _HistorypageState extends State<Historypage> {
             return BarChartGroupData(
               x: index,
               barRods: [
-                BarChartRodData(
-                  toY: value,
-                  color: value > 50 ? Colors.green : Colors.red,
-                  width: 18, // زيادة عرض الأعمدة
-                  borderRadius: BorderRadius.circular(4),
-                ),
+                if (value > 0) // رسم العمود فقط إذا كانت القيمة أكبر من صفر
+                  BarChartRodData(
+                    toY: value,
+                    color: value > 50 ? Colors.green : Colors.red,
+                    width: 18,
+                    borderRadius: BorderRadius.circular(4),
+                  )
+                else // عرض رمزي للقيم الصفرية
+                  BarChartRodData(
+                    toY: 0,
+                    color: Colors.grey.withOpacity(0.3),
+                    width: 18,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
               ],
             );
           }).toList(),
@@ -158,14 +178,19 @@ class _HistorypageState extends State<Historypage> {
                 reservedSize: 60,
                 getTitlesWidget: (double value, TitleMeta meta) {
                   final index = value.toInt();
-                  if (index < 0 || index >= barSpots.length) return const SizedBox();
+                  if (index < 0 || index >= barSpots.length)
+                    return const SizedBox();
+                  final itemValue = barSpots[index].value;
                   return SideTitleWidget(
                     axisSide: meta.axisSide,
                     child: Transform.rotate(
-                      angle: -0.8, // تقريبا 45 درجة بالراديان
+                      angle: -0.8,
                       child: Text(
                         barSpots[index].key,
-                        style: const TextStyle(fontSize: 10),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: itemValue > 0 ? Colors.black : Colors.grey,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -177,7 +202,7 @@ class _HistorypageState extends State<Historypage> {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                interval: 10, // عرض الأرقام 10، 20، 30 وهكذا
+                interval: 10,
                 getTitlesWidget: (value, meta) {
                   if (value % 10 == 0) {
                     return Text(
@@ -201,12 +226,6 @@ class _HistorypageState extends State<Historypage> {
   }
 
 
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,13 +239,13 @@ class _HistorypageState extends State<Historypage> {
               child: _isFetchingPatientInfo
                   ? const CircularProgressIndicator()
                   : Text(
-                'Welcome 🖐, $_patientName',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
+                      'Welcome 🖐, $_patientName',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -299,36 +318,38 @@ class _HistorypageState extends State<Historypage> {
                   if (_currentImageIndex == 0)
                     historyItem.imageFile.isNotEmpty
                         ? Image.network(
-                      historyItem.fullImageUrl,
-                      height: 300,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: 300,
-                        color: Colors.grey[300],
-                        child: const Center(
-                          child: Icon(Icons.broken_image),
-                        ),
-                      ),
-                    )
+                            historyItem.fullImageUrl,
+                            height: 300,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              height: 300,
+                              color: Colors.grey[300],
+                              child: const Center(
+                                child: Icon(Icons.broken_image),
+                              ),
+                            ),
+                          )
                         : Container(
-                      height: 300,
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(Icons.image_not_supported),
-                      ),
-                    ),
+                            height: 300,
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: Icon(Icons.image_not_supported),
+                            ),
+                          ),
                   if (_currentImageIndex == 1)
                     _buildGraph(historyItem.probabilities),
                   const SizedBox(height: 10),
