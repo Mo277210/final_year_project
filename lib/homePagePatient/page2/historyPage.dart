@@ -128,72 +128,83 @@ class _HistorypageState extends State<Historypage> {
 
   Widget _buildGraph(Map<String, double> probabilities) {
     final barSpots = probabilities.entries.toList();
+
     return Container(
       height: 300,
       padding: const EdgeInsets.all(8.0),
       child: BarChart(
         BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: probabilities.values.isNotEmpty
-              ? probabilities.values.reduce((a, b) => a > b ? a : b) + 10
-              : 100,
-          barTouchData: BarTouchData(enabled: true),
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final index = value.toInt();
-                  if (index < 0 || index >= barSpots.length) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      barSpots[index].key,
-                      style: const TextStyle(fontSize: 10),
-                    ),
-                  );
-                },
-                reservedSize: 50,
-              ),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 40,
-                interval: 20,
-                getTitlesWidget: (value, meta) => Text('${value.toInt()}'),
-              ),
-            ),
-          ),
-          borderData: FlBorderData(show: false),
-          barGroups: List.generate(barSpots.length, (index) {
-            final value = barSpots[index].value;
-            Color barColor;
-
-            if (value < 33) {
-              barColor = Colors.red;
-            } else if (value < 66) {
-              barColor = Colors.orangeAccent;
-            } else {
-              barColor = Colors.green;
-            }
-
+          maxY: 100,
+          barGroups: barSpots.asMap().entries.map((entry) {
+            final index = entry.key;
+            final label = entry.value.key;
+            final value = entry.value.value.clamp(0, 100).toDouble();
             return BarChartGroupData(
               x: index,
               barRods: [
                 BarChartRodData(
                   toY: value,
-                  color: barColor,
-                  width: 16,
+                  color: value > 50 ? Colors.green : Colors.red,
+                  width: 18, // زيادة عرض الأعمدة
                   borderRadius: BorderRadius.circular(4),
                 ),
               ],
             );
-          }),
+          }).toList(),
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 60,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  final index = value.toInt();
+                  if (index < 0 || index >= barSpots.length) return const SizedBox();
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    child: Transform.rotate(
+                      angle: -0.8, // تقريبا 45 درجة بالراديان
+                      child: Text(
+                        barSpots[index].key,
+                        style: const TextStyle(fontSize: 10),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                },
+                interval: 1,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 10, // عرض الأرقام 10، 20، 30 وهكذا
+                getTitlesWidget: (value, meta) {
+                  if (value % 10 == 0) {
+                    return Text(
+                      value.toInt().toString(),
+                      style: const TextStyle(fontSize: 10),
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
+            ),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          gridData: FlGridData(show: true),
+          borderData: FlBorderData(show: true),
         ),
       ),
     );
   }
+
+
+
+
+
+
 
 
   @override
