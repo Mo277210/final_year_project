@@ -1,10 +1,10 @@
-import 'package:collogefinalpoject/homePagePatient/historyPage.dart';
-import 'package:collogefinalpoject/homePagePatient/nagelimage.dart';
-import 'package:collogefinalpoject/homePagePatient/setting_Patient_Page.dart';
+import 'package:collogefinalpoject/homePagePatient/page2/historyPage.dart';
+import 'package:collogefinalpoject/homePagePatient/page1/nagelimage.dart';
+import 'package:collogefinalpoject/homePagePatient/page4/information_nail.dart';
+import 'package:collogefinalpoject/homePagePatient/page5/setting_Patient_Page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'doctor_sreach_page.dart';
-import 'information_nail.dart';
+import 'page3/doctor_sreach_page.dart';
 
 class Homepagepatient extends StatefulWidget {
   const Homepagepatient({super.key});

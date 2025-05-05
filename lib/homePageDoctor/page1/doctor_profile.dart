@@ -11,10 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../api/doctor_home/doctor_home_api.dart';
-import '../model/doctor_home/doctor_home_model.dart';
-import '../api/doctor_home/show_clinc.dart';
-import '../model/doctor_home/show_clinc.dart';
+import '../../api/doctor_home/doctor_home_api.dart';
+import '../../model/doctor_home/doctor_home_model.dart';
+import '../../api/doctor_home/show_clinc.dart';
+import '../../model/doctor_home/show_clinc.dart';
 
 class DoctorProfilePage extends StatefulWidget {
   const DoctorProfilePage({Key? key}) : super(key: key);

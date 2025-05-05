@@ -1,9 +1,9 @@
 
-import 'package:collogefinalpoject/homePageDoctor/setting_page.dart';
+import 'package:collogefinalpoject/homePageDoctor/page2/setting_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'doctor_profile.dart';
+import 'page1/doctor_profile.dart';
 
 class HomepageDoctor extends StatelessWidget {
   const HomepageDoctor({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'homePagePatient.dart';
+import '../homePagePatient.dart';
 
 class FilterPage extends StatefulWidget {
   final String diagnosis;
@@ -25,11 +25,10 @@ class _FilterPageState extends State<FilterPage> {
   @override
   void initState() {
     super.initState();
-    // Loop through filterCategories and find the index of the diagnosis
     for (int i = 0; i < filterCategories.length; i++) {
       if (filterCategories[i] == widget.diagnosis) {
-        selectedIndex = i; // Set the selectedIndex based on the diagnosis
-        break; // Exit the loop once the match is found
+        selectedIndex = i;
+        break;
       }
     }
   }
@@ -53,11 +52,9 @@ class _FilterPageState extends State<FilterPage> {
       ),
       body: Column(
         children: [
-          // Print diagnosis value at the top
           Expanded(
             child: Row(
               children: [
-                // Sidebar with filter options
                 Container(
                   color: Colors.grey[100],
                   width: 140,
@@ -88,7 +85,6 @@ class _FilterPageState extends State<FilterPage> {
                     },
                   ),
                 ),
-                // Filter Options Panel based on the diagnosis
                 Expanded(
                   child: FilterOptions(diagnosis: currentDiagnosis),
                 ),
@@ -102,7 +98,7 @@ class _FilterPageState extends State<FilterPage> {
 }
 
 class FilterOptions extends StatefulWidget {
-  final String diagnosis; // Changed from 'title' to 'diagnosis'
+  final String diagnosis;
   const FilterOptions({Key? key, required this.diagnosis}) : super(key: key);
 
   @override
@@ -114,7 +110,7 @@ class _FilterOptionsState extends State<FilterOptions> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> options = getFilterOptions(widget.diagnosis); // Using diagnosis instead of title
+    List<Widget> options = getFilterOptions(widget.diagnosis);
     return Column(
       children: [
         Expanded(
@@ -150,7 +146,6 @@ class _FilterOptionsState extends State<FilterOptions> {
                     ),
                   );
                 } else {
-                  // Use the first selected question to determine the specialty
                   String selectedQuestion = selectedCheckboxValues.first;
                   String specialty = getDoctorSpecialtyFromQuestion(selectedQuestion);
 
@@ -163,7 +158,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              selectedCheckboxValues.clear(); // Clear selections
+                              selectedCheckboxValues.clear();
                             });
                             Navigator.push(
                               context,
@@ -498,6 +493,11 @@ String getDoctorSpecialtyFromQuestion(String question) {
     return "Endocrinologist";
   }
 
-  // Default
   return "General Physician";
 }
+
+
+
+
+
+
