@@ -1,6 +1,7 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
 import 'package:collogefinalpoject/api/patient_home/history.dart';
 import 'package:collogefinalpoject/api/patient_home/patient_info.dart';
+import 'package:collogefinalpoject/homePagePatient/page2/DiagnosisChartsPage.dart';
 import 'package:collogefinalpoject/model/patient_home/history.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -157,7 +158,7 @@ class _HistorypageState extends State<Historypage> {
                 if (value > 0) // رسم العمود فقط إذا كانت القيمة أكبر من صفر
                   BarChartRodData(
                     toY: value,
-                    color: value > 50 ? Colors.green : Colors.red,
+                    color: value > 50 ? Colors.blue : Colors.grey,
                     width: 18,
                     borderRadius: BorderRadius.circular(4),
                   )
@@ -238,7 +239,13 @@ class _HistorypageState extends State<Historypage> {
             Center(
               child: _isFetchingPatientInfo
                   ? const CircularProgressIndicator()
-                  : Text(
+                  : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // لتوزيع العناصر بين يسار ويمين السطر
+                children: [
+                  Expanded(
+                    child: _isFetchingPatientInfo
+                        ? const Center(child: CircularProgressIndicator())
+                        : Text(
                       'Welcome 🖐, $_patientName',
                       style: const TextStyle(
                         fontSize: 24,
@@ -246,6 +253,40 @@ class _HistorypageState extends State<Historypage> {
                         color: Colors.black87,
                       ),
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.bar_chart, color: Colors.blue),
+                    onPressed: () {
+                      if (_isLoading) {
+                        // إذا لا تزال البيانات تُحمل
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Loading history...')),
+                        );
+                      } else if (_errorMessage.isNotEmpty) {
+                        // إذا كان هناك خطأ
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $_errorMessage')),
+                        );
+                      } else if (_history.isEmpty) {
+                        // إذا لا يوجد سجل تاريخي
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('No history available')),
+                        );
+                      } else {
+                        // كل شيء جاهز، انتقل للرسم البياني
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DiseaseChartPage(
+                              history: _history,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             Expanded(
