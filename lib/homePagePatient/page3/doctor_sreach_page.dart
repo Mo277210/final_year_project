@@ -155,6 +155,10 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
     "Rheumatology", // الروماتيزم
     "Immunology", // أمراض المناعة الذاتية
     "Gastroenterology", //الجهاز الهضمي
+      "Gynecologist",//طبيب نساء وتوليد
+      "Endocrinologist",//طبيب غدد صماء
+      "Hematologist",//طبيب أمراض دم
+      "Neurologist"//طبيب أعصاب
     ];
     return Scaffold(
       backgroundColor: Color(0xFFF1F4F8),

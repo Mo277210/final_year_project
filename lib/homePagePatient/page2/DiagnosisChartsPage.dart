@@ -24,6 +24,7 @@ class _DiseaseChartPageState extends State<DiseaseChartPage> {
     'Muehrckes Lines',
     'Pitting',
     'Terrys Nail',
+    "Healthy Nail"
   ];
 
   @override

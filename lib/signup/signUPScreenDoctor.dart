@@ -216,6 +216,10 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       "Rheumatology", // الروماتيزم
                                       "Immunology", // أمراض المناعة الذاتية
                                       "Gastroenterology", // الجهاز الهضمي
+                                      "Gynecologist",//طبيب نساء وتوليد
+                                      "Endocrinologist",//طبيب غدد صماء
+                                      "Hematologist",//طبيب أمراض دم
+                                      "Neurologist"//طبيب أعصاب
                                     ].map((specialization) {
                                       return DropdownMenuItem<String>(
                                         value: specialization,

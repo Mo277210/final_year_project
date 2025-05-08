@@ -1,4 +1,8 @@
+import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/patient_home/patient_info.dart';
+import 'package:collogefinalpoject/model/patient_home/patient_info.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../homePagePatient.dart';
 
 class FilterPage extends StatefulWidget {
@@ -11,6 +15,8 @@ class FilterPage extends StatefulWidget {
 
 class _FilterPageState extends State<FilterPage> {
   int selectedIndex = 0;
+  late Future<PatientInfo?> patientInfoFuture;
+
   final List<String> filterCategories = [
     'Acral Lentiginous Melanoma',
     'Blue Finger',
@@ -31,11 +37,20 @@ class _FilterPageState extends State<FilterPage> {
         break;
       }
     }
+
+    // تحميل بيانات المريض من API
+    patientInfoFuture = _loadPatientInfo();
+  }
+
+  Future<PatientInfo?> _loadPatientInfo() async {
+    final token = Provider.of<TokenProvider>(context, listen: false).token;
+    final service = PatientInfoApiService();
+    final response = await service.getPatientInfo(token);
+    return response?.data;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get the diagnosis based on the selectedIndex
     String currentDiagnosis = filterCategories[selectedIndex];
     return Scaffold(
       appBar: AppBar(
@@ -45,61 +60,80 @@ class _FilterPageState extends State<FilterPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Filter by',
+          'Answer the following Questions',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Row(
+      body: FutureBuilder<PatientInfo?>(
+        future: patientInfoFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError || snapshot.data == null) {
+            return const Center(child: Text('Check Your Internet '));
+          } else {
+            final patientInfo = snapshot.data!;
+            return Column(
               children: [
-                Container(
-                  color: Colors.grey[100],
-                  width: 140,
-                  child: ListView.builder(
-                    itemCount: filterCategories.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
-                        child: Container(
-                          color: selectedIndex == index
-                              ? Colors.blue[100]
-                              : Colors.transparent,
-                          padding: const EdgeInsets.all(16),
-                          child: Text(
-                            filterCategories[index],
-                            style: TextStyle(
-                              color:
-                              selectedIndex == index ? Colors.blue : Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        color: Colors.grey[100],
+                        width: 140,
+                        child: ListView.builder(
+                          itemCount: filterCategories.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedIndex = index;
+                                });
+                              },
+                              child: Container(
+                                color: selectedIndex == index
+                                    ? Colors.blue[100]
+                                    : Colors.transparent,
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  filterCategories[index],
+                                  style: TextStyle(
+                                    color: selectedIndex == index
+                                        ? Colors.blue
+                                        : Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                      Expanded(
+                        child: FilterOptions(
+                          diagnosis: currentDiagnosis,
+                          patientInfo: patientInfo,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(
-                  child: FilterOptions(diagnosis: currentDiagnosis),
-                ),
               ],
-            ),
-          ),
-        ],
+            );
+          }
+        },
       ),
     );
   }
 }
 
+
 class FilterOptions extends StatefulWidget {
   final String diagnosis;
-  const FilterOptions({Key? key, required this.diagnosis}) : super(key: key);
+  final PatientInfo patientInfo;
+
+  const FilterOptions({Key? key, required this.diagnosis,required this.patientInfo}) : super(key: key);
 
   @override
   State<FilterOptions> createState() => _FilterOptionsState();
@@ -121,7 +155,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Select ${widget.diagnosis}", // Using diagnosis here
+                    " ${widget.diagnosis}", // Using diagnosis here
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
@@ -227,6 +261,11 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you experience numbness or tingling in your fingers when exposed to cold?"),
           checkboxTile("Do your fingers feel extremely cold?"),
           checkboxTile("Have you noticed color changes in your fingers in three phases: white, then blue, then red?"),
+          if (widget.patientInfo.age > 45)
+            checkboxTile("Have you had any heart evaluations or tests (e.g., ECG, echocardiogram) due to age-related concerns?"),
+          // Gender-based question
+          if (widget.patientInfo.gender.toLowerCase() == 'female')
+            checkboxTile("Are you currently pregnant or have you been pregnant in the last year?"),
         ];
 
       case "Beaus Line":
@@ -312,6 +351,10 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you experience a loss of appetite?"),
           checkboxTile("Have you noticed a reduced sense of taste or smell?"),
           checkboxTile("Do you have problems with concentration or memory?"),
+          // Age + Gender-based condition
+          if (widget.patientInfo.gender.toLowerCase() == 'female' &&
+              widget.patientInfo.age >= 12)
+            checkboxTile("Do you have heavy menstrual bleeding or anemia due to menstruation?"),
         ];
 
       case "Muehrckes Lines":
@@ -379,6 +422,8 @@ class _FilterOptionsState extends State<FilterOptions> {
 
           // Family History
           checkboxTile("Is there a family history of liver, heart, kidney, or diabetes disease?"),
+          if (widget.patientInfo.age > 50)
+            checkboxTile("Have you experienced memory issues or confusion lately?"),
         ];
 
       default:
@@ -417,7 +462,8 @@ String getDoctorSpecialtyFromQuestion(String question) {
       normalizedQuestion == "do you experience severe shortness of breath even when resting?".toLowerCase() ||
       normalizedQuestion == "do you experience swelling in your legs or ankles?".toLowerCase() ||
       normalizedQuestion == "have you noticed excessive sweating for no reason?".toLowerCase() ||
-      normalizedQuestion == "do you experience sudden fainting or dizziness?".toLowerCase()) {
+      normalizedQuestion == "do you experience sudden fainting or dizziness?".toLowerCase() ||
+      normalizedQuestion == "have you had any heart evaluations or tests (e.g., ecg, echocardiogram) due to age-related concerns?".toLowerCase()) {
     return "Cardiologist";
   }
 
@@ -492,6 +538,21 @@ String getDoctorSpecialtyFromQuestion(String question) {
       normalizedQuestion == "do you have a history of polycystic ovary syndrome (pcos) or other hormonal imbalances?".toLowerCase()) {
     return "Endocrinologist";
   }
+  // Gynecology / Endocrinology
+  if (normalizedQuestion == "are you currently pregnant or have you been pregnant in the last year?".toLowerCase()) {
+    return "Gynecologist or Endocrinologist";
+  }
+
+  // Gynecology / Hematology
+  if (normalizedQuestion == "do you have heavy menstrual bleeding or anemia due to menstruation?".toLowerCase()) {
+    return "Gynecologist or Hematologist";
+  }
+
+  // Neurology
+  if (normalizedQuestion == "have you experienced memory issues or confusion lately?".toLowerCase()) {
+    return "Neurologist";
+  }
+
 
   return "General Physician";
 }
