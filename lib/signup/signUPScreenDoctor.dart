@@ -264,8 +264,11 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Please enter a password';
-                                      } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                                      } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                                          .hasMatch(value)) {
                                         return 'Password should contain special characters';
+                                      } else if (value.length < 8) {
+                                        return 'Password should be at least 8 characters';
                                       }
                                       return null;
                                     },
