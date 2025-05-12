@@ -12,7 +12,7 @@ class InformationNail extends StatefulWidget {
 
 class _InformationNailState extends State<InformationNail> {
   final List<String> diseases = [
-    ' ALM',
+    'Acral Lentiginous \n Melanoma',
     'Blue Finger',
     'Beaus Line',
     'Clubbing',

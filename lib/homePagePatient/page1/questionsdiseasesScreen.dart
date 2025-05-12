@@ -562,3 +562,29 @@ String getDoctorSpecialtyFromQuestion(String question) {
 
 
 
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TokenProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Patient Diagnosis Filter',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const FilterPage(diagnosis: 'Acral Lentiginous Melanoma'), // Default diagnosis for testing
+    );
+  }}
