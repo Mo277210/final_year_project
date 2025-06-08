@@ -142,19 +142,19 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
   Widget build(BuildContext context) {
     final specialties = ['All',
       "Dermatology", // الجلدية
-    "Oncology", // الأورام
-    "Cardiology", // أمراض القلب
-    "Vascular Medicine", // الأوعية الدموية
-    "Pulmonology", // الرئة
-    "Internal Medicine", // الطب الباطني
-    "Nutrition", // التغذية
-    "Endocrinology", // الغدد الصماء
-    "Hematology", // أمراض الدم
-    "Hepatology", // أمراض الكبد
-    "Nephrology", // أمراض الكلى
-    "Rheumatology", // الروماتيزم
-    "Immunology", // أمراض المناعة الذاتية
-    "Gastroenterology", //الجهاز الهضمي
+      "Oncology", // الأورام
+      "Cardiology", // أمراض القلب
+      "Vascular Medicine", // الأوعية الدموية
+      "Pulmonology", // الرئة
+      "Internal Medicine", // الطب الباطني
+      "Nutrition", // التغذية
+      "Endocrinology", // الغدد الصماء
+      "Hematology", // أمراض الدم
+      "Hepatology", // أمراض الكبد
+      "Nephrology", // أمراض الكلى
+      "Rheumatology", // الروماتيزم
+      "Immunology", // أمراض المناعة الذاتية
+      "Gastroenterology", //الجهاز الهضمي
       "Gynecologist",//طبيب نساء وتوليد
       "Endocrinologist",//طبيب غدد صماء
       "Hematologist",//طبيب أمراض دم
@@ -603,4 +603,3 @@ class DoctorCard extends StatelessWidget {
     );
   }
 }
-
