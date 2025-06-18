@@ -148,7 +148,6 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
       "Pulmonology", // الرئة
       "Internal Medicine", // الطب الباطني
       "Nutrition", // التغذية
-      "Endocrinology", // الغدد الصماء
       "Hepatology", // أمراض الكبد
       "Nephrology", // أمراض الكلى
       "Rheumatology", // الروماتيزم
