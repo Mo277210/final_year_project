@@ -220,6 +220,7 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                       "Endocrinologist",//طبيب غدد صماء
                                       "Hematologist",//طبيب أمراض دم
                                       "Neurologist"//طبيب أعصاب
+                                      ,"Surgen"//جراحة
                                     ].map((specialization) {
                                       return DropdownMenuItem<String>(
                                         value: specialization,

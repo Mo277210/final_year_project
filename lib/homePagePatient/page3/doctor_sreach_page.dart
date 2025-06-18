@@ -159,6 +159,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
       "Endocrinologist",//طبيب غدد صماء
       "Hematologist",//طبيب أمراض دم
       "Neurologist"//طبيب أعصاب
+      ,"Surgen"
     ];
     return Scaffold(
       backgroundColor: Color(0xFFF1F4F8),

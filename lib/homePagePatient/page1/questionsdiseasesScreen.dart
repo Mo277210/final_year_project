@@ -238,6 +238,7 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you have a history of frequent sunburns, especially in childhood?"),
           checkboxTile("Have you ever noticed a mole or skin lesion that is painful or bothersome?"),
           checkboxTile("Do you wear sunscreen regularly or protect your skin from excessive sun exposure?"),
+          checkboxTile("Have you recently been hit or directly hit on your finger?"),
         ];
       case "Blue Finger":
         return [
@@ -298,11 +299,30 @@ class _FilterOptionsState extends State<FilterOptions> {
           // Respiratory Diseases
           checkboxTile("Do you have a persistent cough or difficulty breathing?"),
           checkboxTile("Have you been diagnosed with chronic pneumonia, tuberculosis, lung cancer, or pulmonary fibrosis?"),
+          checkboxTile("Do you experience shortness of breath?"),
+          checkboxTile("Do you have sharp chest pain?"),
+          checkboxTile("Is your cough accompanied by an unexplained respiratory depression?"),
+          checkboxTile("Do you experience wheezing or shortness of breath due to dust or perfumes?"),
+          checkboxTile("Do you experience chest pain when you take a deep breath?"),
+          checkboxTile("Do you experience chest pain when you breathe deeply?"),
+          checkboxTile("Do you experience wheezing or sudden shortness of breath when exposed to dust or perfumes?"),
+          checkboxTile("Have you noticed unexplained weight loss accompanied by coughing up blood?"),
 
           // Heart Diseases
           checkboxTile("Have you been diagnosed with any heart disease?"),
           checkboxTile("Do you experience shortness of breath upon exertion or rest?"),
           checkboxTile("Have you ever been diagnosed with endocarditis or heart valve disease?"),
+          checkboxTile("Do you experience swelling in your legs or ankles?"),
+          checkboxTile("Do you feel pain or pressure in your chest area?"),
+          checkboxTile("Do you feel pain in your central shirt that extends to your left shoulder or arm?"),
+          checkboxTile("Does everything appear on the upper or lower scale and disappear with the shadow?"),
+          checkboxTile("Do you experience shortness of breath when meeting, and it eases when sitting?"),
+          checkboxTile("Do you wake up at night feeling a lack of confidence?"),
+          checkboxTile("Have you noticed swelling in your body by the end of the day?"),
+          checkboxTile("Do you feel a pounding heartbeat or a feeling of elation even during the shadow?"),
+          checkboxTile("Do you suddenly feel dizzy or lightheaded?"),
+          checkboxTile("Have you had a stroke or heart attack without a known cause?"),
+
 
           // Digestive & Liver Diseases
           checkboxTile("Do you have chronic liver or intestinal diseases like cirrhosis or Crohn’s disease?"),
@@ -312,6 +332,14 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Have you been diagnosed with irritable bowel syndrome (IBS) or Crohn's disease?"),
           checkboxTile("Do you experience abdominal pain, bloating, or constipation?"),
           checkboxTile("Have you noticed changes in your bowel movements, such as diarrhea or blood in your stool?"),
+          checkboxTile("Have you ever been diagnosed with any liver disease?"),
+          checkboxTile("Do you experience yellowing of the skin or whites of the eyes?"),
+          checkboxTile("Do you experience swelling in your abdomen or feet?"),
+          checkboxTile("Have you noticed a change in the color of your urine (very dark) or stools (very light)?"),
+          checkboxTile("Do you feel intense itching, especially at night?"),
+          checkboxTile("Do you experience bleeding gums or unexplained bruising?"),
+          checkboxTile("Has your appetite been affected recently, accompanied by significant weight loss?"),
+          checkboxTile("Do you consume alcohol daily or almost daily?"),
 
           // Family History
           checkboxTile("Is there a family history of heart, lung, liver, or hereditary diseases?"),
@@ -374,6 +402,19 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Have you noticed any changes in the color or smell of your urine?"),
           checkboxTile("Do you experience swelling in your legs, ankles, or face?"),
           checkboxTile("Have you been diagnosed with kidney disease or kidney stones in the past?"),
+          checkboxTile("Do you experience yellowing of the skin or whites of the eyes?"),
+          checkboxTile("Do you experience swelling in your abdomen or feet?"),
+          checkboxTile("Have you noticed a change in the color of your urine (very dark) or stools (very light)?"),
+          checkboxTile("Do you have a history of malnutrition or poor nutrition?"),
+          checkboxTile("Do you experience chronic fatigue or unusual weakness?"),
+          checkboxTile("Do you experience unexplained changes in weight or energy levels?"),
+          checkboxTile("Do you feel intense itching, especially at night?"),
+          checkboxTile("Are you experiencing swelling in your face or body?"),
+          checkboxTile("Have you noticed a change in the amount or color of your urine?"),
+          checkboxTile("Have you ever been diagnosed with any kidney disease?"),
+          checkboxTile("Do you have pain in your flanks along with a high fever?"),
+          checkboxTile("difficult to control with medication?"),
+          checkboxTile("Is your skin intensely itchy and pale?"),
         ];
       case "Pitting":
         return [
@@ -389,6 +430,11 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Have you been diagnosed with rheumatoid arthritis or lupus?"),
           checkboxTile("Do you have a history of chronic joint inflammation or deformities?"),
           checkboxTile("Do you have a family history of autoimmune disorders like rheumatoid arthritis or lupus?"),
+          checkboxTile("Do you suffer from severe dryness and cracking of your hands, accompanied by constant itching?"),
+          checkboxTile("Do you frequently develop small blisters or cracks on your fingertips?"),
+          checkboxTile("Do you use detergents or chemicals without hand protection?"),
+          checkboxTile("Do you have a rash that appears on sun exposure and is difficult to clear up?"),
+          checkboxTile("Do you suffer from general hair loss, constant fatigue, or recurring mouth ulcers?"),
         ];
       case "Terrys Nail":
         return [
@@ -397,28 +443,40 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you experience yellowing of the skin or whites of the eyes?"),
           checkboxTile("Do you experience swelling in your abdomen or feet?"),
           checkboxTile("Have you noticed a change in the color of your urine (very dark) or stools (very light)?"),
+          checkboxTile("Do you feel intense itching, especially at night?"),
+          checkboxTile("Do you experience bleeding gums or unexplained bruising?"),
+          checkboxTile("Has your appetite been affected recently, accompanied by significant weight loss?"),
+          checkboxTile("Do you consume alcohol daily or almost daily?"),
 
           // Heart Disease
           checkboxTile("Do you have any chronic heart disease?"),
           checkboxTile("Do you feel short of breath with minimal exertion?"),
           checkboxTile("Do you experience swelling in your legs or ankles?"),
           checkboxTile("Do you feel pain or pressure in your chest area?"),
+          checkboxTile("Do you feel pain in your central shirt that extends to your left shoulder or arm?"),
+          checkboxTile("Does everything appear on the upper or lower scale and disappear with the shadow?"),
+          checkboxTile("Do you experience shortness of breath when meeting, and it eases when sitting?"),
+          checkboxTile("Do you wake up at night feeling a lack of confidence?"),
+          checkboxTile("Have you noticed swelling in your body by the end of the day?"),
+          checkboxTile("Do you feel a pounding heartbeat or a feeling of elation even during the shadow?"),
+          checkboxTile("Do you suddenly feel dizzy or lightheaded?"),
+          checkboxTile("Have you had a stroke or heart attack without a known cause?"),
 
           // Diabetes
+          checkboxTile("Do you urinate frequently and feel excessively thirsty, even in cold weather?"),
+          checkboxTile("Do you feel constantly hungry while losing weight?"),
           checkboxTile("Have you been diagnosed with diabetes?"),
           checkboxTile("Do you experience constant thirst or frequent urination?"),
           checkboxTile("Have you noticed slow healing of wounds?"),
           checkboxTile("Do you experience numbness or tingling in your hands or feet?"),
 
-          // Malnutrition
-          checkboxTile("Have you recently lost significant weight for no apparent reason?"),
-          checkboxTile("Do you experience general weakness or persistent fatigue?"),
-          checkboxTile("Is your daily diet healthy?"),
-
           // Kidney Disease
           checkboxTile("Are you experiencing swelling in your face or body?"),
           checkboxTile("Have you noticed a change in the amount or color of your urine?"),
           checkboxTile("Have you ever been diagnosed with any kidney disease?"),
+          checkboxTile("Do you have pain in your flanks along with a high fever?"),
+          checkboxTile("difficult to control with medication?"),
+          checkboxTile("Is your skin intensely itchy and pale?"),
 
           // Family History
           checkboxTile("Is there a family history of liver, heart, kidney, or diabetes disease?"),
@@ -459,17 +517,39 @@ String getDoctorSpecialtyFromQuestion(String question) {
   if (normalizedQuestion == "do you have a family history of heart disease?".toLowerCase() ||
       normalizedQuestion == "do you suffer from any chronic heart problems or diseases?".toLowerCase() ||
       normalizedQuestion == "do you experience rapid and irregular heartbeat?".toLowerCase() ||
-      normalizedQuestion == "do you experience severe shortness of breath even when resting?".toLowerCase() ||
+      normalizedQuestion == "do you have severe shortness of breath even at rest?".toLowerCase() ||
       normalizedQuestion == "do you experience swelling in your legs or ankles?".toLowerCase() ||
       normalizedQuestion == "have you noticed excessive sweating for no reason?".toLowerCase() ||
       normalizedQuestion == "do you experience sudden fainting or dizziness?".toLowerCase() ||
-      normalizedQuestion == "have you had any heart evaluations or tests (e.g., ecg, echocardiogram) due to age-related concerns?".toLowerCase()) {
+      normalizedQuestion == "do you feel pain in your central shirt that extends to your left shoulder or arm?".toLowerCase() ||
+      normalizedQuestion == "does everything appear on the upper or lower scale and disappear with the shadow?".toLowerCase() ||
+      normalizedQuestion == "do you experience shortness of breath when meeting, and it eases when sitting?".toLowerCase() ||
+      normalizedQuestion == "do you wake up at night feeling a lack of confidence?".toLowerCase() ||
+      normalizedQuestion == "have you noticed swelling in your body by the end of the day?".toLowerCase() ||
+      normalizedQuestion == "do you feel a pounding heartbeat or a feeling of elation even during the shadow?".toLowerCase() ||
+      normalizedQuestion == "do you suddenly feel dizzy or lightheaded?".toLowerCase() ||
+      normalizedQuestion == "have you had a stroke or heart attack without a known cause?".toLowerCase() ||
+      normalizedQuestion == "have you had any heart evaluations or tests (e.g., ecg, echocardiogram) due to age-related concerns?".toLowerCase() ||
+      normalizedQuestion == "have you been diagnosed with any heart disease?".toLowerCase() ||
+      normalizedQuestion == "have you ever been diagnosed with endocarditis or heart valve disease?".toLowerCase() ||
+      normalizedQuestion == "do you feel pain or pressure in your chest area?".toLowerCase()) {
     return "Cardiologist";
   }
 
   // Pulmonology
-  if (normalizedQuestion == "do you have shortness of breath or severe chest pain?".toLowerCase() ||
-      normalizedQuestion == "do you suffer from a persistent cough with phlegm?".toLowerCase()) {
+  if (normalizedQuestion == "do you experience shortness of breath?".toLowerCase() ||
+      normalizedQuestion == "do you have sharp chest pain?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from a persistent cough with phlegm?".toLowerCase() ||
+      normalizedQuestion == "do you have a persistent cough or difficulty breathing?".toLowerCase() ||
+      normalizedQuestion == "do you smoke or use tobacco products?".toLowerCase() ||
+      normalizedQuestion == "have you been diagnosed with chronic pneumonia, tuberculosis, lung cancer, or pulmonary fibrosis?".toLowerCase() ||
+      normalizedQuestion == "is your cough accompanied by an unexplained respiratory depression?".toLowerCase() ||
+      normalizedQuestion == "do you experience wheezing or shortness of breath due to dust or perfumes?".toLowerCase() ||
+      normalizedQuestion == "do you experience chest pain when you take a deep breath?".toLowerCase() ||
+      normalizedQuestion == "do you experience chest pain when you breathe deeply?".toLowerCase() ||
+      normalizedQuestion == "do you experience wheezing or sudden shortness of breath when exposed to dust or perfumes?".toLowerCase() ||
+      normalizedQuestion == "have you noticed unexplained weight loss accompanied by coughing up blood?".toLowerCase()||
+      normalizedQuestion == "do you have chronic shortness of breath or cough?".toLowerCase()) {
     return "Pulmonologist";
   }
 
@@ -484,75 +564,156 @@ String getDoctorSpecialtyFromQuestion(String question) {
       normalizedQuestion == "do you experience any unusual pain or tenderness in a mole or skin spot?".toLowerCase() ||
       normalizedQuestion == "has a mole or spot changed in size or shape over time?".toLowerCase() ||
       normalizedQuestion == "have you noticed any new or unusual growths on your palms, soles, or under your nails?".toLowerCase() ||
-      normalizedQuestion == "do you have a history of skin conditions or conditions that affect your skin’s ability to heal?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of skin conditions or conditions that affect your skin's ability to heal?".toLowerCase() ||
       normalizedQuestion == "are there any moles or spots that have irregular or jagged edges?".toLowerCase() ||
       normalizedQuestion == "have you ever been diagnosed with atypical moles or dysplastic nevi?".toLowerCase() ||
       normalizedQuestion == "do you have a history of frequent sunburns, especially in childhood?".toLowerCase() ||
       normalizedQuestion == "have you ever noticed a mole or skin lesion that is painful or bothersome?".toLowerCase() ||
-      normalizedQuestion == "do you wear sunscreen regularly or protect your skin from excessive sun exposure?".toLowerCase()) {
+      normalizedQuestion == "do you suffer from severe dryness and cracking of your hands, accompanied by constant itching?".toLowerCase() ||
+      normalizedQuestion == "do you frequently develop small blisters or cracks on your fingertips?".toLowerCase() ||
+      normalizedQuestion == "do you use detergents or chemicals without hand protection?".toLowerCase() ||
+      normalizedQuestion == "do you wear sunscreen regularly or protect your skin from excessive sun exposure?".toLowerCase() ||
+      normalizedQuestion == "have you noticed horizontal grooves or ridges across your nails?".toLowerCase() ||
+      normalizedQuestion == "have you noticed a long-term change in the shape of your nails?".toLowerCase() ||
+      normalizedQuestion == "is the change affecting one hand or both hands?".toLowerCase() ||
+      normalizedQuestion == "do you feel pain, swelling, or redness in your fingers or nails?".toLowerCase() ||
+      normalizedQuestion == "are there any other accompanying symptoms like changes in nail texture?".toLowerCase() ||
+      normalizedQuestion == "do your nails have small pits or indentations?".toLowerCase() ||
+      normalizedQuestion == "have you noticed changes in your skin or scalp, such as rashes, scaly patches, or thinning hair?".toLowerCase() ||
+      normalizedQuestion == "have you experienced changes in your nail thickness or separation from the nail bed?".toLowerCase() ||
+      normalizedQuestion == "have you noticed white horizontal bands across your nails?".toLowerCase() ||
+      normalizedQuestion == "have you noticed any changes in your skin's appearance like discoloration or thickening?".toLowerCase()) {
     return "Dermatologist or Oncologist";
   }
 
   // Hematology / Nutrition
-  if (normalizedQuestion == "do you have iron deficiency or anemia?".toLowerCase() ||
-      normalizedQuestion == "have you noticed hair loss, weakness, or irregular heartbeat?".toLowerCase()) {
+  if (normalizedQuestion == "do you feel tired or fatigued even with minimal effort?".toLowerCase() ||
+      normalizedQuestion == "do you experience persistent headaches?".toLowerCase() ||
+      normalizedQuestion == "are you suffering from hair loss or thinning hair?".toLowerCase() ||
+      normalizedQuestion == "do you feel dizzy or lightheaded, possibly to the point of fainting?".toLowerCase() ||
+      normalizedQuestion == "do you have irregular or rapid heartbeats?".toLowerCase() ||
+      normalizedQuestion == "do you have inflammation or ulcers in your tongue or mouth?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of malnutrition or poor nutrition?".toLowerCase() ||
+      normalizedQuestion == "are you taking any medications that may affect the absorption of essential nutrients?".toLowerCase() ||
+      normalizedQuestion == "do you have low albumin levels in your blood?".toLowerCase() ||
+      normalizedQuestion == "have you experienced chronic malnutrition or protein deficiency?".toLowerCase() ||
+      normalizedQuestion == "are you underweight or have you lost significant weight unintentionally?".toLowerCase() ||
+      normalizedQuestion == "do you experience a loss of appetite?".toLowerCase() ||
+      normalizedQuestion == "have you noticed a reduced sense of taste or smell?".toLowerCase()) {
     return "Hematologist or Nutritionist";
   }
 
   // Hepatology / Nephrology
-  if (normalizedQuestion == "do you have liver disease or any other health issues like diabetes or kidney failure?".toLowerCase() ||
-      normalizedQuestion == "have you noticed any changes in the amount or color of your urine?".toLowerCase() ||
-      normalizedQuestion == "are your nails half white and half brown?".toLowerCase() ||
-      normalizedQuestion == "do you have a family history of liver or kidney disease?".toLowerCase() ||
-      normalizedQuestion == "do you experience swelling in your face, arms, or body (edema)?".toLowerCase() ||
-      normalizedQuestion == "have you noticed any unexplained weight gain or loss?".toLowerCase() ||
-      normalizedQuestion == "do you have chronic shortness of breath or cough?".toLowerCase() ||
-      normalizedQuestion == "are you experiencing changes in appetite or digestion?".toLowerCase() ||
-      normalizedQuestion == "do you have a history of liver cirrhosis or hepatitis?".toLowerCase()) {
+  if (normalizedQuestion == "do you have kidney or liver disease, or have you had abnormal liver or kidney function tests recently?".toLowerCase() ||
+      normalizedQuestion == "are you experiencing swelling in your legs, face, or body?".toLowerCase() ||
+      normalizedQuestion == "have you noticed fluid retention or difficulty urinating recently?".toLowerCase() ||
+      normalizedQuestion == "have you ever been diagnosed with any liver disease?".toLowerCase() ||
+      normalizedQuestion == "do you experience yellowing of the skin or whites of the eyes?".toLowerCase() ||
+      normalizedQuestion == "do you experience swelling in your abdomen or feet?".toLowerCase() ||
+      normalizedQuestion == "have you noticed a change in the color of your urine (very dark) or stools (very light)?".toLowerCase() ||
+      normalizedQuestion == "do you feel intense itching, especially at night?".toLowerCase() ||
+      normalizedQuestion == "do you experience bleeding gums or unexplained bruising?".toLowerCase() ||
+      normalizedQuestion == "has your appetite been affected recently, accompanied by significant weight loss?".toLowerCase() ||
+      normalizedQuestion == "do you consume alcohol daily or almost daily?".toLowerCase() ||
+      normalizedQuestion == "do you have pain in your flanks along with a high fever?".toLowerCase() ||
+      normalizedQuestion == "is your skin intensely itchy and pale?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of liver cirrhosis or hepatitis?".toLowerCase() ||
+      normalizedQuestion == "are you experiencing swelling in your face or body?".toLowerCase() ||
+      normalizedQuestion == "have you noticed a change in the amount or color of your urine?".toLowerCase() ||
+      normalizedQuestion == "have you ever been diagnosed with any kidney disease?".toLowerCase() ||
+      normalizedQuestion == "difficult to control with medication?".toLowerCase() ||
+      normalizedQuestion == "have you noticed changes in your bowel movements, such as diarrhea or blood in your stool?".toLowerCase() ||
+      normalizedQuestion == "have you ever been diagnosed with any liver disease?".toLowerCase() ||
+      normalizedQuestion == "do you experience chronic fatigue or unusual weakness?".toLowerCase()) {
     return "Hepatologist or Nephrologist";
   }
 
   // Rheumatology / Immunology
   if (normalizedQuestion == "do you have psoriasis, alopecia, or any autoimmune skin conditions?".toLowerCase() ||
+      normalizedQuestion == "are you experiencing joint pain, swelling, or stiffness, especially in your fingers or toes?".toLowerCase() ||
       normalizedQuestion == "have you been diagnosed with psoriatic arthritis or any other autoimmune disorders?".toLowerCase() ||
       normalizedQuestion == "do you experience pain or stiffness in your joints, especially in the mornings?".toLowerCase() ||
       normalizedQuestion == "have you been diagnosed with rheumatoid arthritis or lupus?".toLowerCase() ||
       normalizedQuestion == "do you have a history of chronic joint inflammation or deformities?".toLowerCase() ||
+      normalizedQuestion == "do you have a rash that appears on sun exposure and is difficult to clear up?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from general hair loss, constant fatigue, or recurring mouth ulcers?".toLowerCase() ||
       normalizedQuestion == "do you have a family history of autoimmune disorders like rheumatoid arthritis or lupus?".toLowerCase()) {
     return "Rheumatologist or Immunologist";
   }
 
-  // Vascular / Internal Medicine
-  if (normalizedQuestion == "do you experience numbness or tingling in your fingers when exposed to cold?".toLowerCase() ||
-      normalizedQuestion == "do your fingers feel extremely cold?".toLowerCase() ||
-      normalizedQuestion == "have you noticed the color of your fingers changing in three stages: white, then blue, then red?".toLowerCase() ||
-      normalizedQuestion == "do you experience pain or cramping in your legs after walking a short distance?".toLowerCase() ||
-      normalizedQuestion == "have you noticed varicose veins or spider veins on your legs?".toLowerCase() ||
-      normalizedQuestion == "do you have swelling or heaviness in your legs, especially after standing for long periods?".toLowerCase() ||
-      normalizedQuestion == "do you have a family history of blood clots or deep vein thrombosis (dvt)?".toLowerCase()) {
-    return "Vascular Specialist or Internal Medicine";
+  // Gastroenterology
+  if (normalizedQuestion == "do you have chronic liver or intestinal diseases like cirrhosis or crohn's disease?".toLowerCase() ||
+      normalizedQuestion == "do you experience recurrent abdominal pain or changes in bowel movements?".toLowerCase() ||
+      normalizedQuestion == "have you experienced unexplained weight loss or poor appetite?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from chronic acid reflux or heartburn?".toLowerCase() ||
+      normalizedQuestion == "have you been diagnosed with irritable bowel syndrome (ibs) or crohn's disease?".toLowerCase() ||
+      normalizedQuestion == "do you experience abdominal pain, bloating, or constipation?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from chronic diarrhea?".toLowerCase() ||
+      normalizedQuestion == "do you experience rectal bleeding?".toLowerCase() ||
+      normalizedQuestion == "do you have frequent bloating or excessive gas?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from abdominal pain or cramps?".toLowerCase() ||
+      normalizedQuestion == "do you experience nausea or vomiting?".toLowerCase() ||
+      normalizedQuestion == "have you noticed unexplained weight loss?".toLowerCase() ||
+      normalizedQuestion == "are you experiencing changes in appetite or digestion?".toLowerCase()) {
+    return "Gastroenterologist";
   }
 
   // Endocrinology
-  if (normalizedQuestion == "do you have a history of thyroid disorders?".toLowerCase() ||
-      normalizedQuestion == "do you have a history of polycystic ovary syndrome (pcos) or other hormonal imbalances?".toLowerCase()) {
+  if (normalizedQuestion == "do you have a history of thyroid disorders such as hypothyroidism or hyperthyroidism?".toLowerCase() ||
+      normalizedQuestion == "do you experience unexplained changes in weight or energy levels?".toLowerCase() ||
+      normalizedQuestion == "do you experience unexplained weight gain or loss?".toLowerCase() ||
+      normalizedQuestion == "have you noticed changes in your skin, hair, or nails that could be linked to a thyroid condition?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of polycystic ovary syndrome (pcos) or other hormonal imbalances?".toLowerCase() ||
+      normalizedQuestion == "do you urinate frequently and feel excessively thirsty, even in cold weather?".toLowerCase() ||
+      normalizedQuestion == "do you feel constantly hungry while losing weight?".toLowerCase() ||
+      normalizedQuestion == "have you been diagnosed with diabetes?".toLowerCase() ||
+      normalizedQuestion == "do you experience constant thirst or frequent urination?".toLowerCase() ||
+      normalizedQuestion == "have you noticed slow healing of wounds?".toLowerCase() ||
+      normalizedQuestion == "do you experience numbness or tingling in your hands or feet?".toLowerCase() ||
+      normalizedQuestion == "do you have a family history of diabetes or thyroid disorders?".toLowerCase()) {
     return "Endocrinologist";
   }
-  // Gynecology / Endocrinology
-  if (normalizedQuestion == "are you currently pregnant or have you been pregnant in the last year?".toLowerCase()) {
-    return "Gynecologist or Endocrinologist";
-  }
 
-  // Gynecology / Hematology
-  if (normalizedQuestion == "do you have heavy menstrual bleeding or anemia due to menstruation?".toLowerCase()) {
-    return "Gynecologist or Hematologist";
+  // Gynecology
+  if (normalizedQuestion == "are you currently pregnant or have you been pregnant in the last year?".toLowerCase() ||
+      normalizedQuestion == "do you have heavy menstrual bleeding or anemia due to menstruation?".toLowerCase()) {
+    return "Gynecologist";
   }
 
   // Neurology
-  if (normalizedQuestion == "have you experienced memory issues or confusion lately?".toLowerCase()) {
+  if (normalizedQuestion == "have you experienced memory issues or confusion lately?".toLowerCase() ||
+      normalizedQuestion == "do you have problems with concentration or memory?".toLowerCase() ||
+      normalizedQuestion == "do you often feel anxious or depressed?".toLowerCase()) {
     return "Neurologist";
   }
 
+  // Vascular Medicine
+  if (normalizedQuestion == "do you experience numbness or tingling in your fingers when exposed to cold?".toLowerCase() ||
+      normalizedQuestion == "do your fingers feel extremely cold?".toLowerCase() ||
+      normalizedQuestion == "have you noticed color changes in your fingers in three phases: white, then blue, then red?".toLowerCase()) {
+    return "Vascular Specialist";
+  }
+
+  // Trauma/Surgery
+  if (normalizedQuestion == "have you recently been hit or directly hit on your finger?".toLowerCase() ||
+      normalizedQuestion == "have you experienced any trauma or injury to your hands or nails?".toLowerCase()) {
+    return "Surgeon";
+  }
+
+  // Internal Medicine
+  if (normalizedQuestion == "do you have any chronic conditions like diabetes, cardiovascular disease, or autoimmune disorders?".toLowerCase() ||
+      normalizedQuestion == "have you been under significant physical or emotional stress recently?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of hypertension or high blood pressure?".toLowerCase() ||
+      normalizedQuestion == "have you experienced frequent headaches, dizziness, or lightheadedness?".toLowerCase() ||
+      normalizedQuestion == "do you have a history of diabetes or high cholesterol?".toLowerCase() ||
+      normalizedQuestion == "are you frequently exposed to environmental pollutants or chemicals?".toLowerCase() ||
+      normalizedQuestion == "do you have a weakened immune system?".toLowerCase() ||
+      normalizedQuestion == "do your wounds take a long time to heal?".toLowerCase() ||
+      normalizedQuestion == "do you have skin rashes?".toLowerCase() ||
+      normalizedQuestion == "do you suffer from red or swollen eyes?".toLowerCase() ||
+      normalizedQuestion == "do you feel loss of appetite?".toLowerCase()) {
+    return "Internal Medicine Specialist";
+  }
 
   return "General Physician";
 }
