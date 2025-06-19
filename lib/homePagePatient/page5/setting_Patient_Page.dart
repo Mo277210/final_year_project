@@ -1,10 +1,11 @@
 import 'package:collogefinalpoject/%20%20provider/provider.dart';
+import 'package:collogefinalpoject/api/patient_setting/EditBirthdate.dart';
 import 'package:collogefinalpoject/api/patient_setting/Logout.dart';
+import 'package:collogefinalpoject/api/patient_setting/editAddress.dart';
 import 'package:collogefinalpoject/api/patient_setting/editpassword.dart';
 import 'package:collogefinalpoject/api/patient_setting/editphone.dart';
 import 'package:collogefinalpoject/login/loginScreenPatient.dart';
 import 'package:collogefinalpoject/model/patient_setting/editemail.dart';
-import 'package:collogefinalpoject/model/patient_setting/editpassword.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -18,32 +19,36 @@ class SettingPatientPage extends StatefulWidget {
 }
 
 class _SettingPatientPageState extends State<SettingPatientPage> {
+  // Controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController oldPasswordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController birthdateController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
+  // Expansion states
   bool isNameExpanded = false;
   bool isPasswordExpanded = false;
   bool isEmailExpanded = false;
   bool isPhoneExpanded = false;
+  bool isBirthdateExpanded = false;
+  bool isAddressExpanded = false;
 
+  // Password visibility
   bool _isOldPasswordVisible = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
   final Color blueColor = Color(0xFF105DFB);
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Add API service methods
+  // Update Name
   Future<void> _updateName() async {
     final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
-    final url = Uri.parse(
-        'https://nagel-production.up.railway.app/api/patient/editName');
+    final url = Uri.parse('https://nagel-production.up.railway.app/api/patient/editName');
 
     try {
       final response = await http.put(
@@ -59,10 +64,9 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(data['message'] ?? "Name updated successfully")),
+            SnackBar(content: Text(data['message'] ?? "Name updated successfully")),
           );
-          nameController.clear(); // Clear the field after success
+          nameController.clear();
         } else {
           throw Exception(data['message'] ?? "Failed to update name");
         }
@@ -76,6 +80,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
     }
   }
 
+  // Update Email
   Future<void> _updateEmail() async {
     if (emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,9 +89,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       return;
     }
 
-    // Validate email format
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-        .hasMatch(emailController.text)) {
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(emailController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Please enter a valid email address")),
       );
@@ -98,8 +101,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
 
     try {
       final response = await http.put(
-        Uri.parse(
-            'https://nagel-production.up.railway.app/api/patient/editEmail'),
+        Uri.parse('https://nagel-production.up.railway.app/api/patient/editEmail'),
         headers: {
           'Authorization': 'Bearer ${tokenProvider.token}',
           'Content-Type': 'application/json',
@@ -115,7 +117,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(emailResponse.message)),
         );
-        emailController.clear(); // Clear the field after success
+        emailController.clear();
       } else {
         throw Exception(emailResponse.message);
       }
@@ -134,6 +136,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
     }
   }
 
+  // Update Password
   Future<void> _updatePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -151,8 +154,6 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.message)),
         );
-
-        // Clear all password fields after successful update
         oldPasswordController.clear();
         passwordController.clear();
         confirmPasswordController.clear();
@@ -164,6 +165,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
     }
   }
 
+  // Update Phone
   Future<void> _updatePhone() async {
     if (phoneController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,11 +184,77 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response.message)),
         );
-        phoneController.clear(); // Clear field after success
+        phoneController.clear();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Failed to update phone: ${e.toString()}")),
+      );
+    }
+  }
+
+  // Update Birthdate
+  Future<void> _updateBirthdate() async {
+    if (birthdateController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter a birthdate")),
+      );
+      return;
+    }
+
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final apiService = ApiEditBirthdate();
+
+    try {
+      final response = await apiService.updateBirthdate(
+        token: tokenProvider.token,
+        dob: birthdateController.text,
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+        birthdateController.clear();
+      } else {
+        throw Exception(response.message);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update birthdate: ${e.toString()}")),
+      );
+    }
+  }
+
+  // Update Address
+  Future<void> _updateAddress() async {
+    if (addressController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please enter an address")),
+      );
+      return;
+    }
+
+    final tokenProvider = Provider.of<TokenProvider>(context, listen: false);
+    final apiService = ApiEditAddress();
+
+    try {
+      final response = await apiService.updatePatientAddress(
+        token: tokenProvider.token,
+        address: addressController.text,
+      );
+
+      if (response.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+        addressController.clear();
+      } else {
+        throw Exception(response.message);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update address: ${e.toString()}")),
       );
     }
   }
@@ -197,6 +265,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       backgroundColor: Colors.white,
       body: ListView(
         children: [
+          // Name Section
           ExpansionTile(
             leading: Icon(Icons.person, color: blueColor),
             title: const Text('Change Name'),
@@ -204,11 +273,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               isNameExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
               color: blueColor,
             ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isNameExpanded = expanding;
-              });
-            },
+            onExpansionChanged: (bool expanding) =>
+                setState(() => isNameExpanded = expanding),
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -235,8 +301,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  String newName = nameController.text;
-                  if (newName.isNotEmpty) {
+                  if (nameController.text.isNotEmpty) {
                     _updateName();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -253,6 +318,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
             ],
           ),
+
+          // Email Section
           ExpansionTile(
             leading: Icon(Icons.email, color: blueColor),
             title: const Text('Change Email'),
@@ -260,11 +327,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               isEmailExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
               color: blueColor,
             ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isEmailExpanded = expanding;
-              });
-            },
+            onExpansionChanged: (bool expanding) =>
+                setState(() => isEmailExpanded = expanding),
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -292,8 +356,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  String newEmail = emailController.text;
-                  if (newEmail.isNotEmpty) {
+                  if (emailController.text.isNotEmpty) {
                     _updateEmail();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -310,6 +373,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
             ],
           ),
+
+          // Password Section
           ExpansionTile(
             leading: Icon(Icons.lock, color: blueColor),
             title: const Text('Change Password'),
@@ -317,11 +382,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               isPasswordExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
               color: blueColor,
             ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isPasswordExpanded = expanding;
-              });
-            },
+            onExpansionChanged: (bool expanding) =>
+                setState(() => isPasswordExpanded = expanding),
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -337,16 +399,11 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                           labelText: 'Old Password',
                           labelStyle: TextStyle(color: blueColor),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _isOldPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isOldPasswordVisible = !_isOldPasswordVisible;
-                              });
-                            },
+                            icon: Icon(_isOldPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () => setState(() => _isOldPasswordVisible =
+                            !_isOldPasswordVisible),
                           ),
                           filled: true,
                           fillColor: Colors.white,
@@ -379,16 +436,11 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                           labelText: 'New Password',
                           labelStyle: TextStyle(color: blueColor),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
+                            icon: Icon(_isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () => setState(() => _isPasswordVisible =
+                            !_isPasswordVisible),
                           ),
                           filled: true,
                           fillColor: Colors.white,
@@ -426,17 +478,12 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                           labelText: 'Confirm Password',
                           labelStyle: TextStyle(color: blueColor),
                           suffixIcon: IconButton(
-                            icon: Icon(
-                              _isConfirmPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmPasswordVisible =
-                                    !_isConfirmPasswordVisible;
-                              });
-                            },
+                            icon: Icon(_isConfirmPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () => setState(() =>
+                            _isConfirmPasswordVisible =
+                            !_isConfirmPasswordVisible),
                           ),
                           filled: true,
                           fillColor: Colors.white,
@@ -478,6 +525,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
             ],
           ),
+
+          // Phone Section
           ExpansionTile(
             leading: Icon(Icons.phone, color: blueColor),
             title: const Text('Change Phone Number'),
@@ -485,11 +534,8 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               isPhoneExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
               color: blueColor,
             ),
-            onExpansionChanged: (bool expanding) {
-              setState(() {
-                isPhoneExpanded = expanding;
-              });
-            },
+            onExpansionChanged: (bool expanding) =>
+                setState(() => isPhoneExpanded = expanding),
             children: [
               Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -517,8 +563,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  String newPhone = phoneController.text;
-                  if (newPhone.isNotEmpty) {
+                  if (phoneController.text.isNotEmpty) {
                     _updatePhone();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -535,18 +580,129 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
               ),
             ],
           ),
-          // In your ListTile for logout, update the onTap:
+
+          // Birthdate Section
+          ExpansionTile(
+            leading: Icon(Icons.cake, color: blueColor),
+            title: const Text('Change Birthdate'),
+            trailing: Icon(
+              isBirthdateExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+              color: blueColor,
+            ),
+            onExpansionChanged: (bool expanding) =>
+                setState(() => isBirthdateExpanded = expanding),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: birthdateController,
+                  readOnly: true, // لمنع التعديل اليدوي
+                  cursorColor: blueColor,
+                  decoration: InputDecoration(
+                    labelText: 'Enter new birthdate (YYYY-MM-DD)',
+                    labelStyle: TextStyle(color: blueColor),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today, color: blueColor),
+                      onPressed: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+
+                        if (pickedDate != null) {
+                          // تنسيق التاريخ بصيغة YYYY-MM-DD
+                          String formattedDate = "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                          setState(() {
+                            birthdateController.text = formattedDate;
+                          });
+                        }
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _updateBirthdate,
+                child: const Text('Save Birthdate'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: blueColor),
+                  foregroundColor: blueColor,
+                ),
+              ),
+            ],
+          ),
+
+
+          // Address Section
+          ExpansionTile(
+            leading: Icon(Icons.home, color: blueColor),
+            title: const Text('Change Address'),
+            trailing: Icon(
+              isAddressExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+              color: blueColor,
+            ),
+            onExpansionChanged: (bool expanding) =>
+                setState(() => isAddressExpanded = expanding),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  controller: addressController,
+                  cursorColor: blueColor,
+                  decoration: InputDecoration(
+                    labelText: 'Enter new address',
+                    labelStyle: TextStyle(color: blueColor),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: blueColor),
+                    ),
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _updateAddress,
+                child: const Text('Save Address'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: BorderSide(color: blueColor),
+                  foregroundColor: blueColor,
+                ),
+              ),
+            ],
+          ),
+
+          // Logout Section
           ListTile(
             leading: Icon(Icons.exit_to_app, color: blueColor),
             title: const Text('Log Out'),
             onTap: () async {
               final tokenProvider =
-                  Provider.of<TokenProvider>(context, listen: false);
-              final logoutService =
-                  PatientLogoutApiService(tokenProvider.token);
-
+              Provider.of<TokenProvider>(context, listen: false);
+              final logoutService = PatientLogoutApiService(tokenProvider.token);
               try {
-                // Show loading indicator
                 showDialog(
                   context: context,
                   barrierDismissible: false,
@@ -556,22 +712,15 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                     );
                   },
                 );
-
                 final response = await logoutService.logout();
-
-                // Close loading indicator
                 Navigator.of(context).pop();
-
                 if (response.success) {
-                  // Clear the token
                   tokenProvider.clearToken();
-
-                  // Navigate to login screen
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(
                         builder: (context) => LoginScreenPatient()),
-                    (Route<dynamic> route) => false,
+                        (Route<dynamic> route) => false,
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -579,9 +728,7 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
                   );
                 }
               } catch (e) {
-                // Close loading indicator if still showing
                 Navigator.of(context).pop();
-
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Logout failed: ${e.toString()}')),
                 );
@@ -592,16 +739,4 @@ class _SettingPatientPageState extends State<SettingPatientPage> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => TokenProvider(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SettingPatientPage(),
-      ),
-    ),
-  );
 }
