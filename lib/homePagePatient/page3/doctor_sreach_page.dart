@@ -379,16 +379,15 @@ class DoctorCard extends StatelessWidget {
   final Function(double) onRatingUpdated;
 
   const DoctorCard({
+    super.key,
     required this.doctor,
     required this.onRatingUpdated,
   });
 
   Future<void> _launchUrl(String url) async {
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      final Uri _url = Uri.parse(url);
-      if (!await launchUrl(_url)) {
-        throw Exception('Could not launch $_url');
-      }
+    final Uri _url = Uri.parse(url);
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
     }
   }
 
@@ -399,9 +398,7 @@ class DoctorCard extends StatelessWidget {
 
     return Card(
       color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
       elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -427,28 +424,25 @@ class DoctorCard extends StatelessWidget {
                       children: [
                         Text(
                           "Dr. ${doctor.name}",
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           doctor.specialization,
-                          style: TextStyle(color: Colors.grey),
+                          style: const TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             RatingBar.builder(
-                              initialRating:  totalRatings?.toDouble() ?? 0.0,
+                              initialRating: rating,
                               minRating: 1,
                               maxRating: 5,
                               direction: Axis.horizontal,
                               allowHalfRating: true,
                               itemCount: 5,
                               itemSize: 20,
-                              itemPadding: EdgeInsets.symmetric(horizontal: 2.0),
-                              itemBuilder: (context, _) => Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                              ),
+                              itemPadding: const EdgeInsets.symmetric(horizontal: 2.0),
+                              itemBuilder: (context, _) => const Icon(Icons.star, color: Colors.amber),
                               unratedColor: Colors.grey[400],
                               onRatingUpdate: (newRating) async {
                                 try {
@@ -459,7 +453,8 @@ class DoctorCard extends StatelessWidget {
                                   );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Rating submitted! New average: ${result.newRating.toStringAsFixed(1)}'),
+                                      content: Text(
+                                          'Rating submitted! New average: ${result.newRating.toStringAsFixed(1)}'),
                                     ),
                                   );
                                   onRatingUpdated(result.newRating);
@@ -476,7 +471,7 @@ class DoctorCard extends StatelessWidget {
                             Flexible(
                               child: Text(
                                 "($totalRatings reviews)",
-                                style: TextStyle(color: Colors.grey),
+                                style: const TextStyle(color: Colors.grey),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -488,43 +483,36 @@ class DoctorCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
+
               Row(
                 children: [
-                  Icon(Icons.email, color: Color(0xFF105DFB)),
-                  SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      doctor.email,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  const Icon(Icons.email, color: Color(0xFF105DFB)),
+                  const SizedBox(width: 8),
+                  Flexible(child: Text(doctor.email, overflow: TextOverflow.ellipsis)),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.phone, color: Color(0xFF105DFB)),
-                  SizedBox(width: 8),
+                  const Icon(Icons.phone, color: Color(0xFF105DFB)),
+                  const SizedBox(width: 8),
                   Text(doctor.phone),
                 ],
               ),
-              if ((doctor.availableHours ?? []).isNotEmpty) ...[
+
+              if (doctor.availableHours.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                Center(
+                const Center(
                   child: Text(
                     "Available Hours",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF105DFB),
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF105DFB)),
                   ),
                 ),
                 const SizedBox(height: 8),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: (doctor.availableHours ?? []).map((hour) {
+                    children: doctor.availableHours.map((hour) {
                       return Container(
                         margin: const EdgeInsets.only(right: 8),
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -542,14 +530,15 @@ class DoctorCard extends StatelessWidget {
                   ),
                 ),
               ],
-              if ((doctor.clinics ?? []).isNotEmpty) ...[
-                ...(doctor.clinics ?? []).map((clinic) => Column(
+
+              if (doctor.clinics.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                ...doctor.clinics.map((clinic) => Column(
                   children: [
-                    const SizedBox(height: 16),
                     Center(
                       child: Text(
                         "${clinic.name} Clinic",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF105DFB),
@@ -564,8 +553,6 @@ class DoctorCard extends StatelessWidget {
                               (clinic.address.startsWith('http://') || clinic.address.startsWith('https://'));
                           if (isValidUrl) {
                             _launchUrl(clinic.address);
-                          } else {
-                            // Do nothing or just show an alert when it's not a valid URL
                           }
                         },
                         child: Text(
@@ -591,6 +578,33 @@ class DoctorCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    if (clinic.phone != 'No phone provided')
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final Uri telUri = Uri(scheme: 'tel', path: clinic.phone);
+                            if (await canLaunchUrl(telUri)) {
+                              await launchUrl(telUri);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Could not launch phone dialer.')),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: const Color(0xFF105DFB), backgroundColor: Colors.white,
+                            side: const BorderSide(color: Color(0xFF105DFB), width: 2),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: Text(
+                            'Call Clinic: ${clinic.phone}',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
                   ],
                 )),
               ],
@@ -598,6 +612,35 @@ class DoctorCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TokenProvider()),
+        // Add other providers here if needed
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Doctor Search App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: DoctorSearchPage(),
     );
   }
 }
