@@ -143,8 +143,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
     final specialties = ['All',
       "Dermatology", // الجلدية
       "Oncology", // الأورام
-      "Cardiology", // أمراض القلب
-      "Vascular Medicine", // الأوعية الدموية
+      "Cardiology and Vascular Medicine", // الأوعية الدموية و أمراض القلب
       "Pulmonology", // الرئة
       "Internal Medicine", // الطب الباطني
       "Nutrition", // التغذية

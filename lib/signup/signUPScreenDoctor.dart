@@ -204,8 +204,7 @@ class _SignUpScreenDoctorState extends State<SignUpScreenDoctor> {
                                     items: [
                                       "Dermatology", // الجلدية
                                       "Oncology", // الأورام
-                                      "Cardiology", // أمراض القلب
-                                      "Vascular Medicine", // الأوعية الدموية
+                                      "Cardiology and Vascular Medicine", // الأوعية الدموية
                                       "Pulmonology", // الرئة
                                       "Internal Medicine", // الطب الباطني
                                       "Nutrition", // التغذية

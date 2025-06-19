@@ -7,7 +7,13 @@ import '../homePagePatient.dart';
 
 class FilterPage extends StatefulWidget {
   final String diagnosis;
-  const FilterPage({Key? key, required this.diagnosis}) : super(key: key);
+  final bool allowDiagnosisChange;
+
+  const FilterPage({
+    Key? key,
+    required this.diagnosis,
+    this.allowDiagnosisChange = false
+  }) : super(key: key);
 
   @override
   State<FilterPage> createState() => _FilterPageState();
@@ -38,7 +44,6 @@ class _FilterPageState extends State<FilterPage> {
       }
     }
 
-    // تحميل بيانات المريض من API
     patientInfoFuture = _loadPatientInfo();
   }
 
@@ -71,13 +76,14 @@ class _FilterPageState extends State<FilterPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError || snapshot.data == null) {
-            return const Center(child: Text('Check Your Internet '));
+            return const Center(child: Text('Check Your Internet'));
           } else {
             final patientInfo = snapshot.data!;
             return Column(
               children: [
                 Expanded(
-                  child: Row(
+                  child: widget.allowDiagnosisChange
+                      ? Row(
                     children: [
                       Container(
                         color: Colors.grey[100],
@@ -117,6 +123,10 @@ class _FilterPageState extends State<FilterPage> {
                         ),
                       ),
                     ],
+                  )
+                      : FilterOptions(
+                    diagnosis: currentDiagnosis,
+                    patientInfo: patientInfo,
                   ),
                 ),
               ],
@@ -128,12 +138,15 @@ class _FilterPageState extends State<FilterPage> {
   }
 }
 
-
 class FilterOptions extends StatefulWidget {
   final String diagnosis;
   final PatientInfo patientInfo;
 
-  const FilterOptions({Key? key, required this.diagnosis,required this.patientInfo}) : super(key: key);
+  const FilterOptions({
+    Key? key,
+    required this.diagnosis,
+    required this.patientInfo
+  }) : super(key: key);
 
   @override
   State<FilterOptions> createState() => _FilterOptionsState();
@@ -155,7 +168,7 @@ class _FilterOptionsState extends State<FilterOptions> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    " ${widget.diagnosis}", // Using diagnosis here
+                    " ${widget.diagnosis}",
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
@@ -165,7 +178,6 @@ class _FilterOptionsState extends State<FilterOptions> {
             ),
           ),
         ),
-        // Save Button with Validation
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: SizedBox(
@@ -533,7 +545,7 @@ String getDoctorSpecialtyFromQuestion(String question) {
       normalizedQuestion == "have you been diagnosed with any heart disease?".toLowerCase() ||
       normalizedQuestion == "have you ever been diagnosed with endocarditis or heart valve disease?".toLowerCase() ||
       normalizedQuestion == "do you feel pain or pressure in your chest area?".toLowerCase()) {
-    return "Cardiologist";
+    return "Cardiology and Vascular Medicine";
   }
 
   // Pulmonology
@@ -691,7 +703,7 @@ String getDoctorSpecialtyFromQuestion(String question) {
   if (normalizedQuestion == "do you experience numbness or tingling in your fingers when exposed to cold?".toLowerCase() ||
       normalizedQuestion == "do your fingers feel extremely cold?".toLowerCase() ||
       normalizedQuestion == "have you noticed color changes in your fingers in three phases: white, then blue, then red?".toLowerCase()) {
-    return "Vascular Specialist";
+    return "Cardiology and Vascular Medicine";
   }
 
   // Trauma/Surgery
