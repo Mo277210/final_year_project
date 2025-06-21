@@ -153,7 +153,7 @@ class _DoctorSearchPageState extends State<DoctorSearchPage> {
       "Immunology", // أمراض المناعة الذاتية
       "Gastroenterology", //الجهاز الهضمي
       "Gynecologist",//طبيب نساء وتوليد
-      "Endocrinologist",//طبيب غدد صماء
+      "Endocrinologist and Diabetes",//طبيب غدد صماء
       "Hematologist",//طبيب أمراض دم
       "Neurologist"//طبيب أعصاب
       ,"Surgen"

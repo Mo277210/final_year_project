@@ -234,6 +234,7 @@ class _FilterOptionsState extends State<FilterOptions> {
     switch (diagnosis) {
       case "Acral Lentiginous Melanoma":
         return [
+          //"Dermatologist or Oncologist"
           checkboxTile("Have you noticed any dark spots or new moles on your skin?"),
           checkboxTile("Have you observed any asymmetry, irregular borders, or multiple colors in a mole or spot?"),
           checkboxTile("Has a mole or spot started to bleed or become itchy recently?"),
@@ -250,6 +251,7 @@ class _FilterOptionsState extends State<FilterOptions> {
           checkboxTile("Do you have a history of frequent sunburns, especially in childhood?"),
           checkboxTile("Have you ever noticed a mole or skin lesion that is painful or bothersome?"),
           checkboxTile("Do you wear sunscreen regularly or protect your skin from excessive sun exposure?"),
+          //"Surgen"
           checkboxTile("Have you recently been hit or directly hit on your finger?"),
         ];
       case "Blue Finger":
@@ -683,7 +685,7 @@ String getDoctorSpecialtyFromQuestion(String question) {
       normalizedQuestion == "have you noticed slow healing of wounds?".toLowerCase() ||
       normalizedQuestion == "do you experience numbness or tingling in your hands or feet?".toLowerCase() ||
       normalizedQuestion == "do you have a family history of diabetes or thyroid disorders?".toLowerCase()) {
-    return "Endocrinologist";
+    return "Endocrinologist and Diabetes";
   }
 
   // Gynecology
