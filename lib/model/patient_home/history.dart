@@ -41,6 +41,6 @@ class NailImageHistory {
 
   String get fullImageUrl {
     // Assuming the API is hosted and the image paths are relative to the base URL
-    return 'https://nagel-production.up.railway.app/storage/$imageFile';
+    return '$imageFile';
   }
 }

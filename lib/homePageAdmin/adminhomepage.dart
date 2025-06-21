@@ -219,8 +219,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         required VoidCallback onReject,
         required VoidCallback onApprove,
       }) {
-    String proofUrl = "https://nagel-production.up.railway.app${doctor.proof}";
-
+    String proofUrl = "${doctor.proof}";
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),

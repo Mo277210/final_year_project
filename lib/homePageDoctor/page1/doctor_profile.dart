@@ -71,8 +71,14 @@ class _DoctorProfilePageState extends State<DoctorProfilePage> {
       final doctorInfo = await apiService.getDoctorInfo(token);
       setState(() {
         _doctorInfo = doctorInfo;
+        // Prepend base URL if photo exists and doesn't already have it
+        if (_doctorInfo!.photo != null && !_doctorInfo!.photo!.startsWith('https://')) {
+          _doctorInfo!.photo = 'https://nagel-production.up.railway.app/storage/${_doctorInfo!.photo}';
+
+        }
         _isLoading = false;
       });
+
     } catch (e) {
       setState(() {
         _errorMessage = "Failed to fetch doctor info: $e";

@@ -338,6 +338,13 @@ class Doctor {
     required this.availableHours,
   });
 
+  // Getter that constructs the full photo URL
+  String? get fullPhotoUrl {
+    if (photo == null) return null;
+    if (photo!.startsWith('http')) return photo; // If already full URL, return as-is
+    return 'https://nagel-production.up.railway.app/storage/$photo';
+  }
+
   factory Doctor.fromJson(Map<String, dynamic> json) {
     return Doctor(
       id: json['id'] ?? 0,
@@ -393,6 +400,7 @@ class DoctorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Loading doctor photo from: ${doctor.fullPhotoUrl}');
     final double rating = doctor.rating != null ? (doctor.rating! > 5 ? 5 : doctor.rating!) : 0;
     final totalRatings = doctor.totalRatings > 5 ? 5 : doctor.totalRatings;
 
@@ -411,11 +419,13 @@ class DoctorCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: doctor.photo != null &&
-                        Uri.tryParse(doctor.photo!)?.hasScheme == true &&
-                        Uri.tryParse(doctor.photo!)?.hasAuthority == true
-                        ? NetworkImage(doctor.photo!)
+                    backgroundImage: doctor.fullPhotoUrl != null
+                        ? NetworkImage(doctor.fullPhotoUrl!)
                         : const AssetImage('assets/doctor.png') as ImageProvider,
+                    onBackgroundImageError: (exception, stackTrace) {
+                      debugPrint('Failed to load doctor photo: $exception');
+                      debugPrint('Attempted URL: ${doctor.fullPhotoUrl}');
+                    },
                   ),
                   const SizedBox(width: 16),
                   Flexible(
@@ -483,7 +493,6 @@ class DoctorCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-
               Row(
                 children: [
                   const Icon(Icons.email, color: Color(0xFF105DFB)),
@@ -499,7 +508,6 @@ class DoctorCard extends StatelessWidget {
                   Text(doctor.phone),
                 ],
               ),
-
               if (doctor.availableHours.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 const Center(
@@ -530,7 +538,6 @@ class DoctorCard extends StatelessWidget {
                   ),
                 ),
               ],
-
               if (doctor.clinics.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 ...doctor.clinics.map((clinic) => Column(

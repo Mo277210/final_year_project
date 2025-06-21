@@ -64,13 +64,13 @@ class PendedDoctorModel {
   // Helper method to get full proof URL
   String get fullProofUrl {
     if (proof.startsWith('http')) return proof;
-    return 'https://nagel-production.up.railway.app/$proof';
+    return '$proof';
   }
 
   // Helper method to get full photo URL if exists
   String? get fullPhotoUrl {
     if (photo == null) return null;
     if (photo!.startsWith('http')) return photo;
-    return 'https://nagel-production.up.railway.app/$photo';
+    return '$photo';
   }
 }
